@@ -1,21 +1,64 @@
 <?php
 
+namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
-| HOME
+| HOME - ETC
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return view('home');
+Route::get('/', [PageController::class, 'home']);
+Route::get('/detail', function () {
+    return view('detail');
+});
+Route::get('/buku', function () {
+    return view('buku');
 });
 
+Route::get('/profile', function () {
+    if (!session()->has('user')) return redirect('/login');
+    
+    $user = DB::table('users')->where('id', session('user.id'))->first();
+    return view('profile', compact('user'));
+});
+
+Route::post('/profile/update', function (Request $request) {
+    $userId = session('user.id');
+    
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'password' => 'nullable|min:6|confirmed',
+    ]);
+
+    $updateData = [
+        'name' => $request->name,
+        'updated_at' => now(),
+    ];
+
+    if ($request->hasFile('photo')) {
+        $file = $request->file('photo');
+        $filename = time() . '_' . $userId . '.' . $file->getClientOriginalExtension();
+        
+        $path = $file->storeAs('avatars', $filename, 'public');
+        $updateData['profile_photo'] = $filename;
+    }
+    if ($request->filled('password')) {
+        $updateData['password'] = $request->password;
+    }
+
+    DB::table('users')->where('id', $userId)->update($updateData);
+    session(['user.name' => $request->name]);
+
+    return back()->with('success_update', true);
+});
 /*
 |--------------------------------------------------------------------------
 | REGISTER PAGE
@@ -62,7 +105,7 @@ Route::post('/users/store', function (Request $request) {
         'register_data' => [
             'name'     => $request->name,
             'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
         ],
         'otp_generated_at' => now(),
         'otp_nonce'        => Str::uuid()->toString(),
@@ -202,7 +245,7 @@ Route::post('/login', function (Request $request) {
         ->where('email', $request->email)
         ->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
+    if (!$user || !$request->password == $user->password) {
         return back()->withErrors(['login' => 'Email atau password salah']);
     }
 

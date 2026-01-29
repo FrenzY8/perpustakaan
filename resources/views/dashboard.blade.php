@@ -90,6 +90,13 @@
         Browse Library
     </a>
     </div>
+
+    <div class="p-4">
+    <a href="/" class="w-full py-3 bg-primary hover:bg-primary/90 rounded-lg font-bold flex items-center justify-center gap-2 transition-all">
+    <span class="material-symbols-outlined text-sm">home</span>
+        Back to Landing
+    </a>
+    </div>
     </aside>
 
     <main class="flex-1 overflow-y-auto">
@@ -117,11 +124,10 @@
                     </div>
                     <span class="material-symbols-outlined text-[#92adc9]">expand_more</span>
                 </button>
-
                 <div id="profileDropdown"
                     class="hidden absolute right-0 mt-3 w-52 rounded-xl bg-[#192633] shadow-xl border border-white/10 z-50">
-                    <a href="/profile" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
-                        <span class="material-symbols-outlined text-sm">person</span>Profile
+                    <a href="/" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
+                        <span class="material-symbols-outlined text-sm">home</span>Home
                     </a>
                     <a href="/settings" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
                         <span class="material-symbols-outlined text-sm">settings</span>Settings
@@ -139,14 +145,25 @@
                <div class="glass-card rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                   <div class="flex flex-col md:flex-row items-center gap-6">
                      <div class="relative">
-                        <div class="h-32 w-32 rounded-full bg-center bg-cover ring-4 ring-primary/20 ring-offset-4 ring-offset-background-dark" data-alt="Main user profile picture avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDkTvPdvqvl_gQEEfmpGhEvieDEx49-u3qnvN2jDVs4_DBF_2YJmKjWmpBaIOz1E_s6BUeoxGk8-cUWxBuiiP5qtfn2lLOht8BryPICvXysq0cjOpKjDvaxkMNKjgChIo6NGIpq2kvtNxd0rMefS6j3LmWzP6s_cwPJeMbglIKRXfiH8SN6dbojYFJxwIbXZzJg4yaFya_ZKKrtnCtupxjs0gw7QvqkqcCARJN56bBHX4smECuU5t_AbBERavCxgoRIyGnGWU9fOdrG");'></div>
-                        <div class="absolute bottom-1 right-1 bg-primary text-white p-1.5 rounded-full border-4 border-[#1c2a38]">
-                           <span class="material-symbols-outlined text-sm">verified</span>
-                        </div>
-                     </div>
+                     @php
+                     $userData = DB::table('users')->where('id', session('user.id'))->first();
+                     $photo = $userData->profile_photo ?? null;
+                     
+                     if ($photo && (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://'))) {
+                        $displayPhoto = $photo;
+                     } elseif ($photo && file_exists(storage_path('app/public/avatars/' . $photo))) {
+                        $displayPhoto = asset('storage/avatars/' . $photo);
+                     } else {
+                        $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
+                     }
+                     @endphp
+    <div class="h-32 w-32 rounded-full bg-center bg-cover ring-4 ring-primary/20 ring-offset-4 ring-offset-background-dark" 
+         id="photo-preview"
+         style="background-image: url('{{ $displayPhoto }}');">
+    </div>
+</div>
                      <div class="text-center md:text-left">
                         <h1 class="text-3xl font-bold">{{ session('user.name') }}</h1>
-                        <p class="text-[#92adc9] mt-1">Premium Member since Jan 2023</p>
                         <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
                            <div class="flex items-center gap-2 text-sm bg-green-500/10 text-green-400 px-3 py-1 rounded-full">
                               <span class="material-symbols-outlined text-xs">payments</span>
@@ -160,7 +177,7 @@
                      </div>
                   </div>
                   <button class="px-6 py-2.5 bg-[#233648] hover:bg-[#324d67] rounded-lg font-semibold transition-colors flex items-center gap-2">
-                  <span class="material-symbols-outlined text-sm">edit</span>
+                  <span onclick="window.location.href='/profile'" class="material-symbols-outlined text-sm">edit</span>
                   Edit Profile
                   </button>
                </div>

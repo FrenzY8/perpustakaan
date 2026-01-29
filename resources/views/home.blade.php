@@ -71,43 +71,19 @@
 
     @if (session()->has('user'))
     <!-- Profile Button -->
-    <button id="profileBtn"
-            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition relative">
-        <!-- User Info -->
-        <div class="text-right hidden sm:block">
-            <p class="text-sm font-semibold">{{ session('user.name') }}</p>
-            <p class="text-[10px] text-primary font-bold">PREMIUM</p>
-        </div>
-
-        <!-- Avatar -->
-        <div class="h-10 w-10 rounded-full bg-cover bg-center border-2 border-primary/30"
-             style="background-image:url('https://lh3.googleusercontent.com/aida-public/AB6AXuCZfG2SJx7jt-Cd6VQUBwU7qxAaKq5nXu15bbn73Z6Dg27wZJ32gI2YI7yMCTk1827CUdDr6PRR0yGDdk7CUNJIoJHsjK7GpUt5QrUZ1T4ejS_b3Jr5Zx2W3qF2z6Pgq64ysSkLvI-jdO_mDCtFJMP9xmb4jwrBsApvDntRkR2YqNGXFqJ18IqwQChKiu-rWCihPZC2yKQfpuOXKiiKu5bknrMDTcGuw4dG061OP1rrqsyomNIbG7GfMTkRZoO_s69C4_6MqI-_U0FO')">
-        </div>
-
-        <span class="material-symbols-outlined text-[#92adc9]">expand_more</span>
+    <div class="flex-1 max-w-md mx-4 hidden sm:block">
+    </div>
+    <div class="flex items-center gap-3">
+    <button class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined">notifications</span>
     </button>
-
-    <div id="profileDropdown"
-         class="hidden absolute right-0 mt-3 w-52 rounded-xl bg-[#192633] shadow-xl border border-white/10 z-50">
-        <a href="/profile" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
-            <span class="material-symbols-outlined text-sm">person</span>
-            Profile
-        </a>
-        <a href="/settings" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
-            <span class="material-symbols-outlined text-sm">settings</span>
-            Settings
-        </a>
-        <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
-            <span class="material-symbols-outlined text-sm">dashboard</span>
-            Dashboard
-        </a>
-
-        <div class="border-t border-white/10"></div>
-
-        <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition">
-            <span class="material-symbols-outlined text-sm">logout</span>
-            Logout
-        </a>
+    <button onclick="window.location.href='/dashboard'" class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
+    <span class="material-symbols-outlined">dashboard</span>
+    </button>
+    <div 
+      onclick="window.location.href='/dashboard'"
+      class="h-10 w-10 rounded-full border-2 border-primary/20 bg-center bg-cover" data-alt="User profile avatar portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDktQ8vqvf-qhGurPw_zOLBjp0ZvFKMBe1F7zRS4GxwGc3LbR68UGksNJt3dHVcnV9d2T6LbWS95Lll5BLDq95vK5fAYNDogHHLvBqBTzhoJDqL5L0lruznv2CSr4WE-oyO62EUrVSy2-OIl0UCfc4g6HDBm3G40gNMcV4WckMGe-_UQavqyDBdIWNy2Ae7PTvPzbb7uUVivQuU4OUy8FHcXGu2G4vxW3ayBti5aBkOjyBzxEITW3wiDVKAvfAmU3PsHIP8wmb3xwTN");'>
+    </div>
     </div>
     @else
     <!-- Sign In Button -->
@@ -180,26 +156,44 @@
         <h2 class="text-2xl font-bold tracking-tight md:text-3xl">
           Featured Books
         </h2>
-        <button class="text-sm font-semibold text-primary hover:underline">
+        <button onclick="window.location.href='/buku'" class="text-sm font-semibold text-primary hover:underline">
           View All
         </button>
       </div>
 
-      <div class="flex snap-x gap-6 overflow-x-auto px-4 pb-8 scrollbar-hide">
-        <!-- Book Card -->
-        <div class="glass flex min-w-[240px] snap-start flex-col gap-4 rounded-xl p-4 transition hover:scale-[1.02]">
-          <div
-            class="aspect-[3/4] w-full rounded-lg bg-cover bg-center shadow-lg"
-            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA6mH4TsF_4f1hE_lKKKFrz26KAjSp_8EEgKVRzpIHU8oN_ZOP0f0y8_heV3ja21fE6aZFefS6tr6kCIYv4ZXPi3ZbcOAi3xJRPKmQM44MyGuWiW49nkFeCo1_rGOhu2HojgpmM5nbnmG2_ORcJNtaaKGITx3sm0rX6NPgeUsdOAkM8XX_5RItTNG-p1mjikK6y_Rki-3xz_LVQYDQZF9rdc3496Wzh7wVJC4iS_oG6yMo1-WM-85d-MzE1jNsrfCZxpLOv41jFmR3_');"
-          ></div>
+      <div 
+      onclick="window.location.href='/detail'"
+      class="gap-6 px-4 pb-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+      @forelse ($books as $book)
+        <div
+            class="glass flex snap-start flex-col gap-4 rounded-xl p-4 transition hover:scale-[1.02]"
+        >
+            {{-- Cover --}}
+            <div
+                class="aspect-[3/4] w-full rounded-lg bg-cover bg-center shadow-lg"
+                style="background-image: url('{{ $book->gambar_sampul 
+                    ? $book->gambar_sampul 
+                    : asset('images/cover-default.jpg') }}');"
+            ></div>
 
-          <div>
-            <p class="text-lg font-bold text-white">The Great Gatsby</p>
-            <p class="text-sm text-[#92adc9]">F. Scott Fitzgerald</p>
+            {{-- Info --}}
+            <div>
+                <p class="text-lg font-bold text-white line-clamp-2">
+                    {{ $book->judul }}
+                </p>
+
+              <p class="text-sm text-[#92adc9]">
+                  {{ $book->penulis->nama ?? 'Penulis tidak diketahui' }}
+              </p>
           </div>
-        </div>
-        <!-- /Book Card -->
       </div>
+      @empty
+      <p class="text-gray-400 px-4">
+            Belum ada buku tersedia.
+      </p>
+      @endforelse
+    </div>
+
     </div>
     </section>
     </main>
