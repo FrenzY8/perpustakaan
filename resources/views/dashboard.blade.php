@@ -119,8 +119,20 @@
                         <p class="text-sm font-semibold">{{ session('user.name') }}</p>
                         <p class="text-[10px] text-primary font-bold">PREMIUM</p>
                     </div>
+                     @php
+                     $userData = DB::table('users')->where('id', session('user.id'))->first();
+                     $photo = $userData->profile_photo ?? null;
+                     
+                     if ($photo && (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://'))) {
+                        $displayPhoto = $photo;
+                     } elseif ($photo && file_exists(storage_path('app/public/avatars/' . $photo))) {
+                        $displayPhoto = asset('storage/avatars/' . $photo);
+                     } else {
+                        $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
+                     }
+                     @endphp
                     <div class="h-10 w-10 rounded-full bg-cover bg-center border-2 border-primary/30"
-                        style="background-image:url('https://lh3.googleusercontent.com/aida-public/AB6AXuCZfG2SJx7jt-Cd6VQUBwU7qxAaKq5nXu15bbn73Z6Dg27wZJ32gI2YI7yMCTk1827CUdDr6PRR0yGDdk7CUNJIoJHsjK7GpUt5QrUZ1T4ejS_b3Jr5Zx2W3qF2z6Pgq64ysSkLvI-jdO_mDCtFJMP9xmb4jwrBsApvDntRkR2YqNGXFqJ18IqwQChKiu-rWCihPZC2yKQfpuOXKiiKu5bknrMDTcGuw4dG061OP1rrqsyomNIbG7GfMTkRZoO_s69C4_6MqI-_U0FO')">
+                        style="background-image:url({{ $displayPhoto }})">
                     </div>
                     <span class="material-symbols-outlined text-[#92adc9]">expand_more</span>
                 </button>
@@ -157,7 +169,7 @@
                         $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
                      }
                      @endphp
-    <div class="h-32 w-32 rounded-full bg-center bg-cover ring-4 ring-primary/20 ring-offset-4 ring-offset-background-dark" 
+            <div class="h-32 w-32 rounded-full bg-center bg-cover ring-4 ring-primary/20 ring-offset-4 ring-offset-background-dark" 
          id="photo-preview"
          style="background-image: url('{{ $displayPhoto }}');">
     </div>
