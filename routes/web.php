@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Peminjaman;
+use App\Models\Komentar;
 use Carbon\Carbon;
 
 /*
@@ -29,6 +30,19 @@ Route::get('/detail/{id}', function ($id) {
     }
 
     return view('detail', compact('book', 'isWishlisted'));
+});
+Route::post('/buku/{id}/komentar', function (Request $request, $id) {
+    $request->validate([
+        'isi_komentar' => 'required|min:3'
+    ]);
+
+    Komentar::create([
+        'id_user' => session('user.id'),
+        'id_buku' => $id,
+        'isi_komentar' => $request->isi_komentar
+    ]);
+
+    return back()->with('success', 'Komentar terkirim!');
 });
 Route::post('/wishlist/{id}', function ($id) {
     if (!session()->has('user')) {
