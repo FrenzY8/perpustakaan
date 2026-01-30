@@ -8,8 +8,10 @@
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
 
   <script id="tailwind-config">
     tailwind.config = {
@@ -36,6 +38,38 @@
   </script>
 
   <style>
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+    }
+
+    .animate-slide-in-right {
+      animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .toast-fade-out {
+      animation: fadeOut 0.3s ease forwards;
+    }
+
     .glass-panel {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(12px);
@@ -74,10 +108,11 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
       {{-- Kolom Kiri: Cover --}}
       <div class="lg:col-span-5 xl:col-span-4">
-        <div class="group relative aspect-[3/4.5] w-full rounded-xl overflow-hidden shadow-2xl shadow-primary/10 transition-transform duration-500 hover:scale-[1.02]">
+        <div
+          class="group relative aspect-[3/4.5] w-full rounded-xl overflow-hidden shadow-2xl shadow-primary/10 transition-transform duration-500 hover:scale-[1.02]">
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-          <div class="w-full h-full bg-center bg-cover" 
-               style="background-image:url('{{ $book->gambar_sampul ? $book->gambar_sampul : asset('images/cover-default.jpg') }}');">
+          <div class="w-full h-full bg-center bg-cover"
+            style="background-image:url('{{ $book->gambar_sampul ? $book->gambar_sampul : asset('images/cover-default.jpg') }}');">
           </div>
           <div class="absolute bottom-6 left-6 z-20">
             <span class="bg-primary px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase shadow-lg">
@@ -91,7 +126,8 @@
       <div class="lg:col-span-7 xl:col-span-8 space-y-8">
         <div class="space-y-4">
           <div class="flex flex-wrap items-center gap-4">
-            <span class="px-3 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/20 uppercase tracking-widest">
+            <span
+              class="px-3 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/20 uppercase tracking-widest">
               Tersedia
             </span>
             <div class="flex items-center gap-1 text-primary">
@@ -105,11 +141,11 @@
           </div>
           <div class="space-y-1">
             <h1 class="text-4xl lg:text-5xl font-black text-white leading-tight">{{ $book->judul }}</h1>
-            <p class="text-xl text-primary font-medium italic">by {{ $book->penulis->nama ?? 'Penulis tidak diketahui' }}</p>
+            <p class="text-xl text-primary font-medium italic">by
+              {{ $book->penulis->nama ?? 'Penulis tidak diketahui' }}
+            </p>
           </div>
         </div>
-
-        {{-- Meta Data --}}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div class="glass-panel p-4 rounded-xl flex flex-col gap-2">
             <span class="material-symbols-outlined text-primary">auto_stories</span>
@@ -128,22 +164,54 @@
           <div class="glass-panel p-4 rounded-xl flex flex-col gap-2">
             <span class="material-symbols-outlined text-primary">event</span>
             <div>
-              <p class="text-white text-base font-bold">{{ \Carbon\Carbon::parse($book->tanggal_terbit)->format('Y') }}</p>
+              <p class="text-white text-base font-bold">{{ \Carbon\Carbon::parse($book->tanggal_terbit)->format('Y') }}
+              </p>
               <p class="text-white/40 text-xs uppercase tracking-wider font-semibold">Terbit</p>
             </div>
           </div>
         </div>
-
-        {{-- Button Actions --}}
         <div class="flex flex-wrap gap-4 pt-2">
-          <button class="flex-1 md:flex-none md:min-w-[200px] h-14 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined">library_add_check</span>
-            Pinjam Sekarang
-          </button>
-          <button class="flex-1 md:flex-none md:min-w-[200px] h-14 glass-panel hover:bg-white/10 text-white font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98]">
-            <span class="material-symbols-outlined">favorite</span>
-            Wishlist
-          </button>
+          <form action="/pinjam/{{ $book->id }}" method="POST" class="flex-1 md:flex-none">
+            @csrf
+            <button type="submit"
+              class="w-full md:min-w-[200px] h-14 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg shadow-primary/20">
+              <span class="material-symbols-outlined">library_add_check</span>
+              Pinjam Sekarang
+            </button>
+          </form>
+          <div id="notification-container"
+            class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 max-w-sm w-full items-end">
+            @if(session('success'))
+              <div
+                class="toast-card flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/50 backdrop-blur-xl text-green-400 rounded-2xl shadow-2xl animate-slide-in-right">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span class="text-sm font-bold">{{ session('success') }}</span>
+              </div>
+            @endif
+
+            @if(session('error'))
+              <div
+                class="toast-card flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/50 backdrop-blur-xl text-red-400 rounded-2xl shadow-2xl animate-slide-in-right">
+                <span class="material-symbols-outlined">error</span>
+                <span class="text-sm font-bold">{{ session('error') }}</span>
+              </div>
+            @endif
+          </div>
+          <form action="/wishlist/{{ $book->id }}" method="POST" class="flex-1 md:flex-none">
+            @csrf
+            <button type="submit" class="w-full md:min-w-[200px] h-14 rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.95] border font-bold
+        {{ $isWishlisted
+  ? 'bg-white border-white text-black shadow-lg shadow-white/20'
+  : 'glass-panel border-white/10 hover:bg-white/10 text-white' 
+        }}">
+
+              <span class="material-symbols-outlined {{ $isWishlisted ? 'filled' : '' }}">
+                favorite
+              </span>
+
+              {{ $isWishlisted ? 'Difavoritkan' : 'Favorit' }}
+            </button>
+          </form>
         </div>
 
         {{-- Ringkasan --}}
@@ -159,14 +227,14 @@
 
         {{-- Info Tambahan --}}
         <div class="border-t border-white/5 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-           <div class="flex flex-col gap-1">
-              <span class="text-white/30 uppercase tracking-widest font-bold text-[10px]">Penerbit</span>
-              <span class="text-white/80 font-medium">{{ $book->penerbit }}</span>
-           </div>
-           <div class="flex flex-col gap-1">
-              <span class="text-white/30 uppercase tracking-widest font-bold text-[10px]">Kategori ID</span>
-              <span class="text-white/80 font-medium">{{ $book->id_kategori }}</span>
-           </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-white/30 uppercase tracking-widest font-bold text-[10px]">Penerbit</span>
+            <span class="text-white/80 font-medium">{{ $book->penerbit }}</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-white/30 uppercase tracking-widest font-bold text-[10px]">Kategori ID</span>
+            <span class="text-white/80 font-medium">{{ $book->id_kategori }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -187,3 +255,13 @@
 </body>
 
 </html>
+<script>
+  document.querySelectorAll('.toast-card').forEach(toast => {
+    setTimeout(() => {
+      toast.classList.add('toast-fade-out');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 4000);
+  });
+</script>

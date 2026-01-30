@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Buku;
+use App\Models\Wishlist;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Peminjaman;
+use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,8 +19,33 @@ use Illuminate\Support\Facades\Storage;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [PageController::class, 'home']);
-Route::get('/detail', function () {
-    return view('detail');
+Route::get('/detail/{id}', function ($id) {
+    $book = Buku::with('penulis')->findOrFail($id);
+    $isWishlisted = false;
+    if (session()->has('user')) {
+        $isWishlisted = Wishlist::where('id_user', session('user.id'))
+                               ->where('id_buku', $id)
+                               ->exists();
+    }
+
+    return view('detail', compact('book', 'isWishlisted'));
+});
+Route::post('/wishlist/{id}', function ($id) {
+    if (!session()->has('user')) {
+        return back()->with('error', 'Login dulu ya!');
+    }
+
+    $userId = session('user.id');
+    
+    $wishlist = Wishlist::where('id_user', $userId)->where('id_buku', $id)->first();
+
+    if ($wishlist) {
+        $wishlist->delete();
+        return back()->with('success', 'Dihapus dari wishlist.');
+    } else {
+        Wishlist::create(['id_user' => $userId, 'id_buku' => $id]);
+        return back()->with('success', 'Berhasil masuk wishlist!');
+    }
 });
 Route::get('/buku', function (Request $request) {
     $search = $request->query('search');
@@ -34,6 +62,33 @@ Route::get('/buku', function (Request $request) {
     $books = $query->get();
 
     return view('buku', compact('books'));
+});
+
+Route::post('/pinjam/{id}', function ($id) {
+    if (!session()->has('user')) {
+        return redirect('/login')->with('error', 'Login dulu bro kalau mau pinjam!');
+    }
+
+    $userId = session('user.id');
+    $cekPinjam = Peminjaman::where('id_user', $userId)
+        ->where('id_buku', $id)
+        ->where('status', 'dipinjam')
+        ->first();
+
+    if ($cekPinjam) {
+        return back()->with('error', 'Kamu masih meminjam buku ini!');
+    }
+
+    Peminjaman::create([
+        'id_user' => $userId,
+        'id_buku' => $id,
+        'tanggal_pinjam' => Carbon::now(),
+        'tanggal_jatuh_tempo' => Carbon::now()->addDays(7), // Pinjam 7 hari
+        'status' => 'dipinjam',
+        'dibuat_pada' => Carbon::now(),
+    ]);
+
+    return back()->with('success', 'Buku berhasil dipinjam! Cek di dashboard kamu.');
 });
 Route::get('/profile', function () {
     if (!session()->has('user')) return redirect('/login');
@@ -81,12 +136,6 @@ Route::get('/daftar', function () {
     $dbStatus = 'Database berhasil terhubung';
 
     return view('daftar', compact('dbStatus'));
-});
-
-Route::get('/detail/{id}', function ($id) {
-    // Memastikan relasi penulis dipanggil dan menggunakan findOrFail untuk safety
-    $book = Buku::with('penulis')->findOrFail($id);
-    return view('detail', compact('book'));
 });
 
 /*
