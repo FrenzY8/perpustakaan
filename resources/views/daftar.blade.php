@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Daftar di Jokopus</title>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
 
     <script>
         tailwind.config = {
@@ -37,94 +39,81 @@
 
 <body class="bg-background-dark font-display text-white min-h-screen flex items-center justify-center px-4">
 
-<main class="w-full max-w-[420px]">
-    <div class="glass-card rounded-xl p-7 shadow-2xl">
+    <main class="w-full max-w-[420px]">
+        <div class="glass-card rounded-xl p-7 shadow-2xl">
 
-        <!-- DB STATUS -->
-        <div class="mb-6 text-center">
-            <h2 class="text-4xl font-semibold mb-1">Buat Akun Jokopus</h2>
-            <p class="text-sm text-[#92adc9]">{{ $dbStatus }}</p>
-        </div>
-
-        <hr class="border-white/10 mb-6">
-
-        <!-- SUCCESS -->
-        @if(session('success'))
-            <div class="mb-4 text-sm text-green-400 bg-green-400/10 p-3 rounded">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <!-- ERROR -->
-        @if ($errors->any())
-            <div class="mb-4 text-sm text-red-400 bg-red-400/10 p-3 rounded">
-                <ul class="list-disc list-inside">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <!-- FORM -->
-        <form method="POST" action="/users/store" class="flex flex-col gap-4">
-            @csrf
-
-            <!-- NAME -->
-            <div>
-                <label class="text-sm mb-1 block">Nama</label>
-                <input
-                    name="name"
-                    type="text"
-                    required
-                    class="w-full h-11 rounded-lg bg-[#192633] border border-[#324d67] px-3 text-sm focus:border-primary focus:ring-0"
-                    placeholder="Nama lengkap">
+            <!-- DB STATUS -->
+            <div class="mb-6 text-center">
+                <h2 class="text-4xl font-semibold mb-1">Buat Akun Jokopus</h2>
+                <p class="text-sm text-[#92adc9]">{{ $dbStatus }}</p>
             </div>
 
-            <!-- EMAIL -->
-            <div>
-                <label class="text-sm mb-1 block">Email</label>
-                <input
-                    name="email"
-                    type="email"
-                    required
-                    class="w-full h-11 rounded-lg bg-[#192633] border border-[#324d67] px-3 text-sm focus:border-primary focus:ring-0"
-                    placeholder="email@example.com">
-            </div>
+            <hr class="border-white/10 mb-6">
 
-            <!-- PASSWORD -->
-            <div>
-                <label class="text-sm mb-1 block">Password</label>
-                <input
-                    name="password"
-                    type="password"
-                    required
-                    class="w-full h-11 rounded-lg bg-[#192633] border border-[#324d67] px-3 text-sm focus:border-primary focus:ring-0"
-                    placeholder="••••••••">
-            </div>
+            <!-- SUCCESS -->
+            @if(session('success'))
+                <div class="mb-4 text-sm text-green-400 bg-green-400/10 p-3 rounded">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-            <!-- SUBMIT -->
-            <button
-                type="submit"
-                class="mt-3 h-11 rounded-lg bg-primary font-semibold hover:bg-primary/90 transition">
-                Daftar
-            </button>
-            <div class="mt-6 flex justify-center">
-                <a
-                    href="/login"
-                    class="text-sm font-medium text-blue-400 transition hover:text-blue-300 hover:underline">
-                    Punya akun? <span class="font-semibold">Login</span>
+            <!-- ERROR -->
+            @if ($errors->any())
+                <div class="mb-4 text-sm text-red-400 bg-red-400/10 p-3 rounded">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <!-- FORM -->
+            <form method="POST" action="/users/store" class="flex flex-col gap-4">
+                @csrf
+
+                <!-- NAME -->
+                <div>
+                    <label class="text-sm mb-1 block">Nama</label>
+                    <input name="name" type="text" required
+                        class="w-full h-11 rounded-lg bg-[#192633] border border-[#324d67] px-3 text-sm focus:border-primary focus:ring-0"
+                        placeholder="Nama lengkap">
+                </div>
+
+                <!-- EMAIL -->
+                <div>
+                    <label class="text-sm mb-1 block">Email</label>
+                    <input name="email" type="email" required
+                        class="w-full h-11 rounded-lg bg-[#192633] border border-[#324d67] px-3 text-sm focus:border-primary focus:ring-0"
+                        placeholder="email@example.com">
+                </div>
+
+                <!-- PASSWORD -->
+                <div>
+                    <label class="text-sm mb-1 block">Password</label>
+                    <input name="password" type="password" required
+                        class="w-full h-11 rounded-lg bg-[#192633] border border-[#324d67] px-3 text-sm focus:border-primary focus:ring-0"
+                        placeholder="••••••••">
+                </div>
+
+                <!-- SUBMIT -->
+                <button type="submit"
+                    class="mt-3 h-11 rounded-lg bg-primary font-semibold hover:bg-primary/90 transition">
+                    Daftar
+                </button>
+                <div class="mt-6 flex justify-center">
+                    <a href="/login"
+                        class="text-sm font-medium text-blue-400 transition hover:text-blue-300 hover:underline">
+                        Punya akun? <span class="font-semibold">Login</span>
+                    </a>
+                </div>
+                <!-- BACK -->
+                <a href="/"
+                    class="mt-3 inline-flex h-11 items-center justify-center rounded-lg bg-primary/20 px-4 font-semibold transition hover:bg-primary/30">
+                    Kembali
                 </a>
-            </div>
-            <!-- BACK -->
-            <a
-                href="/"
-                class="mt-3 inline-flex h-11 items-center justify-center rounded-lg bg-primary/20 px-4 font-semibold transition hover:bg-primary/30">
-                Kembali
-            </a>
-        </form>
-    </div>
-</main>
-
+            </form>
+        </div>
+    </main>
 </body>
 </html>
