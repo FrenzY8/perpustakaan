@@ -139,25 +139,31 @@
 
                 <!-- Search -->
                 <div class="z-10 w-full max-w-[600px]">
-                  <label class="flex h-14 w-full flex-col md:h-16">
-                    <div class="flex h-full w-full flex-1 items-stretch rounded-xl shadow-2xl">
-                      <div
-                        class="flex items-center justify-center rounded-l-xl border border-white/10 border-r-0 bg-white/5 pl-5 text-[#92adc9] backdrop-blur-md">
-                        <span class="material-symbols-outlined">search</span>
-                      </div>
+                  <form action="/buku" method="GET">
+                    <label class="flex h-14 w-full flex-col md:h-16 cursor-text">
+                      <div class="flex h-full w-full flex-1 items-stretch rounded-xl shadow-2xl">
+                        {{-- Ikon Search --}}
+                        <div
+                          class="flex items-center justify-center rounded-l-xl border border-white/10 border-r-0 bg-white/5 pl-5 text-[#92adc9] backdrop-blur-md">
+                          <span class="material-symbols-outlined">search</span>
+                        </div>
 
-                      <input type="text" placeholder="Search for books, authors, or genres..."
-                        class="form-input flex-1 border border-x-0 border-white/10 bg-white/5 px-4 text-sm text-white placeholder:text-[#92adc9] focus:outline-0 focus:ring-2 focus:ring-primary/50 backdrop-blur-md md:text-base" />
+                        {{-- Input Field - Tambahkan name="search" --}}
+                        <input type="text" name="search" value="{{ request('search') }}"
+                          placeholder="Cari judul, penulis, atau genre..."
+                          class="form-input flex-1 border border-x-0 border-white/10 bg-white/5 px-4 text-sm text-white placeholder:text-[#92adc9] focus:outline-0 focus:ring-2 focus:ring-primary/50 backdrop-blur-md md:text-base" />
 
-                      <div
-                        class="flex items-center justify-center rounded-r-xl border border-white/10 border-l-0 bg-white/5 pr-2 backdrop-blur-md">
-                        <button
-                          class="h-10 min-w-[100px] rounded-lg bg-primary px-5 text-sm font-bold tracking-wide text-white transition hover:bg-primary/90 md:h-12">
-                          Search
-                        </button>
+                        {{-- Button Submit --}}
+                        <div
+                          class="flex items-center justify-center rounded-r-xl border border-white/10 border-l-0 bg-white/5 pr-2 backdrop-blur-md">
+                          <button type="submit"
+                            class="h-10 min-w-[100px] rounded-lg bg-primary px-5 text-sm font-bold tracking-wide text-white transition hover:scale-95 active:bg-primary/90 md:h-12">
+                            Search
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </label>
+                    </label>
+                  </form>
                 </div>
 
               </div>
@@ -178,29 +184,29 @@
             </button>
           </div>
 
-          <div onclick="window.location.href='/detail'" class="gap-6 px-4 pb-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-            @forelse ($books as $book)
-                      <div class="glass flex snap-start flex-col gap-4 rounded-xl p-4 transition hover:scale-[1.02]">
-                        {{-- Cover --}}
-                        <div class="aspect-[3/4] w-full rounded-lg bg-cover bg-center shadow-lg" style="background-image: url('{{ $book->gambar_sampul
-              ? $book->gambar_sampul
-              : asset('images/cover-default.jpg') }}');"></div>
+          <div class="grid grid-cols-2 gap-6 px-4 pb-8 md:grid-cols-4">
+            @forelse ($books->take(8) as $book)
+              <div onclick="window.location.href='/detail/{{ $book->id }}'"
+                class="glass flex cursor-pointer snap-start flex-col gap-4 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                {{-- Cover Buku --}}
+                <div class="aspect-[3/4] w-full rounded-lg bg-cover bg-center shadow-lg"
+                  style="background-image: url('{{ $book->gambar_sampul ? $book->gambar_sampul : asset('images/cover-default.jpg') }}');">
+                </div>
 
-                        {{-- Info --}}
-                        <div>
-                          <p class="text-lg font-bold text-white line-clamp-2">
-                            {{ $book->judul }}
-                          </p>
-
-                          <p class="text-sm text-[#92adc9]">
-                            {{ $book->penulis->nama ?? 'Penulis tidak diketahui' }}
-                          </p>
-                        </div>
-                      </div>
+                {{-- Info Buku --}}
+                <div class="space-y-1">
+                  <h3 class="text-xl line-clamp-2 text-lg font-bold text-white">
+                    {{ $book->judul }}
+                  </h3>
+                  <p class="text-xl text-sm text-[#92adc9]">
+                    {{ $book->penulis->nama ?? 'Penulis tidak diketahui' }}
+                  </p>
+                </div>
+              </div>
             @empty
-              <p class="text-gray-400 px-4">
-                Belum ada buku tersedia.
-              </p>
+              <div class="col-span-full py-10 text-center">
+                <p class="text-gray-400">Belum ada buku tersedia.</p>
+              </div>
             @endforelse
           </div>
 

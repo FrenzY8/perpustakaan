@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Buku;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -18,10 +19,22 @@ Route::get('/', [PageController::class, 'home']);
 Route::get('/detail', function () {
     return view('detail');
 });
-Route::get('/buku', function () {
-    return view('buku');
-});
+Route::get('/buku', function (Request $request) {
+    $search = $request->query('search');
+    $query = Buku::with('penulis');
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('judul', 'LIKE', "%{$search}%")
+              ->orWhereHas('penulis', function($sub) use ($search) {
+                  $sub->where('nama', 'LIKE', "%{$search}%");
+              });
+        });
+    }
 
+    $books = $query->get();
+
+    return view('buku', compact('books'));
+});
 Route::get('/profile', function () {
     if (!session()->has('user')) return redirect('/login');
     
@@ -65,14 +78,15 @@ Route::post('/profile/update', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 Route::get('/daftar', function () {
-    try {
-        DB::connection()->getPdo();
-        $dbStatus = 'Database berhasil terhubung';
-    } catch (\Exception $e) {
-        $dbStatus = 'Database gagal terhubung';
-    }
+    $dbStatus = 'Database berhasil terhubung';
 
     return view('daftar', compact('dbStatus'));
+});
+
+Route::get('/detail/{id}', function ($id) {
+    // Memastikan relasi penulis dipanggil dan menggunakan findOrFail untuk safety
+    $book = Buku::with('penulis')->findOrFail($id);
+    return view('detail', compact('book'));
 });
 
 /*

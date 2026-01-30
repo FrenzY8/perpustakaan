@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Buku extends Model
 {
+    use HasFactory;
     protected $table = 'buku';
-
     protected $fillable = [
         'judul',
         'gambar_sampul',
@@ -20,9 +21,8 @@ class Buku extends Model
         'id_penulis',
         'id_kategori',
     ];
-
     public function penulis()
     {
-        return $this->belongsTo(Penulis::class, 'id_penulis');
+        return $this->belongsTo(Penulis::class, 'id_penulis', 'id');
     }
 }
