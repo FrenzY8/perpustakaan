@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Http\Controllers\Admin\BukuController;
 use App\Models\Buku;
 use App\Models\Wishlist;
 use Illuminate\Support\Facades\Route;
@@ -170,8 +171,6 @@ Route::get('/admin/panel', function () {
 
     return view('admin.panel', compact('user', 'books', 'users'));
 });
-
-
 Route::post('/profile/update', function (Request $request) {
     $userId = session('user.id');
     if (!session()->has('user')) {

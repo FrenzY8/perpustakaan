@@ -10,8 +10,6 @@ class PageController extends Controller
     public function home()
     {
         $books = Buku::with('penulis')->latest()->get();
-
-        // Hitung data statistik untuk sapaan
         $totalBuku = Buku::count();
         $totalPenulis = \App\Models\Penulis::count();
 
