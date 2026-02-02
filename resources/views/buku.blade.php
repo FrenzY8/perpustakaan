@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Browse Books Catalog - Jokopus</title>
+    <title>List Buku - Jokopus</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
@@ -62,26 +62,20 @@
                                 d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078V7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094V42.4379Z" />
                         </svg>
                     </div>
-                    <h2 onclick="window.location.href='/'" class="text-xl font-bold tracking-tight cursor-pointer">
-                        Jokopus</h2>
+                    <h2 onclick="window.location.href='/'" class="text-xl font-bold tracking-tight">Jokopus</h2>
                 </div>
 
                 <nav class="hidden items-center gap-8 md:flex">
-                    <a href="/" class="text-sm font-medium hover:text-primary transition-colors">Home</a>
-                    <a href="/buku" class="text-sm font-medium text-primary transition-colors">Book</a>
-                    <a href="/about" class="text-sm font-medium hover:text-primary transition-colors">Tentang</a>
+                    <a href="/" class="text-sm font-medium hover:text-primary">Home</a>
+                    <a href="/buku" class="text-sm font-medium hover:text-primary">Book</a>
+                    <a href="/dashboard" class="text-sm font-medium hover:text-primary">Dashboard</a>
                 </nav>
 
                 @if (session()->has('user'))
+                    <!-- Profile Button -->
+                    <div class="flex-1 max-w-md mx-4 hidden sm:block">
+                    </div>
                     <div class="flex items-center gap-3">
-                        <button
-                            class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
-                            <span class="material-symbols-outlined">notifications</span>
-                        </button>
-                        <button onclick="window.location.href='/dashboard'"
-                            class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
-                            <span class="material-symbols-outlined">dashboard</span>
-                        </button>
 
                         @php
                             $userData = DB::table('users')->where('id', session('user.id'))->first();
@@ -94,18 +88,21 @@
                             } else {
                                 $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
                             }
-                        @endphp
+                         @endphp
                         <div onclick="window.location.href='/dashboard'"
-                            class="h-10 w-10 rounded-full border-2 border-primary/20 bg-center bg-cover cursor-pointer"
-                            style="background-image: url('{{ $displayPhoto }}');">
+                            class="h-10 w-10 rounded-full border-2 border-primary/20 bg-center bg-cover"
+                            data-alt="User profile avatar portrait" style="background-image: url('{{ $displayPhoto }}');">
                         </div>
+
                     </div>
                 @else
+                    <!-- Sign In Button -->
                     <a href="/daftar"
-                        class="h-10 min-w-[100px] flex items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:scale-105 active:scale-95">
+                        class="hidden h-10 min-w-[100px] items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:scale-105 active:scale-95 sm:flex">
                         Sign In
                     </a>
                 @endif
+
             </div>
         </header>
 
@@ -118,46 +115,56 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-2">
                 @foreach ($books as $item)
                     <div onclick="window.location.href='/detail/{{ $item->id }}'"
-                        class="flex flex-col gap-5 glass-card p-5 rounded-2xl hover:translate-y-[-8px] transition-all duration-300 group cursor-pointer">
+                        class="flex flex-col gap-6 glass-card p-6 rounded-[2.5rem] hover:translate-y-[-12px] transition-all duration-500 group cursor-pointer border border-white/5 hover:border-primary/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
 
-                        <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-xl shadow-2xl relative overflow-hidden"
-                            style='background-image: url("{{ $item->gambar_sampul ?? asset('images/default-cover.jpg') }}");'>
+                        <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-[2rem] shadow-2xl relative overflow-hidden group-hover:shadow-primary/20 transition-all duration-500"
+                            style='background-image: url("{{ $item->gambar_sampul ?? asset('images/default-cover.jpg') }} ");'>
 
                             <div
-                                class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <div class="bg-primary text-white px-4 py-2 rounded-full font-bold flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-sm">visibility</span>
-                                    Lihat Detail
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+                                <div
+                                    class="bg-white text-black px-6 py-3 rounded-full font-black text-sm uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2 shadow-xl">
+                                    Explore
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </div>
                             </div>
 
-                            <div class="absolute top-3 right-3">
+                            <div class="absolute top-4 left-4">
                                 <span
-                                    class="bg-primary/90 backdrop-blur-md text-[11px] font-black px-3 py-1 rounded-lg text-white border border-white/20 uppercase">
-                                    {{ $item->format ?? 'Fisik' }}
+                                    class="bg-black/40 backdrop-blur-xl text-[10px] font-bold px-4 py-1.5 rounded-full text-white border border-white/10 uppercase tracking-tighter">
+                                    {{ $item->format ?? 'E-Book' }}
                                 </span>
                             </div>
                         </div>
 
-                        <div class="flex flex-col flex-1 px-1">
-                            <h3 class="text-white text-xl font-extrabold leading-tight line-clamp-2 group-hover:text-primary transition-colors"
+                        <div class="flex flex-col flex-1 px-2 pb-2">
+                            <p class="text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-2">
+                                {{ $item->kategori->nama ?? 'General' }}
+                            </p>
+
+                            <h3 class="text-white text-2xl font-black leading-[1.1] line-clamp-2 group-hover:text-primary transition-colors tracking-tight"
                                 title="{{ $item->judul }}">
                                 {{ $item->judul }}
                             </h3>
 
-                            <p class="text-slate-300 text-sm font-medium mt-2 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm text-slate-500">person</span>
+                            <p class="text-slate-400 text-base font-semibold mt-3 flex items-center gap-2">
+                                <span class="w-6 h-[1px] bg-slate-600"></span>
                                 {{ $item->penulis->nama ?? 'Unknown Author' }}
                             </p>
 
-                            <div class="flex items-center gap-1 mt-4 pt-4 border-t border-white/5 text-yellow-500">
-                                <span class="material-symbols-outlined text-[20px] fill-1">star</span>
-                                <span class="text-sm font-bold text-slate-100">4.8</span>
-                                <span class="text-xs font-medium text-slate-500 ml-auto bg-white/5 px-2 py-1 rounded">
-                                    {{ $item->jumlah_halaman }} hlm
+                            <div class="flex items-center justify-between mt-6 pt-5 border-t border-white/5">
+                                <div class="flex items-center gap-2 text-[#92adc9]">
+                                    <span class="material-symbols-outlined text-lg">auto_stories</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider">{{ $item->jumlah_halaman }}
+                                        Halaman</span>
+                                </div>
+
+                                <span
+                                    class="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
+                                    bookmark_add
                                 </span>
                             </div>
                         </div>
@@ -188,16 +195,11 @@
             </div>
         </main>
 
-        <footer class="mt-auto px-4 lg:px-40 py-8 border-t border-white/5 bg-background-dark/50">
-            <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-2 text-white/40">
-                    <span class="material-symbols-outlined">auto_stories</span>
-                    <span class="text-sm font-medium">© 2026 Jokopus Digital Library</span>
-                </div>
-                <div class="flex gap-8">
-                    <a class="text-xs text-white/40 hover:text-primary transition-colors" href="#">Privacy Policy</a>
-                    <a class="text-xs text-white/40 hover:text-primary transition-colors" href="#">Terms of Service</a>
-                </div>
+        <footer class="border-t border-white/5 bg-background-dark px-4 pb-8 pt-16 md:px-20">
+            <div class="mx-auto max-w-[1200px]">
+                <p class="text-center text-xs text-[#92adc9]">
+                    © 2026 Jokopus Management System. All rights reserved.
+                </p>
             </div>
         </footer>
     </div>

@@ -68,7 +68,7 @@
         <nav class="hidden items-center gap-8 md:flex">
           <a href="/" class="text-sm font-medium hover:text-primary">Home</a>
           <a href="/buku" class="text-sm font-medium hover:text-primary">Book</a>
-          <a href="/about" class="text-sm font-medium hover:text-primary">Tentang</a>
+          <a href="/dashboard" class="text-sm font-medium hover:text-primary">Dashboard</a>
         </nav>
 
         @if (session()->has('user'))
@@ -76,14 +76,6 @@
           <div class="flex-1 max-w-md mx-4 hidden sm:block">
           </div>
           <div class="flex items-center gap-3">
-            <button
-              class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
-              <span class="material-symbols-outlined">notifications</span>
-            </button>
-            <button onclick="window.location.href='/dashboard'"
-              class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
-              <span class="material-symbols-outlined">dashboard</span>
-            </button>
 
             @php
               $userData = DB::table('users')->where('id', session('user.id'))->first();
@@ -132,8 +124,10 @@
                       Jokopus
                     @endif
                   </h1>
-                  <p class="text-base font-normal text-white/80 md:text-lg">
-                    Mau baca apa buku apa hari ini?
+                  <p class="text-base font-normal text-white/80 md:text-lg leading-relaxed">
+                    Mau baca buku apa hari ini? Kita punya
+                    <span class="text font-bold">{{ $totalBuku }}</span> buku dari
+                    <span class="text font-bold">{{ $totalPenulis }}</span> penulis!
                   </p>
                 </div>
 
@@ -217,7 +211,7 @@
     <footer class="border-t border-white/5 bg-background-dark px-4 pb-8 pt-16 md:px-20">
       <div class="mx-auto max-w-[1200px]">
         <p class="text-center text-xs text-[#92adc9]">
-          © 2024 Jokopus Management System. All rights reserved.
+          © 2026 Jokopus Management System. All rights reserved.
         </p>
       </div>
     </footer>

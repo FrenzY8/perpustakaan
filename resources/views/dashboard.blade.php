@@ -4,7 +4,7 @@
 <head>
    <meta charset="utf-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <title>Dashboard</title>
+   <title>Dashboard - Jokopus</title>
 
    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -65,44 +65,48 @@
 
          <!-- Navigation -->
          <nav class="flex-1 px-4 mt-4 space-y-1">
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary" href="#">
-               <span class="material-symbols-outlined">dashboard</span>
-               <span class="font-medium">Dashboard</span>
+            <a href="/dashboard"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ request()->is('dashboard') ? 'bg-primary/10 text-primary font-bold' : 'text-[#92adc9] hover:bg-[#233648] hover:text-white' }}">
+               <span class="material-symbols-outlined {{ request()->is('dashboard') ? 'fill-1' : '' }}">dashboard</span>
+               <span>Dashboard</span>
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
-               href="#">
-               <span class="material-symbols-outlined">library_books</span>
-               <span class="font-medium">Library Catalog</span>
+            <a href="/dashboard/wishlist"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ request()->is('dashboard/wishlist') ? 'bg-primary/10 text-primary font-bold' : 'text-[#92adc9] hover:bg-[#233648] hover:text-white' }}">
+               <span
+                  class="material-symbols-outlined {{ request()->is('dashboard/wishlist') ? 'fill-1' : '' }}">bookmark</span>
+               <span>Wishlist</span>
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
-               href="#">
-               <span class="material-symbols-outlined">history</span>
-               <span class="font-medium">Reading History</span>
+            <a href="/dashboard/pinjaman"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ request()->is('dashboard/pinjaman') ? 'bg-primary/10 text-primary font-bold' : 'text-[#92adc9] hover:bg-[#233648] hover:text-white' }}">
+               <span
+                  class="material-symbols-outlined {{ request()->is('dashboard/pinjaman') ? 'fill-1' : '' }}">payments</span>
+               <span>Pinjaman</span>
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
-               href="#">
-               <span class="material-symbols-outlined">reviews</span>
-               <span class="font-medium">My Reviews</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
-               href="#">
-               <span class="material-symbols-outlined">bookmark</span>
-               <span class="font-medium">Wishlist</span>
+            <a href="/dashboard/history"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ request()->is('dashboard/history') ? 'bg-primary/10 text-primary font-bold' : 'text-[#92adc9] hover:bg-[#233648] hover:text-white' }}">
+               <span
+                  class="material-symbols-outlined {{ request()->is('dashboard/history') ? 'fill-1' : '' }}">history</span>
+               <span>History</span>
             </a>
 
             <!-- Settings -->
             <div class="pt-4 mt-4 border-t border-[#233648]">
                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
-                  href="#">
+                  href="/profile">
                   <span class="material-symbols-outlined">settings</span>
                   <span class="font-medium">Settings</span>
+               </a>
+               <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
+                  href="/admin/panel">
+                  <span class="material-symbols-outlined">shield</span>
+                  <span class="font-medium">Admin Panel</span>
                </a>
             </div>
          </nav>
 
          <!-- Browse Library Button -->
          <div class="p-4">
-            <a href="/"
+            <a href="/buku"
                class="w-full py-3 bg-primary hover:bg-primary/90 rounded-lg font-bold flex items-center justify-center gap-2 transition-all">
                <span class="material-symbols-outlined text-sm">search</span>
                Browse Library
@@ -126,12 +130,6 @@
                <div class="relative w-96">
                </div>
                <div class="flex items-center gap-4">
-                  <button
-                     class="p-2 text-[#92adc9] hover:text-white hover:bg-[#233648] rounded-lg transition-colors relative">
-                     <span class="material-symbols-outlined">notifications</span>
-                     <span
-                        class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-[#111a22]"></span>
-                  </button>
                   <div class="h-8 w-[1px] bg-[#233648]"></div>
                   <div class="relative">
 
@@ -163,7 +161,7 @@
                         <a href="/" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
                            <span class="material-symbols-outlined text-sm">home</span>Home
                         </a>
-                        <a href="/settings" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
+                        <a href="/profile" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
                            <span class="material-symbols-outlined text-sm">settings</span>Settings
                         </a>
                         <div class="border-t border-white/10"></div>
@@ -222,172 +220,132 @@
                </div>
                <!-- Stats Overview -->
                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div class="glass-card p-6 rounded-xl border-l-4 border-primary">
-                     <div class="flex items-center justify-between mb-2">
-                        <p class="text-[#92adc9] font-medium">Books Read</p>
-                        <span class="material-symbols-outlined text-primary">auto_stories</span>
-                     </div>
-                     <p class="text-3xl font-bold">42</p>
-                     <p class="text-xs text-green-400 mt-2 font-medium">+3 this month</p>
-                  </div>
                   <div class="glass-card p-6 rounded-xl border-l-4 border-amber-500">
                      <div class="flex items-center justify-between mb-2">
-                        <p class="text-[#92adc9] font-medium">Currently Borrowed</p>
+                        <p class="text-[#92adc9] font-medium">Buku Dipinjam</p>
                         <span class="material-symbols-outlined text-amber-500">menu_book</span>
                      </div>
-                     <p class="text-3xl font-bold">3</p>
-                     <p class="text-xs text-[#92adc9] mt-2">1 due next week</p>
+                     <p class="text-3xl font-bold text-white">{{ $totalPinjam }}</p>
+                     <p class="text-xs text-[#92adc9] mt-2 italic">Jangan lupa dikembalikan ya!</p>
                   </div>
-                  <div class="glass-card p-6 rounded-xl border-l-4 border-purple-500">
+
+                  <div class="glass-card p-6 rounded-xl border-l-4 border-red-500">
                      <div class="flex items-center justify-between mb-2">
-                        <p class="text-[#92adc9] font-medium">Favorite Genre</p>
+                        <p class="text-[#92adc9] font-medium">Favorit Saya</p>
+                        <span class="material-symbols-outlined text-red-500 text-fill-1">favorite</span>
+                     </div>
+                     <p class="text-3xl font-bold text-white">{{ $totalFavorit }}</p>
+                     <p class="text-xs text-[#92adc9] mt-2 italic">Buku yang ingin kamu baca nanti.</p>
+                  </div>
+
+                  <div
+                     class="glass-card p-6 rounded-xl border-l-4 border-purple-500 transition-all hover:shadow-purple-500/10">
+                     <div class="flex items-center justify-between mb-2">
+                        <p class="text-[#92adc9] font-medium">Genre Favorit</p>
                         <span class="material-symbols-outlined text-purple-500">category</span>
                      </div>
-                     <p class="text-xl font-bold">Science Fiction</p>
-                     <p class="text-xs text-[#92adc9] mt-2">12 books total</p>
+                     <p class="text-2xl font-bold text-white truncate">{{ $favGenre->nama }}</p>
+                     <p class="text-xs text-[#92adc9] mt-2 italic">
+                        {{ $favGenre->total > 0 ? $favGenre->total . ' buku telah dibaca' : 'Ayo mulai membaca!' }}
+                     </p>
                   </div>
                </div>
                <!-- Tables Row -->
                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                  <!-- Currently Borrowed -->
                   <div class="space-y-4">
                      <div class="flex items-center justify-between px-2">
                         <h2 class="text-xl font-bold">Currently Borrowed</h2>
-                        <a class="text-primary text-sm font-medium hover:underline" href="#">View All</a>
+                        <a class="text-primary text-sm font-medium hover:underline" href="/dashboard/loans">View All</a>
                      </div>
                      <div class="space-y-3">
-                        <!-- Book Item -->
-                        <div
-                           class="glass-card p-4 rounded-xl flex items-center gap-4 hover:bg-[#2a3f55] transition-colors group">
-                           <div class="h-20 w-14 rounded bg-cover bg-center shrink-0"
-                              data-alt="Cover of the book Project Hail Mary"
-                              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBaZGPg-kil3_0H1XQh1HK6lUVgMoxnjihRl4g0MIeZIwLUEkBh8gZhSQLYhaXZjBjm8D9jiuqslsUdS2GEna4k_hq-2vnJxr5iYWnlwEtnBSzOCf3P4CycnmNms-26NYrMZn-KObx8IRpc2f_9_OtSTkJJVtED3SH1LaCB1IbKGTE6r5CDBxlRTG3HKPYmIWskUVZnkrgPcXF1RsjzR9TTrraxuBvJB3ReNzDAT01hFjKr-FWDP7Md__GWYvpsWDYtjYszHd8aVCfG");'>
-                           </div>
-                           <div class="flex-1 min-w-0">
-                              <h4 class="font-bold truncate group-hover:text-primary transition-colors">Project Hail
-                                 Mary</h4>
-                              <p class="text-xs text-[#92adc9]">Andy Weir</p>
-                              <div class="mt-2 flex items-center gap-3">
-                                 <div class="flex-1 bg-[#111a22] rounded-full h-1.5">
-                                    <div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
-                                 </div>
-                                 <span class="text-[10px] text-[#92adc9]">Due in 4 days</span>
+                        @forelse($currentlyBorrowed as $pinjam)
+                           @php
+                              $due = \Carbon\Carbon::parse($pinjam->tanggal_jatuh_tempo);
+                              $isOverdue = now()->gt($due);
+                              $diff = now()->diffInDays($due, false);
+
+                              $start = \Carbon\Carbon::parse($pinjam->tanggal_pinjam);
+                              $totalDays = $start->diffInDays($due) ?: 1;
+                              $elapsed = $start->diffInDays(now());
+                              $percent = min(100, max(0, ($elapsed / $totalDays) * 100));
+                            @endphp
+
+                           <div
+                              class="glass-card p-4 rounded-xl flex items-center gap-4 hover:bg-[#2a3f55] transition-colors group">
+                              <div class="h-20 w-14 rounded bg-cover bg-center shrink-0 shadow-md"
+                                 style='background-image: url("{{ $pinjam->buku->gambar_sampul }}");'>
                               </div>
-                           </div>
-                           <div class="flex flex-col gap-2">
+                              <div class="flex-1 min-w-0">
+                                 <h4 class="font-bold truncate group-hover:text-primary transition-colors">
+                                    {{ $pinjam->buku->judul }}
+                                 </h4>
+                                 <p class="text-xs text-[#92adc9]">{{ $pinjam->buku->penulis->nama ?? 'Unknown' }}</p>
+                                 <div class="mt-2 flex items-center gap-3">
+                                    <div class="flex-1 bg-[#111a22] rounded-full h-1.5">
+                                       <div
+                                          class="{{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }} h-1.5 rounded-full"
+                                          style="width: {{ $percent }}%"></div>
+                                    </div>
+                                    <span
+                                       class="text-[10px] {{ $isOverdue ? 'text-red-500 font-bold' : 'text-[#92adc9]' }}">
+                                       {{ $isOverdue ? 'Overdue ' . abs($diff) . ' days' : 'Due in ' . $diff . ' days' }}
+                                    </span>
+                                 </div>
+                              </div>
                               <button
-                                 class="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-all"
-                                 title="Return Book">
-                                 <span class="material-symbols-outlined text-lg">keyboard_return</span>
+                                 class="p-2 {{ $isOverdue ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary' }} rounded-lg hover:scale-110 transition-all">
+                                 <span
+                                    class="material-symbols-outlined text-lg">{{ $isOverdue ? 'priority_high' : 'keyboard_return' }}</span>
                               </button>
                            </div>
-                        </div>
-                        <!-- Book Item 2 -->
-                        <div
-                           class="glass-card p-4 rounded-xl flex items-center gap-4 hover:bg-[#2a3f55] transition-colors group">
-                           <div class="h-20 w-14 rounded bg-cover bg-center shrink-0"
-                              data-alt="Cover of Dune by Frank Herbert"
-                              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA1OU1OtrMH6w7RupOGtt54MszArZRsutJ2L0-P50VhZSg6UrbVB4NvdS17wXVfZJcxnLiWuP5DSdOIxIdkImqY5714Yo3HZ7K1gXqf7r9QINI7Gn8-EUXc00-jvCbRI3ZtVCO_FS6YfKT9M_gQdkeyd502LfERJI3RJDIB1izyumjnUt8aax1p5GFINNVUtKspgZLosXnc1whr0k4Ktw2yyCWn6KFsVm-STQX0w305Wi02NDNQjVlvyRvdVw0tvZOMJXhunPrUrTDZ");'>
+                        @empty
+                           <div class="text-center py-10 glass-card rounded-xl opacity-50">
+                              <p class="text-sm">Kamu tidak sedang meminjam buku.</p>
                            </div>
-                           <div class="flex-1 min-w-0">
-                              <h4 class="font-bold truncate group-hover:text-primary transition-colors">Dune</h4>
-                              <p class="text-xs text-[#92adc9]">Frank Herbert</p>
-                              <div class="mt-2 flex items-center gap-3">
-                                 <div class="flex-1 bg-[#111a22] rounded-full h-1.5">
-                                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: 90%"></div>
-                                 </div>
-                                 <span class="text-[10px] text-amber-500">Overdue (2 days)</span>
-                              </div>
-                           </div>
-                           <div class="flex flex-col gap-2">
-                              <button
-                                 class="p-2 bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white rounded-lg transition-all"
-                                 title="Renew Book">
-                                 <span class="material-symbols-outlined text-lg">event_repeat</span>
-                              </button>
-                           </div>
-                        </div>
+                        @endforelse
                      </div>
                   </div>
-                  <!-- Reading History -->
+
                   <div class="space-y-4">
                      <div class="flex items-center justify-between px-2">
-                        <h2 class="text-xl font-bold">Reading History</h2>
-                        <a class="text-primary text-sm font-medium hover:underline" href="#">Full History</a>
+                        <h2 class="text-xl font-bold">Wishlist</h2>
+                        <a class="text-primary text-sm font-medium hover:underline" href="/dashboard/wishlist">Full
+                           List</a>
                      </div>
                      <div class="space-y-3">
-                        <!-- History Item -->
-                        <div class="glass-card p-4 rounded-xl flex items-center gap-4 group">
+                        @forelse($wishlist as $item)
                            <div
-                              class="h-16 w-12 rounded bg-cover bg-center shrink-0 grayscale group-hover:grayscale-0 transition-all"
-                              data-alt="Black and white aesthetic book cover"
-                              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCuOsr1jdy8jo_Gn_unIoZxPSpojBXZXOFUDJNvmKsnWO4eYU6PS-Etq763hxvVfysrzPBK5Gq8GfKPXy3kfrd8MI1CbE5oWKZfyXLRkAYRRvUXiK1hI-J1ZPDWHZ1Zik4nrrL1TXeZJYo2x4UesUV-LsIPuSDHX6d50hgKmIgYkvZ6g7OBw9PKc0hhqUEs53D9mk8S9vnw05oiKDZaHz66EOGA8HKoM7C1WTFpOkLaiE6M8wubUQyvxY1gkJyLH4CYk7oy-6Ix78tY");'>
-                           </div>
-                           <div class="flex-1 min-w-0">
-                              <h4 class="font-bold truncate">The Midnight Library</h4>
-                              <p class="text-xs text-[#92adc9]">Matt Haig • Returned Feb 12</p>
-                              <div class="flex mt-1 text-primary">
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star_half</span>
+                              class="glass-card p-4 rounded-xl flex items-center gap-4 group hover:bg-[#2a3f55] transition-all">
+                              <div class="h-16 w-12 rounded bg-cover bg-center shrink-0 shadow-sm"
+                                 style='background-image: url("{{ $item->buku->gambar_sampul }}");'>
                               </div>
-                           </div>
-                           <button class="text-[#92adc9] hover:text-white flex items-center gap-1 text-xs font-medium">
-                              Re-borrow
-                              <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                           </button>
-                        </div>
-                        <!-- History Item 2 -->
-                        <div class="glass-card p-4 rounded-xl flex items-center gap-4 group">
-                           <div
-                              class="h-16 w-12 rounded bg-cover bg-center shrink-0 grayscale group-hover:grayscale-0 transition-all"
-                              data-alt="Classic old book spine cover"
-                              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDekxvSgysGnmz728yFNtQST5Z05bUwLUAsYduYvizcuP5NeRk3CF0PB5TH2bPH0ZEdG1kyPGvViAVQX1TnudLr7J6TLI_J-3R2kzrBQgPF4tFQSCdgteXpKc0pBpUhFDSwFifn3atMHjsj-qKXIVk2tdp45JZX1J9os6NTqzAuL_aBz2Aktu1OZiyxR2CFA3gG4hNDH7bjNCp8n3Pe-Qev-uLBGDRLhIGEZ_4V5wnAtvAA9TVn-Vlcr4I8h09fvbsJcN6iuU4eqxT9");'>
-                           </div>
-                           <div class="flex-1 min-w-0">
-                              <h4 class="font-bold truncate">Atomic Habits</h4>
-                              <p class="text-xs text-[#92adc9]">James Clear • Returned Jan 28</p>
-                              <div class="flex mt-1 text-[#92adc9]">
-                                 <span class="text-[10px] font-medium px-2 py-0.5 rounded border border-[#324d67]">Not
-                                    Rated</span>
+                              <div class="flex-1 min-w-0">
+                                 <h4 class="font-bold truncate text-sm">{{ $item->buku->judul }}</h4>
+                                 <p class="text-[10px] text-[#92adc9]">{{ $item->buku->penulis->nama ?? 'Unknown' }}</p>
+                                 <p class="text-[9px] text-primary mt-1">Added
+                                    {{ \Carbon\Carbon::parse($item->dibuat_pada)->diffForHumans() }}
+                                 </p>
                               </div>
+                              <a href="/detail/{{ $item->id_buku }}"
+                                 class="bg-primary/20 hover:bg-primary text-primary hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all">
+                                 Borrow
+                              </a>
                            </div>
-                           <button class="text-primary hover:text-white flex items-center gap-1 text-xs font-medium">
-                              Review Now
-                              <span class="material-symbols-outlined text-sm">edit_square</span>
-                           </button>
-                        </div>
-                        <!-- History Item 3 -->
-                        <div class="glass-card p-4 rounded-xl flex items-center gap-4 group">
-                           <div
-                              class="h-16 w-12 rounded bg-cover bg-center shrink-0 grayscale group-hover:grayscale-0 transition-all"
-                              data-alt="Modern minimal book cover"
-                              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDiMAnmIaBov0h6n8hvH6rFPz8jOkNgxzwELvGet1tzbQqsyndh2bQ049XXNtwh11KY7h8Co07zXES1VsrO7QPUhE2D3j42sr_eWoVzsl13Cth2ez7Q2xknNfE4W2F6egQ1TB4eXkEJZLTVw053DZqpx9z2NqF0LsQUyipxVJK99xjv8tExay6M7JYKEJUJyg1WDt_VJeHq5JMnKAELaA5pDnBUZRdGnIlVx-a67L5moGYVuBO8F3OcTas7z2bcoUJB0MButDjlcXYf");'>
+                        @empty
+                           <div class="text-center py-10 glass-card rounded-xl opacity-50">
+                              <p class="text-sm">Wishlist kosong.</p>
                            </div>
-                           <div class="flex-1 min-w-0">
-                              <h4 class="font-bold truncate">Deep Work</h4>
-                              <p class="text-xs text-[#92adc9]">Cal Newport • Returned Jan 05</p>
-                              <div class="flex mt-1 text-primary">
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                                 <span class="material-symbols-outlined text-sm">star</span>
-                              </div>
-                           </div>
-                           <button class="text-[#92adc9] hover:text-white flex items-center gap-1 text-xs font-medium">
-                              Re-borrow
-                              <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                           </button>
-                        </div>
+                        @endforelse
                      </div>
                   </div>
                </div>
             </div>
-            <footer class="mt-8 border-t border-[#233648] px-8 py-6 text-center">
-               <p class="text-[#92adc9] text-sm">© 2024 Jokopus Library Management. All rights reserved.</p>
+            <footer class="border-t border-white/5 bg-background-dark px-4 pb-8 pt-16 md:px-20">
+               <div class="mx-auto max-w-[1200px]">
+                  <p class="text-center text-xs text-[#92adc9]">
+                     © 2026 Jokopus Management System. All rights reserved.
+                  </p>
+               </div>
             </footer>
          </main>
 

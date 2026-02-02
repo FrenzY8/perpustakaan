@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Peminjaman;
 use App\Models\Komentar;
+use App\Models\User;
 use Carbon\Carbon;
 
 /*
@@ -20,18 +21,48 @@ use Carbon\Carbon;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [PageController::class, 'home']);
+Route::post('/detail/{id}/komentar', function (Request $request, $id) {
+    Komentar::create([
+        'id_user' => session('user.id'),
+        'id_buku' => $id,
+        'isi_komentar' => $request->isi_komentar,
+        'dibuat_pada' => now()
+    ]);
+
+    return back()->with('success', 'Komentar terkirim!');
+});
 Route::get('/detail/{id}', function ($id) {
-    $book = Buku::with('penulis')->findOrFail($id);
+    $book = Buku::with(['penulis', 'komentar.user'])->findOrFail($id);
+    
     $isWishlisted = false;
+    $isCurrentlyBorrowing = false;
+    $hasBorrowedBefore = false;
+
     if (session()->has('user')) {
-        $isWishlisted = Wishlist::where('id_user', session('user.id'))
-                               ->where('id_buku', $id)
-                               ->exists();
+        $userId = session('user.id');
+
+        $isWishlisted = Wishlist::where('id_user', $userId)->where('id_buku', $id)->exists();
+
+        $isCurrentlyBorrowing = Peminjaman::where('id_user', $userId)
+                                ->where('id_buku', $id)
+                                ->whereIn('status', ['dipinjam', 'terlambat'])
+                                ->exists();
+
+        $hasBorrowedBefore = Peminjaman::where('id_user', $userId)
+                                ->where('id_buku', $id)
+                                ->where('status', 'dikembalikan')
+                                ->exists();
     }
 
-    return view('detail', compact('book', 'isWishlisted'));
+    $wishlistCount = Wishlist::where('id_buku', $id)->count();
+
+    return view('detail', compact('book', 'isWishlisted', 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 });
 Route::post('/buku/{id}/komentar', function (Request $request, $id) {
+    if (!session()->has('user')) {
+        return redirect('/login')->with('error', 'Login dulu');
+    }
+    
     $request->validate([
         'isi_komentar' => 'required|min:3'
     ]);
@@ -46,7 +77,7 @@ Route::post('/buku/{id}/komentar', function (Request $request, $id) {
 });
 Route::post('/wishlist/{id}', function ($id) {
     if (!session()->has('user')) {
-        return back()->with('error', 'Login dulu ya!');
+        return redirect('/login')->with('error', 'Login dulu');
     }
 
     $userId = session('user.id');
@@ -77,10 +108,9 @@ Route::get('/buku', function (Request $request) {
 
     return view('buku', compact('books'));
 });
-
 Route::post('/pinjam/{id}', function ($id) {
     if (!session()->has('user')) {
-        return redirect('/login')->with('error', 'Login dulu bro kalau mau pinjam!');
+        return redirect('/login')->with('error', 'Login dulu');
     }
 
     $userId = session('user.id');
@@ -104,6 +134,22 @@ Route::post('/pinjam/{id}', function ($id) {
 
     return back()->with('success', 'Buku berhasil dipinjam! Cek di dashboard kamu.');
 });
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD
+|--------------------------------------------------------------------------
+*/
+Route::get('/dashboard/wishlist', function () {
+    if (!session()->has('user')) {
+        return redirect('/login');
+    }
+
+    $wishlist = Wishlist::with(['buku.penulis'])
+                ->where('id_user', session('user.id'))
+                ->get();
+
+    return view('dashboard.wishlist', compact('wishlist'));
+});
 Route::get('/profile', function () {
     if (!session()->has('user')) return redirect('/login');
     
@@ -111,9 +157,27 @@ Route::get('/profile', function () {
     return view('profile', compact('user'));
 });
 
+
+Route::get('/admin/panel', function () {
+    if (!session()->has('user') || session('user.role') != 1) {
+        return redirect('/')->with('error', 'Akses ditolak!');
+    }
+    
+    $user = DB::table('users')->where('id', session('user.id'))->first();
+    
+    $books = Buku::with('penulis', 'kategori')->latest()->get();
+    $users = User::latest()->get();
+
+    return view('admin.panel', compact('user', 'books', 'users'));
+});
+
+
 Route::post('/profile/update', function (Request $request) {
     $userId = session('user.id');
-    
+    if (!session()->has('user')) {
+        return redirect('/login')->with('error', 'Login dulu');
+    }
+
     $request->validate([
         'name' => 'required|string|max:255',
         'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -263,6 +327,7 @@ Route::post('/otp/verify', function (Request $request) {
         'name'       => $data['name'],
         'email'      => $data['email'],
         'password'   => $data['password'],
+        'role'       => 0,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -293,16 +358,92 @@ Route::get('/dashboard', function () {
     if (!session()->has('user')) {
         return redirect('/daftar');
     }
+    
+    $userId = session('user.id');
 
-    return view('dashboard');
+    $favGenre = DB::table('peminjaman')
+        ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+        ->join('kategori', 'buku.id_kategori', '=', 'kategori.id') // Pakai 'kategori'
+        ->where('peminjaman.id_user', $userId)
+        ->select('kategori.nama', DB::raw('count(*) as total'))
+        ->groupBy('kategori.nama')
+        ->orderBy('total', 'desc')
+        ->first();
+
+    if (!$favGenre) {
+        $favGenre = (object)['nama' => 'Belum Ada', 'total' => 0];
+    }
+
+    $currentlyBorrowed = Peminjaman::with('buku.penulis')
+        ->where('id_user', $userId)
+        ->whereIn('status', ['dipinjam', 'terlambat'])
+        ->whereNull('tanggal_kembali')
+        ->orderBy('tanggal_jatuh_tempo', 'asc')
+        ->take(3)
+        ->get();
+
+    $wishlist = Wishlist::with('buku.penulis')
+        ->where('id_user', $userId)
+        ->orderBy('dibuat_pada', 'desc')
+        ->take(3)
+        ->get();
+
+    $totalPinjam = Peminjaman::where('id_user', $userId)
+        ->whereIn('status', ['dipinjam', 'terlambat'])
+        ->count();
+
+    $totalFavorit = Wishlist::where('id_user', $userId)
+        ->count();
+
+    return view('dashboard', compact('currentlyBorrowed', 'favGenre', 'wishlist', 'totalPinjam', 'totalFavorit'));
 });
+Route::get('/dashboard/pinjaman', function () {
+    if (!session()->has('user')) {
+        return redirect('/login')->with('error', 'Login dulu');
+    }
+    $pinjaman = Peminjaman::with('buku.penulis')
+        ->where('id_user', session('user.id'))
+        ->whereNull('tanggal_kembali') // Hanya yang belum dikembalikan
+        ->orderBy('tanggal_jatuh_tempo', 'asc')
+        ->get();
 
+    return view('dashboard.pinjaman', compact('pinjaman'));
+});
+Route::post('/dashboard/kembalikan/{id}', function ($id) {
+    if (!session()->has('user')) {
+        return redirect('/login')->with('error', 'Login dulu');
+    }
+    try {
+        $pinjaman = Peminjaman::where('id', $id)
+            ->where('id_user', session('user.id'))
+            ->firstOrFail();
+
+        $pinjaman->update([
+            'tanggal_kembali' => now(),
+            'status' => 'dikembalikan',
+            'diperbarui_pada' => now()
+        ]);
+
+        return back()->with('success', 'Buku berhasil dikembalikan!');
+        
+    } catch (\Exception $e) {
+        return back()->with('error', 'Gagal mengembalikan buku.');
+    }
+});
+Route::get('/dashboard/history', function () {
+    $history = Peminjaman::with('buku.penulis')
+        ->where('id_user', session('user.id'))
+        ->where('status', 'dikembalikan')
+        ->orderBy('tanggal_kembali', 'desc')
+        ->get();
+
+    return view('dashboard.history', compact('history'));
+});
 /*
 |--------------------------------------------------------------------------
 | LOGIN
 |--------------------------------------------------------------------------
 */
-
 Route::get('/login', function () {
     if (session()->has('user')) {
         return redirect('/dashboard');
@@ -331,6 +472,7 @@ Route::post('/login', function (Request $request) {
             'id'    => $user->id,
             'name'  => $user->name,
             'email' => $user->email,
+            'role' => $user->role,
         ]
     ]);
 

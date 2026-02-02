@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Profile Settings - Library Pro</title>
+    <title>Profile Settings - Jokopus</title>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -81,7 +81,7 @@
                     <nav class="hidden items-center gap-8 md:flex">
                         <a href="/" class="text-sm font-medium hover:text-primary">Home</a>
                         <a href="/buku" class="text-sm font-medium hover:text-primary">Book</a>
-                        <a href="/about" class="text-sm font-medium hover:text-primary">Tentang</a>
+                        <a href="/dashboard" class="text-sm font-medium hover:text-primary">Dashboard</a>
                     </nav>
 
                     @if (session()->has('user'))
@@ -89,14 +89,6 @@
                         <div class="flex-1 max-w-md mx-4 hidden sm:block">
                         </div>
                         <div class="flex items-center gap-3">
-                            <button
-                                class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
-                                <span class="material-symbols-outlined">notifications</span>
-                            </button>
-                            <button onclick="window.location.href='/dashboard'"
-                                class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-white hover:bg-white/10 transition-colors">
-                                <span class="material-symbols-outlined">dashboard</span>
-                            </button>
 
                             @php
                                 $userData = DB::table('users')->where('id', session('user.id'))->first();

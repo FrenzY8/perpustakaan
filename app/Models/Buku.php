@@ -21,6 +21,14 @@ class Buku extends Model
         'id_penulis',
         'id_kategori',
     ];
+    public function komentar()
+    {
+        return $this->hasMany(Komentar::class, 'id_buku');
+    }
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class, 'id_kategori');
+    }
     public function penulis()
     {
         return $this->belongsTo(Penulis::class, 'id_penulis', 'id');
