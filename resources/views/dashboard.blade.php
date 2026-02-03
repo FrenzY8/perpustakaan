@@ -137,7 +137,6 @@
                         class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition">
                         <div class="text-right hidden sm:block">
                            <p class="text-sm font-semibold">{{ session('user.name') }}</p>
-                           <p class="text-[10px] text-primary font-bold">PREMIUM</p>
                         </div>
                         @php
                            $userData = DB::table('users')->where('id', session('user.id'))->first();
@@ -255,7 +254,8 @@
                   <div class="space-y-4">
                      <div class="flex items-center justify-between px-2">
                         <h2 class="text-xl font-bold">Currently Borrowed</h2>
-                        <a class="text-primary text-sm font-medium hover:underline" href="/dashboard/loans">View All</a>
+                        <a class="text-primary text-4xl text-sm font-medium hover:underline"
+                           href="/dashboard/pinjaman">View All</a>
                      </div>
                      <div class="space-y-3">
                         @forelse($currentlyBorrowed as $pinjam)
@@ -340,11 +340,75 @@
                   </div>
                </div>
             </div>
-            <footer class="border-t border-white/5 bg-background-dark px-4 pb-8 pt-16 md:px-20">
+            <footer
+               class="relative mt-20 border-t border-white/5 bg-background-dark/50 px-4 pb-12 pt-20 md:px-20 overflow-hidden">
+               <div
+                  class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent">
+               </div>
+               <div class="absolute -top-24 left-1/2 -translate-x-1/2 size-48 bg-primary/10 blur-[100px] rounded-full">
+               </div>
+
                <div class="mx-auto max-w-[1200px]">
-                  <p class="text-center text-xs text-[#92adc9]">
-                     © 2026 Jokopus Management System. All rights reserved.
-                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                     <div class="col-span-1 md:col-span-2">
+                        <div class="flex items-center gap-3 mb-6">
+                           <div class="size-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+                              <svg viewBox="0 0 48 48" fill="currentColor" class="size-5">
+                                 <path
+                                    d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078V7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094V42.4379Z" />
+                              </svg>
+                           </div>
+                           <span class="text-xl font-black tracking-tighter text-white">JOKOPUS</span>
+                        </div>
+                        <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
+                           Website peminjaman buku buat tugas akhir
+                        </p>
+                     </div>
+
+                     <div>
+                        <h4 class="text-white font-bold text-sm uppercase tracking-widest mb-6">Navigation</h4>
+                        <ul class="space-y-4">
+                           <li><a href="/" class="text-slate-400 hover:text-primary text-sm transition-colors">Home</a>
+                           </li>
+                           <li><a href="/buku" class="text-slate-400 hover:text-primary text-sm transition-colors">List
+                                 Buku</a>
+                           </li>
+                           <li><a href="/dashboard"
+                                 class="text-slate-400 hover:text-primary text-sm transition-colors">Dashboard</a>
+                           </li>
+                        </ul>
+                     </div>
+
+                     <div>
+                        <h4 class="text-white font-bold text-sm uppercase tracking-widest mb-6">Connect</h4>
+                        <div class="flex gap-4">
+                           <a href="#"
+                              class="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all group">
+                              <span class="material-symbols-outlined text-xl">language</span>
+                           </a>
+                           <a href="mailto:akunvgesport@gmail.com"
+                              class="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all"
+                              title="Kirim Email">
+                              <span class="material-symbols-outlined text-xl">mail</span>
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div
+                     class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                     <p class="text-xs text-slate-500 font-medium">
+                        © 2026 <span class="text-slate-300">Jokopus</span>.
+                     </p>
+                     <div class="flex gap-6">
+                        <a href="#"
+                           class="text-[10px] uppercase tracking-tighter text-slate-500 hover:text-slate-300">Privacy
+                           Policy</a>
+                        <a href="#"
+                           class="text-[10px] uppercase tracking-tighter text-slate-500 hover:text-slate-300">Terms of
+                           Service</a>
+                     </div>
+                  </div>
                </div>
             </footer>
          </main>

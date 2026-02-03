@@ -34,7 +34,7 @@ Route::post('/detail/{id}/komentar', function (Request $request, $id) {
 });
 Route::get('/detail/{id}', function ($id) {
     $book = Buku::with(['penulis', 'komentar.user'])->findOrFail($id);
-    
+
     $isWishlisted = false;
     $isCurrentlyBorrowing = false;
     $hasBorrowedBefore = false;
@@ -45,14 +45,14 @@ Route::get('/detail/{id}', function ($id) {
         $isWishlisted = Wishlist::where('id_user', $userId)->where('id_buku', $id)->exists();
 
         $isCurrentlyBorrowing = Peminjaman::where('id_user', $userId)
-                                ->where('id_buku', $id)
-                                ->whereIn('status', ['dipinjam', 'terlambat'])
-                                ->exists();
+            ->where('id_buku', $id)
+            ->whereIn('status', ['dipinjam', 'terlambat'])
+            ->exists();
 
         $hasBorrowedBefore = Peminjaman::where('id_user', $userId)
-                                ->where('id_buku', $id)
-                                ->where('status', 'dikembalikan')
-                                ->exists();
+            ->where('id_buku', $id)
+            ->where('status', 'dikembalikan')
+            ->exists();
     }
 
     $wishlistCount = Wishlist::where('id_buku', $id)->count();
@@ -63,7 +63,7 @@ Route::post('/buku/{id}/komentar', function (Request $request, $id) {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
     }
-    
+
     $request->validate([
         'isi_komentar' => 'required|min:3'
     ]);
@@ -82,7 +82,7 @@ Route::post('/wishlist/{id}', function ($id) {
     }
 
     $userId = session('user.id');
-    
+
     $wishlist = Wishlist::where('id_user', $userId)->where('id_buku', $id)->first();
 
     if ($wishlist) {
@@ -95,19 +95,29 @@ Route::post('/wishlist/{id}', function ($id) {
 });
 Route::get('/buku', function (Request $request) {
     $search = $request->query('search');
-    $query = Buku::with('penulis');
+    $category = $request->query('category');
+
+    $query = Buku::with(['penulis', 'kategori']); 
+
     if ($search) {
-        $query->where(function($q) use ($search) {
+        $query->where(function ($q) use ($search) {
             $q->where('judul', 'LIKE', "%{$search}%")
-              ->orWhereHas('penulis', function($sub) use ($search) {
+              ->orWhereHas('penulis', function ($sub) use ($search) {
                   $sub->where('nama', 'LIKE', "%{$search}%");
               });
         });
     }
 
-    $books = $query->get();
+    if ($category && $category !== 'all') {
+        $query->whereHas('kategori', function ($q) use ($category) {
+            $q->where('nama', $category);
+        });
+    }
 
-    return view('buku', compact('books'));
+    $books = $query->latest()->get();
+    $categories = DB::table('kategori')->get(); 
+
+    return view('buku', compact('books', 'categories'));
 });
 Route::post('/pinjam/{id}', function ($id) {
     if (!session()->has('user')) {
@@ -146,14 +156,15 @@ Route::get('/dashboard/wishlist', function () {
     }
 
     $wishlist = Wishlist::with(['buku.penulis'])
-                ->where('id_user', session('user.id'))
-                ->get();
+        ->where('id_user', session('user.id'))
+        ->get();
 
     return view('dashboard.wishlist', compact('wishlist'));
 });
 Route::get('/profile', function () {
-    if (!session()->has('user')) return redirect('/login');
-    
+    if (!session()->has('user'))
+        return redirect('/login');
+
     $user = DB::table('users')->where('id', session('user.id'))->first();
     return view('profile', compact('user'));
 });
@@ -163,13 +174,86 @@ Route::get('/admin/panel', function () {
     if (!session()->has('user') || session('user.role') != 1) {
         return redirect('/')->with('error', 'Akses ditolak!');
     }
-    
+
     $user = DB::table('users')->where('id', session('user.id'))->first();
-    
+
     $books = Buku::with('penulis', 'kategori')->latest()->get();
     $users = User::latest()->get();
 
-    return view('admin.panel', compact('user', 'books', 'users'));
+    $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
+    $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
+
+    return view('admin.panel', compact('user', 'books', 'authors', 'books', 'categories', 'users'));
+});
+Route::post('/admin/books/store', function (Request $request) {
+    $request->validate([
+        'judul' => 'required|string|max:255',
+        'id_penulis' => 'required',
+        'id_kategori' => 'required',
+        'gambar_sampul' => 'nullable|url',
+    ]);
+
+    DB::table('buku')->insert([
+        'judul'          => $request->judul,
+        'id_penulis'     => $request->id_penulis,
+        'id_kategori'    => $request->id_kategori,
+        'isbn'           => $request->isbn,
+        'jumlah_halaman' => $request->halaman,
+        'ringkasan'      => $request->ringkasan,
+        'gambar_sampul'  => $request->gambar_sampul ?? 'https://via.placeholder.com/150',
+        'penerbit'       => 'Jokopus Publishing',
+        'tanggal_terbit' => now(),
+        'created_at'     => now(),
+        'updated_at'     => now(),
+    ]);
+
+    return redirect('/admin/panel')->with('success', 'Buku baru berhasil dipajang!');
+});
+Route::post('/admin/books/update', function (Request $request) {
+    try {
+        DB::table('buku')->where('id', $request->id)->update([
+            'judul'          => $request->judul,
+            'id_penulis'     => $request->id_penulis,
+            'id_kategori'    => $request->id_kategori,
+            'gambar_sampul'  => $request->gambar_sampul,
+            'isbn'           => $request->isbn,
+            'updated_at'     => now(),
+        ]);
+
+        return redirect('/admin/panel')->with('success', 'Buku berhasil diupdate!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage());
+    }
+});
+Route::post('/admin/users/update-role', function (Request $request) {
+    try {
+        if (!in_array($request->role, ['0', '1'])) {
+            return redirect()->back()->with('error', 'Role harus Admin atau User!');
+        }
+
+        DB::table('users')->where('id', $request->id)->update([
+            'role' => (int)$request->role,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Role user berhasil diperbarui!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage());
+    }
+});
+Route::delete('/admin/books/delete/{id}', function ($id) {
+    try {
+        DB::transaction(function () use ($id) {
+            DB::table('buku_favorit_user')->where('id_buku', $id)->delete();
+            DB::table('buku_tag')->where('id_buku', $id)->delete();
+            DB::table('buku')->where('id', $id)->delete();
+        });
+
+        return redirect('/admin/panel')->with('success', 'Buku & semua keterkaitannya berhasil dihapus!');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
+    }
 });
 Route::post('/profile/update', function (Request $request) {
     $userId = session('user.id');
@@ -191,7 +275,7 @@ Route::post('/profile/update', function (Request $request) {
     if ($request->hasFile('photo')) {
         $file = $request->file('photo');
         $filename = time() . '_' . $userId . '.' . $file->getClientOriginalExtension();
-        
+
         $path = $file->storeAs('avatars', $filename, 'public');
         $updateData['profile_photo'] = $filename;
     }
@@ -236,26 +320,26 @@ Route::get('/otp', function () {
 Route::post('/users/store', function (Request $request) {
 
     $request->validate([
-        'name'     => 'required',
-        'email'    => 'required|email|unique:users,email',
+        'name' => 'required',
+        'email' => 'required|email|unique:users,email',
         'password' => 'required|min:6',
     ]);
 
     session([
         'register_data' => [
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => $request->password,
         ],
         'otp_generated_at' => now(),
-        'otp_nonce'        => Str::uuid()->toString(),
+        'otp_nonce' => Str::uuid()->toString(),
     ]);
 
     Http::post('https://otp-service-beta.vercel.app/api/otp/generate', [
-        'email'        => $request->email,
-        'type'         => 'numeric',
+        'email' => $request->email,
+        'type' => 'numeric',
         'organization' => 'Jokopus',
-        'subject'      => 'Verifikasi Daftar Akun'
+        'subject' => 'Verifikasi Daftar Akun'
     ]);
 
     return redirect('/otp')->with('success', $request->email);
@@ -269,7 +353,8 @@ Route::post('/users/store', function (Request $request) {
 Route::post('/otp/resend', function () {
 
     $data = session('register_data');
-    if (!$data) abort(403);
+    if (!$data)
+        abort(403);
 
     $lastSent = session('otp_generated_at');
     if ($lastSent && now()->diffInSeconds($lastSent) < 60) {
@@ -278,14 +363,14 @@ Route::post('/otp/resend', function () {
 
     session([
         'otp_generated_at' => now(),
-        'otp_nonce'        => Str::uuid()->toString(),
+        'otp_nonce' => Str::uuid()->toString(),
     ]);
 
     Http::post('https://otp-service-beta.vercel.app/api/otp/generate', [
-        'email'        => $data['email'],
-        'type'         => 'numeric',
+        'email' => $data['email'],
+        'type' => 'numeric',
         'organization' => 'Jokopus',
-        'subject'      => 'Verifikasi Daftar Akun'
+        'subject' => 'Verifikasi Daftar Akun'
     ]);
 
     return back()->with('success', $data['email']);
@@ -302,7 +387,7 @@ Route::post('/otp/verify', function (Request $request) {
         'otp' => 'required'
     ]);
 
-    $data        = session('register_data');
+    $data = session('register_data');
     $generatedAt = session('otp_generated_at');
 
     if (!$data || !$generatedAt) {
@@ -315,7 +400,7 @@ Route::post('/otp/verify', function (Request $request) {
 
     $response = Http::post('https://otp-service-beta.vercel.app/api/otp/verify', [
         'email' => $data['email'],
-        'otp'   => $request->otp
+        'otp' => $request->otp
     ]);
 
     if (!$response->successful()) {
@@ -323,18 +408,18 @@ Route::post('/otp/verify', function (Request $request) {
     }
 
     $userId = DB::table('users')->insertGetId([
-        'name'       => $data['name'],
-        'email'      => $data['email'],
-        'password'   => $data['password'],
-        'role'       => 0,
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => $data['password'],
+        'role' => 0,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
 
     session([
         'user' => [
-            'id'    => $userId,
-            'name'  => $data['name'],
+            'id' => $userId,
+            'name' => $data['name'],
             'email' => $data['email'],
         ]
     ]);
@@ -357,7 +442,7 @@ Route::get('/dashboard', function () {
     if (!session()->has('user')) {
         return redirect('/daftar');
     }
-    
+
     $userId = session('user.id');
 
     $favGenre = DB::table('peminjaman')
@@ -370,7 +455,7 @@ Route::get('/dashboard', function () {
         ->first();
 
     if (!$favGenre) {
-        $favGenre = (object)['nama' => 'Belum Ada', 'total' => 0];
+        $favGenre = (object) ['nama' => 'Belum Ada', 'total' => 0];
     }
 
     $currentlyBorrowed = Peminjaman::with('buku.penulis')
@@ -424,7 +509,7 @@ Route::post('/dashboard/kembalikan/{id}', function ($id) {
         ]);
 
         return back()->with('success', 'Buku berhasil dikembalikan!');
-        
+
     } catch (\Exception $e) {
         return back()->with('error', 'Gagal mengembalikan buku.');
     }
@@ -454,7 +539,7 @@ Route::get('/login', function () {
 Route::post('/login', function (Request $request) {
 
     $request->validate([
-        'email'    => 'required|email',
+        'email' => 'required|email',
         'password' => 'required'
     ]);
 
@@ -468,8 +553,8 @@ Route::post('/login', function (Request $request) {
 
     session([
         'user' => [
-            'id'    => $user->id,
-            'name'  => $user->name,
+            'id' => $user->id,
+            'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
         ]

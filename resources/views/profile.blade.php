@@ -66,65 +66,12 @@
 <body class="font-display bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white">
     <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <div class="layout-container flex h-full grow flex-col">
-            <header class="fixed top-0 z-50 w-full glass border-b border-white/10 px-4 py-3 md:px-20">
-                <div class="mx-auto flex max-w-[1200px] items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="size-8 text-primary">
-                            <svg viewBox="0 0 48 48" fill="currentColor">
-                                <path
-                                    d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078V7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094V42.4379Z" />
-                            </svg>
-                        </div>
-                        <h2 onclick="window.location.href='/'" class="text-xl font-bold tracking-tight">Jokopus</h2>
-                    </div>
-
-                    <nav class="hidden items-center gap-8 md:flex">
-                        <a href="/" class="text-sm font-medium hover:text-primary">Home</a>
-                        <a href="/buku" class="text-sm font-medium hover:text-primary">Book</a>
-                        <a href="/dashboard" class="text-sm font-medium hover:text-primary">Dashboard</a>
-                    </nav>
-
-                    @if (session()->has('user'))
-                        <!-- Profile Button -->
-                        <div class="flex-1 max-w-md mx-4 hidden sm:block">
-                        </div>
-                        <div class="flex items-center gap-3">
-
-                            @php
-                                $userData = DB::table('users')->where('id', session('user.id'))->first();
-                                $photo = $userData->profile_photo ?? null;
-
-                                if ($photo && (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://'))) {
-                                    $displayPhoto = $photo;
-                                } elseif ($photo && file_exists(storage_path('app/public/avatars/' . $photo))) {
-                                    $displayPhoto = asset('storage/avatars/' . $photo);
-                                } else {
-                                    $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
-                                }
-                             @endphp
-                            <div onclick="window.location.href='/dashboard'"
-                                class="h-10 w-10 rounded-full border-2 border-primary/20 bg-center bg-cover"
-                                data-alt="User profile avatar portrait"
-                                style="background-image: url('{{ $displayPhoto }}');">
-                            </div>
-
-                        </div>
-                    @else
-                        <!-- Sign In Button -->
-                        <a href="/daftar"
-                            class="hidden h-10 min-w-[100px] items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:scale-105 active:scale-95 sm:flex">
-                            Sign In
-                        </a>
-                    @endif
-
-                </div>
-            </header>
 
             <main class="flex-1 flex flex-col items-center">
                 <form action="/profile/update" method="POST" enctype="multipart/form-data"
                     class="w-full max-w-[960px] px-6 md:px-10 py-8">
                     @csrf
-                    <div class="pt-14 flex flex-wrap justify-between gap-3 mb-8">
+                    <div class="flex flex-wrap justify-between gap-3 mb-8">
                         <div class="flex min-w-72 flex-col gap-2">
                             <h1 class="text-slate-900 dark:text-white text-4xl font-black">Settings</h1>
                             <p class="text-slate-500">Manage your profile and account settings.</p>
