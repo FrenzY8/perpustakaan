@@ -25,4 +25,14 @@
 - Halaman buku works
 - Search book landing page
 - Komentar setiap buku: Soon
+
+### Selasa, 3 Februari, 2026
+- Membuat Admin Panel
+- Add Buku baru melalui panel
+- Kontrol User dari panel
+- Role: 1 = Admin, 0 = User
+- Pengeditan Buku di Panel
+- Filter dan Search di halaman /buku
+- Komentar setiap buku
+- Memperbarui header
 ---
