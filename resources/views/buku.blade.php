@@ -166,11 +166,9 @@
                             <option value="year_old" {{ request('sort') == 'year_old' ? 'selected' : '' }}>Tahun: Terlama
                             </option>
 
-                            {{-- Sort by Author --}}
                             <option value="author_asc" {{ request('sort') == 'author_asc' ? 'selected' : '' }}>Penulis:
                                 A-Z</option>
 
-                            {{-- Sort by Others --}}
                             <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Judul: A-Z
                             </option>
                             <option value="pages" {{ request('sort') == 'pages' ? 'selected' : '' }}>Halaman: Terbanyak

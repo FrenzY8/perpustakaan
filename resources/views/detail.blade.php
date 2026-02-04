@@ -248,9 +248,9 @@
           @else
             <form action="/pinjam/{{ $book->id }}" method="POST" class="flex-1 md:flex-none">
               @csrf
-              <button type="submit"
+              <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                        {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -429,10 +429,52 @@
                 alt="{{ $sBook->judul }}" class="w-full h-full object-cover">
             </div>
             <h4 class="text-sm font-bold text-white/90 truncate group-hover:text-primary transition-colors">
-              {{ $sBook->judul }}</h4>
+              {{ $sBook->judul }}
+            </h4>
             <p class="text-xs text-white/40 mt-1">{{ $sBook->penulis->nama ?? 'Anonim' }}</p>
           </div>
         @endforeach
+      </div>
+    </div>
+    <div id="modal-pinjam" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
+      <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+          <h3 class="text-4xl font-bold italic mb-2 uppercase">Pinjam <span class="text-primary">Buku</span></h3>
+          <p class="text-slate-400 text-sm mb-8">Konfirmasi detail peminjaman untuk buku ini.</p>
+
+          <form action="/pinjam/{{ $book->id }}" method="POST" class="space-y-6">
+            @csrf
+            <div class="space-y-4">
+              {{-- Info Buku --}}
+              <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                <p class="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Buku yang dipilih</p>
+                <p class="text-white font-bold">{{ $book->judul }}</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Tanggal Pinjam</label>
+                  <input type="text" value="{{ date('d M Y') }}" disabled
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 outline-none">
+                </div>
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Durasi Pinjaman (Hari)</label>
+                  <input type="number" name="durasi" value="7" min="1" max="30" required
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-emerald-400 font-bold outline-none focus:border-primary">
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3">
+              <button type="button" onclick="toggleModalPinjam()"
+                class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
+              <button type="submit"
+                class="px-8 py-3 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
+                PINJAM SEKARANG
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </main>
@@ -513,4 +555,19 @@
       }, 300);
     }, 4000);
   });
+  function toggleModalPinjam() {
+    const modal = document.getElementById('modal-pinjam');
+    if (modal.classList.contains('hidden')) {
+      modal.classList.remove('hidden');
+    } else {
+      modal.classList.add('hidden');
+    }
+  }
+
+  window.onclick = function (event) {
+    const modal = document.getElementById('modal-pinjam');
+    if (event.target == modal) {
+      toggleModalPinjam();
+    }
+  }
 </script>

@@ -171,12 +171,18 @@ Route::get('/buku', function (Request $request) {
     return view('buku', compact('books', 'categories'));
 });
 
-Route::post('/pinjam/{id}', function ($id) {
+Route::post('/pinjam/{id}', function (Request $request, $id) {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
     }
 
     $userId = session('user.id');
+
+    $durasi = $request->input('durasi', 7);
+
+    if ($durasi > 30)
+        $durasi = 30;
+
     $cekPinjam = Peminjaman::where('id_user', $userId)
         ->where('id_buku', $id)
         ->where('status', 'dipinjam')
@@ -190,12 +196,12 @@ Route::post('/pinjam/{id}', function ($id) {
         'id_user' => $userId,
         'id_buku' => $id,
         'tanggal_pinjam' => Carbon::now(),
-        'tanggal_jatuh_tempo' => Carbon::now()->addDays(7), // Pinjam 7 hari
+        'tanggal_jatuh_tempo' => Carbon::now()->addDays($durasi),
         'status' => 'dipinjam',
         'dibuat_pada' => Carbon::now(),
     ]);
 
-    return back()->with('success', 'Buku berhasil dipinjam! Cek di dashboard kamu.');
+    return back()->with('success', "Buku berhasil dipinjam selama $durasi hari!");
 });
 
 Route::get('/dashboard/wishlist', function () {
@@ -260,12 +266,26 @@ Route::get('/admin/panel', function () {
         ->get();
 
     $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
+    $stats = [
+        'total' => DB::table('peminjaman')->count(),
+        'dipinjam' => DB::table('peminjaman')->where('status', 'dipinjam')->count(),
+        'terlambat' => DB::table('peminjaman')->where('status', 'terlambat')->count(),
+        'kembali' => DB::table('peminjaman')->where('status', 'dikembalikan')->count(),
+    ];
     $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
-    return view('admin.panel', compact('user', 'books', 'peminjaman', 'authors', 'categories', 'users'));
+    return view('admin.panel', compact('user', 'books', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
 });
 
+Route::post('/admin/peminjaman/kembali/{id}', function ($id) {
+    DB::table('peminjaman')->where('id', $id)->update([
+        'status' => 'dikembalikan',
+        'tanggal_kembali' => now(),
+        'diperbarui_pada' => now()
+    ]);
 
+    return back()->with('success', 'Buku telah berhasil dikembalikan!');
+});
 
 Route::post('/admin/books/store', function (Request $request) {
     $request->validate([

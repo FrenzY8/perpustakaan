@@ -126,12 +126,24 @@
                     </div>
                     <div class="flex gap-3">
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Users</p>
-                            <p class="text-xl font-black text-primary">{{ count($users) }}</p>
+                            <p class="text-[10px] text-slate-500 text-white font-bold uppercase tracking-wider">Users</p>
+                            <p class="text-xl font-black text-white">{{ count($users) }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Books</p>
-                            <p class="text-xl font-black text-primary">{{ count($books) }}</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Books</p>
+                            <p class="text-xl font-black text-white">{{ count($books) }}</p>
+                        </div>
+                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Dipinjam</p>
+                            <p class="text-xl font-black text-white">{{ $stats['dipinjam'] }}</p>
+                        </div>
+                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Tenggak</p>
+                            <p class="text-xl font-black text-white">{{ $stats['terlambat'] }}</p>
+                        </div>
+                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Kembali</p>
+                            <p class="text-xl font-black text-white">{{ $stats['kembali'] }}</p>
                         </div>
                     </div>
                 </div>
@@ -180,7 +192,7 @@
 
                 <section id="table-peminjaman" class="space-y-4">
                     <h3 class="text-xl font-bold flex items-center gap-3 px-2">
-                        <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Log Peminjaman Buku
+                        <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
                     </h3>
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
@@ -228,12 +240,12 @@
                                                     <form action="/admin/peminjaman/kembali/{{ $p->id }}" method="POST">
                                                         @csrf
                                                         <button type="submit"
-                                                            class="text-[10px] font-bold bg-primary/20 text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all">
-                                                            SELESAI PINJAM
+                                                            class="text-[10px] font-bold bg-primary/20 text-primary px-3 py-1.5 rounded-lg hover:bg-primary text-white hover:text-red transition-all">
+                                                            SELESAIKAN PINJAMAN
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <span class="text-[10px] text-slate-600 italic">Selesai pada
+                                                    <span class="text-[10px] text-slate-600 text-white">Selesai pada
                                                         {{ date('d/m/y', strtotime($p->tanggal_kembali)) }}</span>
                                                 @endif
                                             </td>
