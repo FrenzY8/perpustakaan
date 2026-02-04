@@ -55,9 +55,15 @@ Route::get('/detail/{id}', function ($id) {
             ->exists();
     }
 
+    $suggestedBooks = Buku::where('id_kategori', $book->id_kategori)
+        ->where('id', '!=', $id)
+        ->inRandomOrder()
+        ->limit(5)
+        ->get();
+
     $wishlistCount = Wishlist::where('id_buku', $id)->count();
 
-    return view('detail', compact('book', 'isWishlisted', 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
+    return view('detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 });
 Route::post('/buku/{id}/komentar', function (Request $request, $id) {
     if (!session()->has('user')) {
@@ -96,15 +102,17 @@ Route::post('/wishlist/{id}', function ($id) {
 Route::get('/buku', function (Request $request) {
     $search = $request->query('search');
     $category = $request->query('category');
+    $format = $request->query('format');
+    $sort = $request->query('sort');
 
-    $query = Buku::with(['penulis', 'kategori']); 
+    $query = Buku::with(['penulis', 'kategori']);
 
     if ($search) {
         $query->where(function ($q) use ($search) {
             $q->where('judul', 'LIKE', "%{$search}%")
-              ->orWhereHas('penulis', function ($sub) use ($search) {
-                  $sub->where('nama', 'LIKE', "%{$search}%");
-              });
+                ->orWhereHas('penulis', function ($sub) use ($search) {
+                    $sub->where('nama', 'LIKE', "%{$search}%");
+                });
         });
     }
 
@@ -114,8 +122,44 @@ Route::get('/buku', function (Request $request) {
         });
     }
 
-    $books = $query->latest()->get();
-    $categories = DB::table('kategori')->get(); 
+    if ($format && $format !== 'all') {
+        $query->where('format', $format);
+    }
+
+    switch ($sort) {
+        case 'year_new':
+            $query->orderBy('tanggal_terbit', 'desc');
+            break;
+
+        case 'year_old':
+            $query->orderBy('tanggal_terbit', 'asc');
+            break;
+
+        case 'author_asc':
+            $query->join('penulis', 'buku.id_penulis', '=', 'penulis.id')
+                ->select('buku.*')
+                ->orderBy('penulis.nama', 'asc');
+            break;
+
+        case 'title_asc':
+            $query->orderBy('judul', 'asc');
+            break;
+
+        case 'pages':
+            $query->orderBy('jumlah_halaman', 'desc');
+            break;
+
+        case 'oldest':
+            $query->oldest();
+            break;
+
+        default:
+            $query->latest();
+            break;
+    }
+
+    $books = $query->get();
+    $categories = DB::table('kategori')->get();
 
     return view('buku', compact('books', 'categories'));
 });
@@ -155,11 +199,21 @@ Route::get('/dashboard/wishlist', function () {
         return redirect('/login');
     }
 
+    $userId = session('user.id');
+
     $wishlist = Wishlist::with(['buku.penulis'])
-        ->where('id_user', session('user.id'))
+        ->where('id_user', $userId)
         ->get();
 
-    return view('dashboard.wishlist', compact('wishlist'));
+    $wishlistIds = $wishlist->pluck('id_buku')->toArray();
+
+    $suggestedBooks = Buku::with('penulis')
+        ->whereNotIn('id', $wishlistIds)
+        ->inRandomOrder()
+        ->limit(5)
+        ->get();
+
+    return view('dashboard.wishlist', compact('wishlist', 'suggestedBooks'));
 });
 Route::get('/profile', function () {
     if (!session()->has('user'))
@@ -194,17 +248,17 @@ Route::post('/admin/books/store', function (Request $request) {
     ]);
 
     DB::table('buku')->insert([
-        'judul'          => $request->judul,
-        'id_penulis'     => $request->id_penulis,
-        'id_kategori'    => $request->id_kategori,
-        'isbn'           => $request->isbn,
+        'judul' => $request->judul,
+        'id_penulis' => $request->id_penulis,
+        'id_kategori' => $request->id_kategori,
+        'isbn' => $request->isbn,
         'jumlah_halaman' => $request->halaman,
-        'ringkasan'      => $request->ringkasan,
-        'gambar_sampul'  => $request->gambar_sampul ?? 'https://via.placeholder.com/150',
-        'penerbit'       => 'Jokopus Publishing',
+        'ringkasan' => $request->ringkasan,
+        'gambar_sampul' => $request->gambar_sampul ?? 'https://via.placeholder.com/150',
+        'penerbit' => 'Jokopus Publishing',
         'tanggal_terbit' => now(),
-        'created_at'     => now(),
-        'updated_at'     => now(),
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     return redirect('/admin/panel')->with('success', 'Buku baru berhasil dipajang!');
@@ -212,12 +266,12 @@ Route::post('/admin/books/store', function (Request $request) {
 Route::post('/admin/books/update', function (Request $request) {
     try {
         DB::table('buku')->where('id', $request->id)->update([
-            'judul'          => $request->judul,
-            'id_penulis'     => $request->id_penulis,
-            'id_kategori'    => $request->id_kategori,
-            'gambar_sampul'  => $request->gambar_sampul,
-            'isbn'           => $request->isbn,
-            'updated_at'     => now(),
+            'judul' => $request->judul,
+            'id_penulis' => $request->id_penulis,
+            'id_kategori' => $request->id_kategori,
+            'gambar_sampul' => $request->gambar_sampul,
+            'isbn' => $request->isbn,
+            'updated_at' => now(),
         ]);
 
         return redirect('/admin/panel')->with('success', 'Buku berhasil diupdate!');
@@ -232,7 +286,7 @@ Route::post('/admin/users/update-role', function (Request $request) {
         }
 
         DB::table('users')->where('id', $request->id)->update([
-            'role' => (int)$request->role,
+            'role' => (int) $request->role,
             'updated_at' => now(),
         ]);
 
@@ -479,19 +533,39 @@ Route::get('/dashboard', function () {
     $totalFavorit = Wishlist::where('id_user', $userId)
         ->count();
 
-    return view('dashboard', compact('currentlyBorrowed', 'favGenre', 'wishlist', 'totalPinjam', 'totalFavorit'));
+    $suggestedBooks = Buku::with('penulis')
+        ->inRandomOrder()
+        ->limit(5)
+        ->get();
+
+    return view('dashboard', compact('currentlyBorrowed', 'suggestedBooks', 'favGenre', 'wishlist', 'totalPinjam', 'totalFavorit'));
 });
 Route::get('/dashboard/pinjaman', function () {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
     }
+
+    $userId = session('user.id');
+
     $pinjaman = Peminjaman::with('buku.penulis')
         ->where('id_user', session('user.id'))
         ->whereNull('tanggal_kembali') // Hanya yang belum dikembalikan
         ->orderBy('tanggal_jatuh_tempo', 'asc')
         ->get();
 
-    return view('dashboard.pinjaman', compact('pinjaman'));
+    $wishlist = Wishlist::with(['buku.penulis'])
+        ->where('id_user', $userId)
+        ->get();
+
+    $pinjamanIds = $pinjaman->pluck('id_buku')->toArray();
+
+    $suggestedBooks = Buku::with('penulis')
+        ->whereNotIn('id', $pinjamanIds)
+        ->inRandomOrder()
+        ->limit(5)
+        ->get();
+
+    return view('dashboard.pinjaman', compact('pinjaman', 'suggestedBooks'));
 });
 Route::post('/dashboard/kembalikan/{id}', function ($id) {
     if (!session()->has('user')) {

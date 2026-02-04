@@ -250,7 +250,7 @@
               @csrf
               <button type="submit"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                              {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -395,6 +395,44 @@
             <span class="text-white/80 font-medium">{{ $book->id_kategori }}</span>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="mt-24">
+      <div class="flex items-center justify-between mb-8">
+        <div class="space-y-1">
+          <h3 class="text-2xl font-black text-white flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary">auto_awesome</span>
+            Lainnya
+          </h3>
+          <p class="text-white/40 text-sm">Buku-buku populer yang mungkin kamu suka</p>
+        </div>
+        <a href="/buku"
+          class="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary hover:text-white transition-all">
+          Lihat Semua
+          <span
+            class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        @foreach($suggestedBooks as $sBook)
+          <div onclick="window.location.href='/detail/{{ $sBook->id }}'" class="group cursor-pointer">
+            <div
+              class="relative aspect-[3/4.5] rounded-xl overflow-hidden mb-4 border border-white/5 shadow-lg transition-all duration-500 group-hover:scale-[1.03] group-hover:border-primary/50 group-hover:shadow-primary/20">
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex items-end p-4">
+                <span
+                  class="text-[10px] font-bold text-white uppercase tracking-widest bg-primary px-2 py-1 rounded">Lihat
+                  Detail</span>
+              </div>
+              <img src="{{ $sBook->gambar_sampul ? $sBook->gambar_sampul : asset('images/cover-default.jpg') }}"
+                alt="{{ $sBook->judul }}" class="w-full h-full object-cover">
+            </div>
+            <h4 class="text-sm font-bold text-white/90 truncate group-hover:text-primary transition-colors">
+              {{ $sBook->judul }}</h4>
+            <p class="text-xs text-white/40 mt-1">{{ $sBook->penulis->nama ?? 'Anonim' }}</p>
+          </div>
+        @endforeach
       </div>
     </div>
   </main>

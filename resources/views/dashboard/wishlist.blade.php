@@ -173,6 +173,42 @@
                         @endforeach
                     </div>
                 @endif
+                <div class="mt-20">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        <h3 class="text-xl font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                            Mungkin Kamu Suka
+                        </h3>
+                        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                        @foreach($suggestedBooks as $sBook)
+                            <div onclick="window.location.href='/detail/{{ $sBook->id }}'"
+                                class="glass-card p-3 rounded-2xl group cursor-pointer hover:border-primary/30 transition-all">
+
+                                <div class="aspect-[3/4] rounded-xl overflow-hidden mb-3 relative">
+                                    <img src="{{ $sBook->gambar_sampul }}"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                    <div
+                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <span
+                                            class="bg-white text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase">Lihat</span>
+                                    </div>
+                                </div>
+
+                                <div class="px-1">
+                                    <h4
+                                        class="font-bold text-xs truncate text-white/90 group-hover:text-primary transition-colors">
+                                        {{ $sBook->judul }}
+                                    </h4>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">{{ $sBook->penulis->nama }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </main>
 
             <footer

@@ -155,16 +155,26 @@
                     </div>
 
                     <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">filter_list</span>
-                        <select name="category" onchange="this.form.submit()"
-                            class="w-full sm:w-48 bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white focus:border-primary focus:ring-0 transition-all outline-none appearance-none">
-                            <option value="all" class="bg-background-dark">Semua Kategori</option>
-                            @foreach($categories as $t)
-                                <option value="{{ $t->nama }}" class="bg-background-dark" {{ request('category') == $t->nama ? 'selected' : '' }}>
-                                    {{ strtoupper($t->nama) }}
-                                </option>
-                            @endforeach
+                        <select name="sort" onchange="this.form.submit()"
+                            class="appearance-none h-10 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-wider focus:border-primary/50 focus:ring-0 text-slate-400">
+                            <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru (Input)
+                            </option>
+
+                            {{-- Sort by Year --}}
+                            <option value="year_new" {{ request('sort') == 'year_new' ? 'selected' : '' }}>Tahun: Terbaru
+                            </option>
+                            <option value="year_old" {{ request('sort') == 'year_old' ? 'selected' : '' }}>Tahun: Terlama
+                            </option>
+
+                            {{-- Sort by Author --}}
+                            <option value="author_asc" {{ request('sort') == 'author_asc' ? 'selected' : '' }}>Penulis:
+                                A-Z</option>
+
+                            {{-- Sort by Others --}}
+                            <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Judul: A-Z
+                            </option>
+                            <option value="pages" {{ request('sort') == 'pages' ? 'selected' : '' }}>Halaman: Terbanyak
+                            </option>
                         </select>
                     </div>
 
