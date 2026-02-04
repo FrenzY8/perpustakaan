@@ -5,7 +5,7 @@
  * Rifky Fadillah
  * Peminjaman Buku
  * 04 Februari 2026
-*/
+ */
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\Admin\BukuController;
@@ -237,25 +237,32 @@ Route::get('/admin/panel', function () {
 
     $searchBook = request('search_book');
     $books = Buku::with('penulis', 'kategori')
-        ->when($searchBook, function($query, $search) {
+        ->when($searchBook, function ($query, $search) {
             return $query->where('judul', 'like', "%{$search}%")
-                         ->orWhereHas('penulis', function($q) use ($search) {
-                             $q->where('nama', 'like', "%{$search}%");
-                         });
+                ->orWhereHas('penulis', function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%");
+                });
         })
         ->latest()->get();
 
     $searchUser = request('search_user');
-    $users = User::when($searchUser, function($query, $search) {
-            return $query->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-        })
+    $users = User::when($searchUser, function ($query, $search) {
+        return $query->where('name', 'like', "%{$search}%")
+            ->orWhere('email', 'like', "%{$search}%");
+    })
         ->latest()->get();
+
+    $peminjaman = DB::table('peminjaman')
+        ->join('users', 'peminjaman.id_user', '=', 'users.id')
+        ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+        ->select('peminjaman.*', 'users.name as nama_user', 'buku.judul as judul_buku')
+        ->latest('peminjaman.dibuat_pada')
+        ->get();
 
     $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
     $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
-    return view('admin.panel', compact('user', 'books', 'authors', 'categories', 'users'));
+    return view('admin.panel', compact('user', 'books', 'peminjaman', 'authors', 'categories', 'users'));
 });
 
 

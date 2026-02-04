@@ -69,7 +69,8 @@
                     <span>Admin Panel</span>
                 </a>
 
-                <p class="pt-4 px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-6">Resources</p>
+                <p class="pt-4 px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-6">
+                    Resources</p>
                 <form action="/admin/panel#table-buku" method="GET" class="mb-4 flex gap-2 px-2">
                     <div class="relative flex-1 max-w-sm">
                         <span
@@ -168,6 +169,73 @@
                                                     class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
                                                     <span class="material-symbols-outlined text-sm">manage_accounts</span>
                                                 </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="table-peminjaman" class="space-y-4">
+                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
+                        <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Log Peminjaman Buku
+                    </h3>
+
+                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
+                                        <th class="px-6 py-5">Peminjam & Buku</th>
+                                        <th class="px-6 py-5">Tgl Pinjam</th>
+                                        <th class="px-6 py-5">Jatuh Tempo</th>
+                                        <th class="px-6 py-5">Status</th>
+                                        <th class="px-6 py-5 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @foreach($peminjaman as $p)
+                                        <tr class="hover:bg-white/[0.02] transition-colors">
+                                            <td class="px-6 py-4">
+                                                <p class="font-bold text-sm text-white">{{ $p->nama_user }}</p>
+                                                <p class="text-[11px] text-[#92adc9] mt-1">{{ $p->judul_buku }}</p>
+                                            </td>
+                                            <td class="px-6 py-4 text-xs text-slate-400">
+                                                {{ date('d M Y', strtotime($p->tanggal_pinjam)) }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-xs {{ strtotime($p->tanggal_jatuh_tempo) < time() && $p->status == 'dipinjam' ? 'text-red-400 font-bold' : 'text-slate-400' }}">
+                                                {{ date('d M Y', strtotime($p->tanggal_jatuh_tempo)) }}
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                @php
+                                                    $statusColor = [
+                                                        'dipinjam' => 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                                                        'dikembalikan' => 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+                                                        'terlambat' => 'bg-red-500/10 text-red-500 border-red-500/20'
+                                                    ][$p->status];
+                                                @endphp
+                                                <span
+                                                    class="px-3 py-1 rounded-full text-[9px] font-black border {{ $statusColor }} uppercase">
+                                                    {{ $p->status }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                @if($p->status == 'dipinjam')
+                                                    <form action="/admin/peminjaman/kembali/{{ $p->id }}" method="POST">
+                                                        @csrf
+                                                        <button type="submit"
+                                                            class="text-[10px] font-bold bg-primary/20 text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all">
+                                                            SELESAI PINJAM
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-[10px] text-slate-600 italic">Selesai pada
+                                                        {{ date('d/m/y', strtotime($p->tanggal_kembali)) }}</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
