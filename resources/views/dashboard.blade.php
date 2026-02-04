@@ -199,13 +199,8 @@
                         <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
                            <div
                               class="flex items-center gap-2 text-sm bg-green-500/10 text-green-400 px-3 py-1 rounded-full">
-                              <span class="material-symbols-outlined text-xs">guard</span>
-                              No Outstanding Fines
-                           </div>
-                           <div
-                              class="flex items-center gap-2 text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
-                              <span class="material-symbols-outlined text-xs">workspace_premium</span>
-                              Gold Tier Rewards
+                              <span class="material-symbols-outlined text-xs">shield</span>
+                              {{ session('user.role') == 1 ? 'Admin' : 'Member' }}
                            </div>
                         </div>
                      </div>

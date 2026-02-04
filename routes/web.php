@@ -1,5 +1,12 @@
 <?php
 
+/* 
+ * Tugas Akhir
+ * Rifky Fadillah
+ * Peminjaman Buku
+ * 04 Februari 2026
+*/
+
 namespace App\Http\Controllers;
 use App\Http\Controllers\Admin\BukuController;
 use App\Models\Buku;
@@ -16,12 +23,8 @@ use App\Models\Komentar;
 use App\Models\User;
 use Carbon\Carbon;
 
-/*
-|--------------------------------------------------------------------------
-| HOME - ETC
-|--------------------------------------------------------------------------
-*/
 Route::get('/', [PageController::class, 'home']);
+
 Route::post('/detail/{id}/komentar', function (Request $request, $id) {
     Komentar::create([
         'id_user' => session('user.id'),
@@ -32,6 +35,7 @@ Route::post('/detail/{id}/komentar', function (Request $request, $id) {
 
     return back()->with('success', 'Komentar terkirim!');
 });
+
 Route::get('/detail/{id}', function ($id) {
     $book = Buku::with(['penulis', 'komentar.user'])->findOrFail($id);
 
@@ -65,6 +69,7 @@ Route::get('/detail/{id}', function ($id) {
 
     return view('detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 });
+
 Route::post('/buku/{id}/komentar', function (Request $request, $id) {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
@@ -82,6 +87,7 @@ Route::post('/buku/{id}/komentar', function (Request $request, $id) {
 
     return back()->with('success', 'Komentar terkirim!');
 });
+
 Route::post('/wishlist/{id}', function ($id) {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
@@ -99,6 +105,7 @@ Route::post('/wishlist/{id}', function ($id) {
         return back()->with('success', 'Berhasil masuk wishlist!');
     }
 });
+
 Route::get('/buku', function (Request $request) {
     $search = $request->query('search');
     $category = $request->query('category');
@@ -163,6 +170,7 @@ Route::get('/buku', function (Request $request) {
 
     return view('buku', compact('books', 'categories'));
 });
+
 Route::post('/pinjam/{id}', function ($id) {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
@@ -189,11 +197,7 @@ Route::post('/pinjam/{id}', function ($id) {
 
     return back()->with('success', 'Buku berhasil dipinjam! Cek di dashboard kamu.');
 });
-/*
-|--------------------------------------------------------------------------
-| DASHBOARD
-|--------------------------------------------------------------------------
-*/
+
 Route::get('/dashboard/wishlist', function () {
     if (!session()->has('user')) {
         return redirect('/login');
@@ -215,6 +219,7 @@ Route::get('/dashboard/wishlist', function () {
 
     return view('dashboard.wishlist', compact('wishlist', 'suggestedBooks'));
 });
+
 Route::get('/profile', function () {
     if (!session()->has('user'))
         return redirect('/login');
@@ -222,7 +227,6 @@ Route::get('/profile', function () {
     $user = DB::table('users')->where('id', session('user.id'))->first();
     return view('profile', compact('user'));
 });
-
 
 Route::get('/admin/panel', function () {
     if (!session()->has('user') || session('user.role') != 1) {
@@ -239,6 +243,7 @@ Route::get('/admin/panel', function () {
 
     return view('admin.panel', compact('user', 'books', 'authors', 'books', 'categories', 'users'));
 });
+
 Route::post('/admin/books/store', function (Request $request) {
     $request->validate([
         'judul' => 'required|string|max:255',
@@ -263,6 +268,7 @@ Route::post('/admin/books/store', function (Request $request) {
 
     return redirect('/admin/panel')->with('success', 'Buku baru berhasil dipajang!');
 });
+
 Route::post('/admin/books/update', function (Request $request) {
     try {
         DB::table('buku')->where('id', $request->id)->update([
@@ -279,6 +285,7 @@ Route::post('/admin/books/update', function (Request $request) {
         return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage());
     }
 });
+
 Route::post('/admin/users/update-role', function (Request $request) {
     try {
         if (!in_array($request->role, ['0', '1'])) {
@@ -295,6 +302,7 @@ Route::post('/admin/users/update-role', function (Request $request) {
         return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage());
     }
 });
+
 Route::delete('/admin/books/delete/{id}', function ($id) {
     try {
         DB::transaction(function () use ($id) {
@@ -309,6 +317,7 @@ Route::delete('/admin/books/delete/{id}', function ($id) {
         return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
     }
 });
+
 Route::post('/profile/update', function (Request $request) {
     $userId = session('user.id');
     if (!session()->has('user')) {
@@ -342,22 +351,13 @@ Route::post('/profile/update', function (Request $request) {
 
     return back()->with('success_update', true);
 });
-/*
-|--------------------------------------------------------------------------
-| REGISTER PAGE
-|--------------------------------------------------------------------------
-*/
+
 Route::get('/daftar', function () {
     $dbStatus = 'Database berhasil terhubung';
 
     return view('daftar', compact('dbStatus'));
 });
 
-/*
-|--------------------------------------------------------------------------
-| OTP PAGE (BLOCK DIRECT ACCESS)
-|--------------------------------------------------------------------------
-*/
 Route::get('/otp', function () {
     if (!session()->has('register_data')) {
         abort(403);
@@ -366,11 +366,6 @@ Route::get('/otp', function () {
     return view('otp');
 });
 
-/*
-|--------------------------------------------------------------------------
-| REGISTER SUBMIT (GENERATE OTP)
-|--------------------------------------------------------------------------
-*/
 Route::post('/users/store', function (Request $request) {
 
     $request->validate([
@@ -399,11 +394,6 @@ Route::post('/users/store', function (Request $request) {
     return redirect('/otp')->with('success', $request->email);
 });
 
-/*
-|--------------------------------------------------------------------------
-| RESEND OTP (COOLDOWN 60s)
-|--------------------------------------------------------------------------
-*/
 Route::post('/otp/resend', function () {
 
     $data = session('register_data');
@@ -430,11 +420,6 @@ Route::post('/otp/resend', function () {
     return back()->with('success', $data['email']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| VERIFY OTP (EXPIRED 3 MENIT) + LOGIN SESSION
-|--------------------------------------------------------------------------
-*/
 Route::post('/otp/verify', function (Request $request) {
 
     $request->validate([
@@ -487,11 +472,6 @@ Route::post('/otp/verify', function (Request $request) {
     return redirect('/dashboard');
 });
 
-/*
-|--------------------------------------------------------------------------
-| DASHBOARD (PROTECTED)
-|--------------------------------------------------------------------------
-*/
 Route::get('/dashboard', function () {
     if (!session()->has('user')) {
         return redirect('/daftar');
@@ -540,6 +520,7 @@ Route::get('/dashboard', function () {
 
     return view('dashboard', compact('currentlyBorrowed', 'suggestedBooks', 'favGenre', 'wishlist', 'totalPinjam', 'totalFavorit'));
 });
+
 Route::get('/dashboard/pinjaman', function () {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
@@ -549,7 +530,7 @@ Route::get('/dashboard/pinjaman', function () {
 
     $pinjaman = Peminjaman::with('buku.penulis')
         ->where('id_user', session('user.id'))
-        ->whereNull('tanggal_kembali') // Hanya yang belum dikembalikan
+        ->whereNull('tanggal_kembali')
         ->orderBy('tanggal_jatuh_tempo', 'asc')
         ->get();
 
@@ -567,6 +548,7 @@ Route::get('/dashboard/pinjaman', function () {
 
     return view('dashboard.pinjaman', compact('pinjaman', 'suggestedBooks'));
 });
+
 Route::post('/dashboard/kembalikan/{id}', function ($id) {
     if (!session()->has('user')) {
         return redirect('/login')->with('error', 'Login dulu');
@@ -588,6 +570,7 @@ Route::post('/dashboard/kembalikan/{id}', function ($id) {
         return back()->with('error', 'Gagal mengembalikan buku.');
     }
 });
+
 Route::get('/dashboard/history', function () {
     $history = Peminjaman::with('buku.penulis')
         ->where('id_user', session('user.id'))
@@ -595,13 +578,17 @@ Route::get('/dashboard/history', function () {
         ->orderBy('tanggal_kembali', 'desc')
         ->get();
 
-    return view('dashboard.history', compact('history'));
+    $historyIds = $history->pluck('id_buku')->toArray();
+
+    $suggestedBooks = Buku::with('penulis')
+        ->whereNotIn('id', $historyIds)
+        ->inRandomOrder()
+        ->limit(5)
+        ->get();
+
+    return view('dashboard.history', compact('history', 'suggestedBooks'));
 });
-/*
-|--------------------------------------------------------------------------
-| LOGIN
-|--------------------------------------------------------------------------
-*/
+
 Route::get('/login', function () {
     if (session()->has('user')) {
         return redirect('/dashboard');
@@ -637,11 +624,6 @@ Route::post('/login', function (Request $request) {
     return redirect('/dashboard');
 });
 
-/*
-|--------------------------------------------------------------------------
-| LOGOUT
-|--------------------------------------------------------------------------
-*/
 Route::get('/logout', function () {
     session()->flush();
     return redirect('/');
