@@ -235,14 +235,30 @@ Route::get('/admin/panel', function () {
 
     $user = DB::table('users')->where('id', session('user.id'))->first();
 
-    $books = Buku::with('penulis', 'kategori')->latest()->get();
-    $users = User::latest()->get();
+    $searchBook = request('search_book');
+    $books = Buku::with('penulis', 'kategori')
+        ->when($searchBook, function($query, $search) {
+            return $query->where('judul', 'like', "%{$search}%")
+                         ->orWhereHas('penulis', function($q) use ($search) {
+                             $q->where('nama', 'like', "%{$search}%");
+                         });
+        })
+        ->latest()->get();
+
+    $searchUser = request('search_user');
+    $users = User::when($searchUser, function($query, $search) {
+            return $query->where('name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+        })
+        ->latest()->get();
 
     $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
     $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
-    return view('admin.panel', compact('user', 'books', 'authors', 'books', 'categories', 'users'));
+    return view('admin.panel', compact('user', 'books', 'authors', 'categories', 'users'));
 });
+
+
 
 Route::post('/admin/books/store', function (Request $request) {
     $request->validate([

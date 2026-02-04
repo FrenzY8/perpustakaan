@@ -66,20 +66,38 @@
                 <a href="/admin/panel"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold transition-all">
                     <span class="material-symbols-outlined fill-1">admin_panel_settings</span>
-                    <span>Admin Hub</span>
+                    <span>Admin Panel</span>
                 </a>
 
-                <p class="px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-6">Resources</p>
-                <a href="#table-buku"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#92adc9] hover:bg-white/5 transition-all">
-                    <span class="material-symbols-outlined">menu_book</span>
-                    <span>Kelola Buku</span>
-                </a>
-                <a href="#table-user"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#92adc9] hover:bg-white/5 transition-all">
-                    <span class="material-symbols-outlined">group</span>
-                    <span>Daftar User</span>
-                </a>
+                <p class="pt-4 px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-6">Resources</p>
+                <form action="/admin/panel#table-buku" method="GET" class="mb-4 flex gap-2 px-2">
+                    <div class="relative flex-1 max-w-sm">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+                        <input type="text" name="search_book" value="{{ request('search_book') }}"
+                            placeholder="Cari judul buku atau penulis..."
+                            class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all">
+                    </div>
+                    <button type="submit"
+                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">Cari</button>
+                    @if(request('search_book'))
+                        <a href="/admin/panel#table-buku" class="px-4 py-2 text-xs text-red-400 hover:underline">Reset</a>
+                    @endif
+                </form>
+                <form action="/admin/panel#table-user" method="GET" class="mb-4 flex gap-2 px-2">
+                    <div class="relative flex-1 max-w-sm">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+                        <input type="text" name="search_user" value="{{ request('search_user') }}"
+                            placeholder="Cari nama atau email user..."
+                            class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all">
+                    </div>
+                    <button type="submit"
+                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">Cari</button>
+                    @if(request('search_user'))
+                        <a href="/admin/panel#table-user" class="px-4 py-2 text-xs text-red-400 hover:underline">Reset</a>
+                    @endif
+                </form>
             </nav>
 
             <div class="p-4 border-t border-white/5">
