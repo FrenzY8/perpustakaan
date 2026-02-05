@@ -126,23 +126,28 @@
                     </div>
                     <div class="flex gap-3">
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 text-white font-bold uppercase tracking-wider">Users</p>
+                            <p class="text-[10px] text-slate-500 text-white font-bold uppercase tracking-wider">Users
+                            </p>
                             <p class="text-xl font-black text-white">{{ count($users) }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Books</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Books
+                            </p>
                             <p class="text-xl font-black text-white">{{ count($books) }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Dipinjam</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Dipinjam
+                            </p>
                             <p class="text-xl font-black text-white">{{ $stats['dipinjam'] }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Tenggak</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Tenggak
+                            </p>
                             <p class="text-xl font-black text-white">{{ $stats['terlambat'] }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Kembali</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Kembali
+                            </p>
                             <p class="text-xl font-black text-white">{{ $stats['kembali'] }}</p>
                         </div>
                     </div>
@@ -221,6 +226,24 @@
                                             <td
                                                 class="px-6 py-4 text-xs {{ strtotime($p->tanggal_jatuh_tempo) < time() && $p->status == 'dipinjam' ? 'text-red-400 font-bold' : 'text-slate-400' }}">
                                                 {{ date('d M Y', strtotime($p->tanggal_jatuh_tempo)) }}
+
+                                                @if($p->status !== 'dikembalikan')
+                                                    @php
+                                                        $deadline = \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+                                                        $now = \Carbon\Carbon::now()->startOfDay();
+                                                        $diff = $now->diffInDays($deadline, false); 
+                                                    @endphp
+
+                                                    <div class="mt-1 text-[10px] uppercase tracking-wider">
+                                                        @if($diff > 0)
+                                                            <span class="text-blue-400">{{ $diff }} Hari lagi</span>
+                                                        @elseif($diff == 0)
+                                                            <span class="text-amber-500 font-bold">Hari ini!</span>
+                                                        @else
+                                                            <span class="text-red-500">Telat {{ abs($diff) }} Hari</span>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4">
                                                 @php

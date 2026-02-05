@@ -99,10 +99,10 @@
                                     </div>
 
                                     <div>
-                                        <p class="text-white text-2xl font-bold">{{ $user->name }}</p>
+                                        <p class="text-white text-4xl font-bold">{{ $user->name }}</p>
                                         <p class="text-slate-400">{{ $user->email }}</p>
                                         <span
-                                            class="mt-2 inline-block px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-semibold">MEMBER</span>
+                                            class="mt-2 inline-block px-2 py-0.5 rounded bg-primary/10 text-primary text-1xl font-semibold">{{ session('user.role') == 1 ? 'Admin' : 'Member' }}</span>
                                     </div>
                                 </div>
                                 <button type="button" onclick="document.getElementById('photo-input').click()"
@@ -151,6 +151,26 @@
                                     </div>
                                 </div>
                             </section>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div
+                                    class="glass-panel group border-white/5 hover:border-white/20 transition-all duration-500 rounded-2xl p-6 flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="size-12 rounded-full bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
+                                            <span class="material-symbols-outlined">logout</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-white font-bold text-sm">Sign Out</h3>
+                                            <p class="text-slate-500 text-xs">Keluar dari sesi ini</p>
+                                        </div>
+                                    </div>
+                                    <a href="/logout"
+                                        class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-all">
+                                        Logout
+                                    </a>
+                                </div>
+                            </div>
+                            </section>
 
                             <div class="flex items-center justify-end gap-4 pt-6">
                                 <a href="/dashboard" class="text-slate-400 hover:text-white transition-colors">Kembali
@@ -177,27 +197,46 @@
                 }
             </script>
 
-            @if(session('success_update'))
-                <div id="toast">
+            @if(session('success_update') || session('error'))
+                @php
+                    $isError = session('error');
+                    $bgClass = $isError ? 'border-red-500/50' : 'border-primary/30';
+                    $icon = $isError ? 'error' : 'check_circle';
+                    $iconCol = $isError ? 'text-red-500' : 'text-primary';
+                    $title = $isError ? 'Failed' : 'Profile Updated';
+                    $msg = $isError ? session('error') : 'Profile berhasil diperbarui.';
+                @endphp
+
+                <div id="toast"
+                    class="fixed bottom-8 right-8 z-[100] transform translate-y-0 opacity-100 transition-all duration-300">
                     <div
-                        class="fixed bottom-8 right-8 z-[100] transform translate-y-0 opacity-100 transition-all duration-300">
-                        <div
-                            class="bg-slate-900 dark:bg-[#233648] border border-primary/30 rounded-xl px-5 py-4 shadow-2xl flex items-center gap-4">
-                            <div class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                            </div>
-                            <div>
-                                <p class="text-white text-sm font-bold">Profile updated</p>
-                                <p class="text-[#92adc9] text-xs">Your changes have been saved successfully.</p>
-                            </div>
-                            <button class="ml-4 text-slate-400 hover:text-white">
-                                <span class="material-symbols-outlined text-lg">close</span>
-                            </button>
+                        class="bg-slate-900 dark:bg-[#233648] border {{ $bgClass }} rounded-xl px-5 py-4 shadow-2xl flex items-center gap-4">
+                        <div class="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center">
+                            <span class="material-symbols-outlined {{ $iconCol }} text-xl">{{ $icon }}</span>
                         </div>
+                        <div>
+                            <p class="text-white text-sm font-bold">{{ $title }}</p>
+                            <p class="text-[#92adc9] text-xs">{{ $msg }}</p>
+                        </div>
+                        <button onclick="document.getElementById('toast').remove()"
+                            class="ml-4 text-slate-400 hover:text-white">
+                            <span class="material-symbols-outlined text-lg">close</span>
+                        </button>
                     </div>
                 </div>
-                <script>setTimeout(() => document.getElementById('toast')?.remove(), 2500);</script>
+
+                <script>
+                    setTimeout(() => {
+                        const toast = document.getElementById('toast');
+                        if (toast) {
+                            toast.style.opacity = '0';
+                            toast.style.transform = 'translateY(20px)';
+                            setTimeout(() => toast.remove(), 300);
+                        }
+                    }, 3000);
+                </script>
             @endif
+
         </div>
     </div>
 </body>

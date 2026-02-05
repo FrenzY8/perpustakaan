@@ -244,19 +244,46 @@
                 </div>
             @endif
 
-            <div class="flex items-center justify-center p-12">
+            <div class="flex flex-col items-center justify-center p-12 gap-4">
                 <nav class="flex items-center gap-2">
-                    <button
-                        class="flex h-10 w-10 items-center justify-center text-white hover:bg-white/10 rounded-lg transition-colors cursor-not-allowed opacity-50">
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </button>
-                    <span
-                        class="text-sm font-bold flex h-10 w-10 items-center justify-center text-white rounded-lg bg-primary">1</span>
-                    <button
-                        class="flex h-10 w-10 items-center justify-center text-white hover:bg-white/10 rounded-lg transition-colors cursor-not-allowed opacity-50">
-                        <span class="material-symbols-outlined">chevron_right</span>
-                    </button>
+                    @if ($books->onFirstPage())
+                        <span
+                            class="flex h-10 w-10 items-center justify-center text-white/30 border border-white/5 rounded-lg cursor-not-allowed">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </span>
+                    @else
+                        <a href="{{ $books->previousPageUrl() }}"
+                            class="flex h-10 w-10 items-center justify-center text-white hover:bg-primary/20 border border-white/10 rounded-lg transition-all">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </a>
+                    @endif
+
+                    <div class="flex items-center gap-2">
+                        @foreach ($books->getUrlRange(max(1, $books->currentPage() - 2), min($books->lastPage(), $books->currentPage() + 2)) as $page => $url)
+                            <a href="{{ $url }}"
+                                class="flex h-10 w-10 items-center justify-center text-sm font-bold rounded-lg transition-all {{ $page == $books->currentPage() ? 'bg-primary text-white shadow-[0_0_15px_rgba(19,127,236,0.5)]' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                {{ $page }}
+                            </a>
+                        @endforeach
+                    </div>
+
+                    @if ($books->hasMorePages())
+                        <a href="{{ $books->nextPageUrl() }}"
+                            class="flex h-10 w-10 items-center justify-center text-white hover:bg-primary/20 border border-white/10 rounded-lg transition-all">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </a>
+                    @else
+                        <span
+                            class="flex h-10 w-10 items-center justify-center text-white/30 border border-white/5 rounded-lg cursor-not-allowed">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </span>
+                    @endif
                 </nav>
+
+                <p class="text-slate-500 text-[10px] uppercase tracking-[0.2em]">
+                    Menampilkan {{ $books->firstItem() ?? 0 }} - {{ $books->lastItem() ?? 0 }} dari {{ $books->total() }}
+                    Buku
+                </p>
             </div>
         </main>
 

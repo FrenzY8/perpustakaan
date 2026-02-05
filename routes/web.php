@@ -59,8 +59,7 @@ Route::get('/detail/{id}', function ($id) {
             ->exists();
     }
 
-    $suggestedBooks = Buku::where('id_kategori', $book->id_kategori)
-        ->where('id', '!=', $id)
+    $suggestedBooks = Buku::where('id', '!=', $id)
         ->inRandomOrder()
         ->limit(5)
         ->get();
@@ -165,7 +164,7 @@ Route::get('/buku', function (Request $request) {
             break;
     }
 
-    $books = $query->get();
+    $books = $query->paginate(6);
     $categories = DB::table('kategori')->get();
 
     return view('buku', compact('books', 'categories'));
@@ -385,6 +384,7 @@ Route::post('/profile/update', function (Request $request) {
         $path = $file->storeAs('avatars', $filename, 'public');
         $updateData['profile_photo'] = $filename;
     }
+
     if ($request->filled('password')) {
         $updateData['password'] = $request->password;
     }
@@ -671,3 +671,42 @@ Route::get('/logout', function () {
     session()->flush();
     return redirect('/');
 });
+
+Route::post('/delete-akun', function (Request $request) {
+    $userId = session('user.id');
+
+    if (!$userId) {
+        return redirect('/')->with('error', 'Sesi tidak valid.');
+    }
+
+    $user = DB::table('users')->where('id', $userId)->first();
+
+    if ($user) {
+        try {
+            DB::transaction(function () use ($userId, $user) {
+                DB::table('buku_favorit_user')->where('id_user', $userId)->delete();
+                DB::table('peminjaman')->where('id_user', $userId)->delete();
+                DB::table('komentar_buku')->where('id_user', $userId)->delete();
+
+                DB::table('users')->where('id', $userId)->delete();
+
+                if ($user->profile_photo) {
+                    $filePath = 'public/avatars/' . $user->profile_photo;
+                    if (Storage::exists($filePath)) {
+                        Storage::delete($filePath);
+                    }
+                }
+            });
+
+            $request->session()->flush();
+            $request->session()->regenerate();
+
+            return redirect('/')->with('success', 'Akun kamu telah berhasil dihapus secara permanen.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan sistem saat menghapus akun.');
+        }
+    }
+
+    return back()->with('error', 'Gagal menghapus akun. User tidak ditemukan.');
+})->name('profile.delete');

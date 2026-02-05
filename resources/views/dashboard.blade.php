@@ -4,7 +4,7 @@
 <head>
    <meta charset="utf-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <title>Dashboard - Jokopus</title>
+   <title>{{ session('user.name') }} - Jokopus</title>
 
    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -206,8 +206,9 @@
                      </div>
                   </div>
                   <button
+                     onclick="window.location.href='/profile'"
                      class="px-6 py-2.5 bg-[#233648] hover:bg-[#324d67] rounded-lg font-semibold transition-colors flex items-center gap-2">
-                     <span onclick="window.location.href='/profile'"
+                     <span
                         class="material-symbols-outlined text-sm">edit</span>
                      Edit Profile
                   </button>
@@ -240,7 +241,7 @@
                      </div>
                      <p class="text-2xl font-bold text-white truncate">{{ $favGenre->nama }}</p>
                      <p class="text-xs text-[#92adc9] mt-2 italic">
-                        {{ $favGenre->total > 0 ? $favGenre->total . ' buku telah dibaca' : 'Ayo mulai membaca!' }}
+                        {{ $favGenre->total > 0 ? $favGenre->total . ' buku telah dipinjam' : 'Ayo mulai membaca!' }}
                      </p>
                   </div>
                </div>
