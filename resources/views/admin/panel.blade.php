@@ -184,7 +184,11 @@
                                             <td class="px-6 py-4 text-center">
                                                 <button onclick="openEditUserModal({{ json_encode($u) }})"
                                                     class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
-                                                    <span class="material-symbols-outlined text-sm">manage_accounts</span>
+                                                    <span class="material-symbols-outlined text-sm">edit</span>
+                                                </button>
+                                                <button onclick="openEditUserModal({{ json_encode($u) }})"
+                                                    class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
+                                                    <span class="material-symbols-outlined text-sm">delete</span>
                                                 </button>
                                             </td>
                                         </tr>

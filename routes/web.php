@@ -59,7 +59,8 @@ Route::get('/detail/{id}', function ($id) {
             ->exists();
     }
 
-    $suggestedBooks = Buku::where('id', '!=', $id)
+    $suggestedBooks = Buku::with(relations: 'kategori')
+        ->where('id', '!=', $id)
         ->inRandomOrder()
         ->limit(5)
         ->get();
@@ -709,4 +710,4 @@ Route::post('/delete-akun', function (Request $request) {
     }
 
     return back()->with('error', 'Gagal menghapus akun. User tidak ditemukan.');
-})->name('profile.delete');
+});

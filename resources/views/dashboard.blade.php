@@ -96,11 +96,14 @@
                   <span class="material-symbols-outlined">settings</span>
                   <span class="font-medium">Settings</span>
                </a>
-               <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
-                  href="/admin/panel">
-                  <span class="material-symbols-outlined">shield</span>
-                  <span class="font-medium">Admin Panel</span>
-               </a>
+               @if(session('user.role') == 1)
+                  <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#92adc9] hover:bg-[#233648] hover:text-white transition-colors"
+                     href="{{ url('/admin/panel') }}">
+                     <span class="material-symbols-outlined">shield</span>
+                     <span class="font-medium">Admin Panel</span>
+                  </a>
+               @endif
+
             </div>
          </nav>
 
@@ -205,11 +208,9 @@
                         </div>
                      </div>
                   </div>
-                  <button
-                     onclick="window.location.href='/profile'"
+                  <button onclick="window.location.href='/profile'"
                      class="px-6 py-2.5 bg-[#233648] hover:bg-[#324d67] rounded-lg font-semibold transition-colors flex items-center gap-2">
-                     <span
-                        class="material-symbols-outlined text-sm">edit</span>
+                     <span class="material-symbols-outlined text-sm">edit</span>
                      Edit Profile
                   </button>
                </div>
