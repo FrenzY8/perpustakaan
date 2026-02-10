@@ -198,7 +198,7 @@
             <h2 class="text-2xl font-bold tracking-tight md:text-3xl">
               Featured Books
             </h2>
-            <button onclick="window.location.href='/buku'" class="text-sm font-semibold text-primary hover:underline">
+            <button onclick="window.location.href='/buku'" class="text-xl font-semibold text-primary hover:underline">
               View All
             </button>
           </div>

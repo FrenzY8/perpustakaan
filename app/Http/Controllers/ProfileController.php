@@ -25,7 +25,7 @@ class ProfileController extends Controller
             return redirect('/login');
         }
 
-        return view('profile', compact('user'));
+        return view('dashboard/profile', compact('user'));
     }
     public function update(Request $request)
     {

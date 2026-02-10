@@ -232,7 +232,7 @@ Route::get('/profile', function () {
         return redirect('/login');
 
     $user = DB::table('users')->where('id', session('user.id'))->first();
-    return view('profile', compact('user'));
+    return view('dashboard/profile', compact('user'));
 });
 
 Route::get('/dashboard/uang', function () {
