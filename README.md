@@ -50,4 +50,14 @@
 - Menambahkan statistik User, Buku, Pinjaman, Tunggak, Dikembalikan pada Admin Panel
 - Merapikan Controller dan Route: Soon
 
+### Selasa, 10 Februari 2026
+- Nambah user dari panel
+- Sistem denda
+- Kurangi denda dari panel
+- Menyelesaikan denda dari panel
+- Merapihkan struktur folder views
+- Merapihkan header panel, dashboard
+- Redesign panel
+- Banyak
+
 ---
