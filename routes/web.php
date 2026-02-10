@@ -251,9 +251,9 @@ Route::get('/dashboard/uang', function () {
     $bukuTelat = $listPinjaman->map(function ($p) {
         $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
         $hariIni = Carbon::now()->startOfDay();
-        
+
         $selisih = $jatuhTempo->diffInDays($hariIni, false);
-        $p->hari_telat = ($selisih > 0) ? (int)$selisih : 0;
+        $p->hari_telat = ($selisih > 0) ? (int) $selisih : 0;
 
         if ($p->hari_telat > 0) {
             $p->total_denda_item = 5000 + (($p->hari_telat - 1) * 2000);
@@ -268,6 +268,19 @@ Route::get('/dashboard/uang', function () {
     $totalHariTelat = $bukuTelat->sum('hari_telat');
 
     return view('dashboard.uang', compact('user', 'bukuTelat', 'totalTagihan', 'totalHariTelat'));
+});
+
+Route::post('/admin/kurangi-denda/{id}', function (Request $request, $id) {
+    $request->validate([
+        'nominal_potongan' => 'required|numeric|min:0'
+    ]);
+
+    $pinjaman = Peminjaman::findOrFail($id);
+
+    $pinjaman->potongan_denda = $request->nominal_potongan;
+    $pinjaman->save();
+
+    return back()->with('success', 'Denda berhasil dipotong!');
 });
 
 Route::get('/admin/panel', function () {
@@ -308,31 +321,56 @@ Route::get('/admin/panel', function () {
         'terlambat' => DB::table('peminjaman')->where('status', 'terlambat')->count(),
         'kembali' => DB::table('peminjaman')->where('status', 'dikembalikan')->count(),
     ];
+
+    $dendaUser = DB::table('peminjaman')
+        ->join('users', 'peminjaman.id_user', '=', 'users.id')
+        ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+        ->select(
+            'peminjaman.*',
+            'users.name as nama_member',
+            'users.email as email_member',
+            'buku.judul as judul_buku'
+        )
+        ->whereNull('peminjaman.tanggal_kembali')
+        ->where('peminjaman.tanggal_jatuh_tempo', '<', now())
+        ->get()
+        ->map(function ($p) {
+            $jatuhTempo = \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+            $hariIni = \Carbon\Carbon::now()->startOfDay();
+            $p->hari_telat = $jatuhTempo->diffInDays($hariIni, false);
+            $dendaAsli = 5000 + (($p->hari_telat - 1) * 2000);
+            $p->total_tagihan = max(0, $dendaAsli - ($p->potongan_denda ?? 0));
+
+            return $p;
+        });
+
     $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
-    return view('admin.panel', compact('user', 'books', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+    return view('admin.panel', compact('user', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
 });
 
 Route::post('/admin/denda/reset/{id}', function ($id) {
-    DB::table('users')->where('id', $id)->update(['denda' => 0]);
-    return redirect()->back()->with('success', 'Denda berhasil dilunaskan!');
+    DB::table('peminjaman')->where('id', $id)->update([
+        'tanggal_kembali' => now(),
+        'status' => 'dikembalikan'
+    ]);
+
+    return redirect()->back()->with('success', 'Buku telah kembali & denda dianggap lunas!');
 });
 
-Route::post('/admin/denda/update', function () {
-    $userId = request('user_id');
-    $amount = request('amount');
+Route::post('/admin/denda/potong/{id}', function (Request $request, $id) {
+    $request->validate([
+        'nominal_potongan' => 'required|numeric|min:0'
+    ]);
 
-    $user = DB::table('users')->where('id', $userId)->first();
-
-    if ($user) {
-        $newDenda = max(0, $user->denda - $amount);
-        
-        DB::table('users')->where('id', $userId)->update([
-            'denda' => $newDenda
+    DB::table('peminjaman')
+        ->where('id', $id)
+        ->update([
+            'potongan_denda' => $request->nominal_potongan,
+            'diperbarui_pada' => now()
         ]);
-    }
 
-    return redirect()->back()->with('success', 'Denda berhasil diperbarui!');
+    return redirect()->back()->with('success', 'Potongan denda berhasil diterapkan!');
 });
 
 Route::post('/admin/peminjaman/kembali/{id}', function ($id) {
