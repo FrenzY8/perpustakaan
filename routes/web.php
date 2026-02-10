@@ -235,6 +235,41 @@ Route::get('/profile', function () {
     return view('profile', compact('user'));
 });
 
+Route::get('/dashboard/uang', function () {
+    if (!session()->has('user')) {
+        return redirect('/login')->with('error', 'Login dulu');
+    }
+
+    $userId = session('user.id');
+    $user = User::find($userId);
+
+    $listPinjaman = Peminjaman::with('buku')
+        ->where('id_user', $userId)
+        ->whereNull('tanggal_kembali')
+        ->get();
+
+    $bukuTelat = $listPinjaman->map(function ($p) {
+        $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+        $hariIni = Carbon::now()->startOfDay();
+        
+        $selisih = $jatuhTempo->diffInDays($hariIni, false);
+        $p->hari_telat = ($selisih > 0) ? (int)$selisih : 0;
+
+        if ($p->hari_telat > 0) {
+            $p->total_denda_item = 5000 + (($p->hari_telat - 1) * 2000);
+        } else {
+            $p->total_denda_item = 0;
+        }
+
+        return $p;
+    })->where('hari_telat', '>', 0);
+
+    $totalTagihan = $bukuTelat->sum('total_denda_item');
+    $totalHariTelat = $bukuTelat->sum('hari_telat');
+
+    return view('dashboard.uang', compact('user', 'bukuTelat', 'totalTagihan', 'totalHariTelat'));
+});
+
 Route::get('/admin/panel', function () {
     if (!session()->has('user') || session('user.role') != 1) {
         return redirect('/')->with('error', 'Akses ditolak!');
@@ -276,6 +311,28 @@ Route::get('/admin/panel', function () {
     $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
     return view('admin.panel', compact('user', 'books', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+});
+
+Route::post('/admin/denda/reset/{id}', function ($id) {
+    DB::table('users')->where('id', $id)->update(['denda' => 0]);
+    return redirect()->back()->with('success', 'Denda berhasil dilunaskan!');
+});
+
+Route::post('/admin/denda/update', function () {
+    $userId = request('user_id');
+    $amount = request('amount');
+
+    $user = DB::table('users')->where('id', $userId)->first();
+
+    if ($user) {
+        $newDenda = max(0, $user->denda - $amount);
+        
+        DB::table('users')->where('id', $userId)->update([
+            'denda' => $newDenda
+        ]);
+    }
+
+    return redirect()->back()->with('success', 'Denda berhasil diperbarui!');
 });
 
 Route::post('/admin/peminjaman/kembali/{id}', function ($id) {
@@ -441,14 +498,14 @@ Route::post('/users/store', function (Request $request) {
 
 Route::post('/admin/users/store', function (Request $request) {
     $validator = Validator::make($request->all(), [
-        'name'     => 'required|string|max:255',
-        'email'    => 'required|email|unique:users,email',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
         'password' => 'required|min:8',
-        'role'     => 'required',
+        'role' => 'required',
     ], [
         'email.unique' => 'Email sudah terdaftar.',
         'password.min' => 'Password minimal 8 karakter.',
-        'required'     => ':attribute wajib diisi.'
+        'required' => ':attribute wajib diisi.'
     ]);
 
     if ($validator->fails()) {
@@ -459,10 +516,10 @@ Route::post('/admin/users/store', function (Request $request) {
 
     try {
         User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => (int)$request->role,
+            'role' => (int) $request->role,
         ]);
 
         return redirect()->back()->with('success', 'User ' . $request->name . ' berhasil ditambahkan!');
@@ -474,7 +531,7 @@ Route::post('/admin/users/store', function (Request $request) {
 Route::delete('/admin/users/{id}', function ($id) {
     try {
         $user = User::findOrFail($id);
-        
+
         if (auth()->id() == $user->id) {
             return redirect()->back()->with('error', 'Akun sendiri!');
         }

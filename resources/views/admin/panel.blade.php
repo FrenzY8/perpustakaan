@@ -64,8 +64,9 @@
             <nav class="flex-1 px-4 space-y-1">
                 <p class="px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-4">Main Menu</p>
                 <a href="/admin/panel"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold transition-all">
-                    <span class="material-symbols-outlined fill-1">admin_panel_settings</span>
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->is('admin/panel') ? 'bg-primary/20 text-primary font-bold shadow-lg shadow-primary/10' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span
+                        class="material-symbols-outlined {{ request()->is('admin/panel') ? 'fill-1' : '' }}">admin_panel_settings</span>
                     <span>Admin Panel</span>
                 </a>
 
@@ -204,6 +205,9 @@
                         </div>
                     </div>
                 </section>
+
+
+
                 <div id="deleteUserModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4">
                     <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
 
@@ -233,10 +237,118 @@
                         </form>
                     </div>
                 </div>
+
+                <section id="table-denda" class="space-y-4">
+                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
+                        <span class="w-1.5 h-6 bg-red-500 rounded-full"></span> Detail Denda Member
+                    </h3>
+
+                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
+                                        <th class="px-6 py-5">Nama Member</th>
+                                        <th class="px-6 py-5">Total Denda</th>
+                                        <th class="px-6 py-5">Status</th>
+                                        <th class="px-6 py-5 text-center">Aksi Cepat</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @foreach($users as $u)
+                                        @if($u->denda > 0)
+                                            <tr class="hover:bg-white/[0.02] transition-colors">
+                                                <td class="px-6 py-4">
+                                                    <p class="font-bold text-sm text-white">{{ $u->name }}</p>
+                                                    <p class="text-[10px] text-slate-500">{{ $u->email }}</p>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <p class="text-amber-500 font-black text-sm">Rp
+                                                        {{ number_format($u->denda, 0, ',', '.') }}
+                                                    </p>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="px-2 py-1 rounded bg-red-500/10 text-red-500 text-[9px] font-bold border border-red-500/20">BELUM
+                                                        LUNAS</span>
+                                                </td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <div class="flex justify-center gap-2">
+                                                        <button
+                                                            onclick="openPaymentModal({{ json_encode(['id' => $u->id, 'name' => $u->name, 'denda' => $u->denda]) }})"
+                                                            class="px-3 py-1.5 bg-primary/20 text-primary text-[10px] font-bold rounded-lg hover:bg-primary hover:text-white transition-all">
+                                                            KELOLA PEMBAYARAN
+                                                        </button>
+
+                                                        <form action="/admin/denda/reset/{{ $u->id }}" method="POST"
+                                                            onsubmit="return confirm('Reset semua denda user ini?')">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                class="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all">
+                                                                <span
+                                                                    class="material-symbols-outlined text-sm">check_circle</span>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="modal-payment-denda" class="fixed inset-0 z-[150] hidden items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+                        onclick="toggleModal('modal-payment-denda')"></div>
+
+                    <div class="relative glass-card w-full max-w-md rounded-3xl p-8 border border-white/10 shadow-2xl">
+                        <h3 class="text-2xl font-black italic mb-2 uppercase">KELOLA <span
+                                class="text-primary">DENDA</span></h3>
+                        <p class="text-slate-400 text-sm mb-6">Member: <span id="pay-member-name"
+                                class="text-white font-bold"></span></p>
+
+                        <form action="/admin/denda/update" method="POST" class="space-y-6">
+                            @csrf
+                            <input type="hidden" name="user_id" id="pay-user-id">
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-500 uppercase">Sisa Denda Saat
+                                    Ini</label>
+                                <div class="text-3xl font-black text-white">Rp <span id="pay-current-fine">0</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-500 uppercase">Jumlah Bayar / Kurangi
+                                    (Rp)</label>
+                                <input type="number" name="amount" required placeholder="Contoh: 5000"
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:border-primary outline-none transition-all">
+                                <p class="text-[10px] text-amber-500 italic">*Masukkan nominal yang dibayarkan member
+                                    untuk dikurangi dari total.</p>
+                            </div>
+
+                            <div class="flex gap-3 pt-4">
+                                <button type="button" onclick="toggleModal('modal-payment-denda')"
+                                    class="flex-1 px-4 py-4 rounded-2xl bg-white/5 text-white text-xs font-bold uppercase hover:bg-white/10 transition-all">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                    class="flex-1 px-4 py-4 rounded-2xl bg-primary text-white text-xs font-bold uppercase shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">
+                                    Konfirmasi Bayar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <section id="table-peminjaman" class="space-y-4">
                     <h3 class="text-xl font-bold flex items-center gap-3 px-2">
                         <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
-                    </h3>
+                    </h3>0
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
                         <div class="overflow-x-auto">
@@ -820,6 +932,24 @@
             const modal = document.getElementById('modal-add-book');
             if (event.target == modal) {
                 toggleModal('modal-add-book');
+            }
+        }
+
+        function openPaymentModal(data) {
+            document.getElementById('pay-user-id').value = data.id;
+            document.getElementById('pay-member-name').innerText = data.name;
+            document.getElementById('pay-current-fine').innerText = new Intl.NumberFormat('id-ID').format(data.denda);
+            toggleModal('modal-payment-denda');
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
             }
         }
 

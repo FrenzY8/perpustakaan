@@ -88,6 +88,12 @@
                   class="material-symbols-outlined {{ request()->is('dashboard/history') ? 'fill-1' : '' }}">history</span>
                <span>History</span>
             </a>
+            <a href="/dashboard/uang"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ request()->is('dashboard/uang') ? 'bg-primary/10 text-primary font-bold' : 'text-[#92adc9] hover:bg-[#233648] hover:text-white' }}">
+               <span
+                  class="material-symbols-outlined {{ request()->is('dashboard/uang') ? 'fill-1' : '' }}">monetization_on</span>
+               <span>Denda</span>
+            </a>
 
             <!-- Settings -->
             <div class="pt-4 mt-4 border-t border-[#233648]">
@@ -127,54 +133,6 @@
 
       <main class="flex-1 overflow-y-auto">
          <main class="flex-1 overflow-y-auto">
-            <!-- Top Navigation Bar -->
-            <header
-               class="sticky top-0 z-10 glass-card border-b border-[#233648] px-8 py-4 flex items-center justify-between">
-               <div class="relative w-96">
-               </div>
-               <div class="flex items-center gap-4">
-                  <div class="h-8 w-[1px] bg-[#233648]"></div>
-                  <div class="relative">
-
-                     <button id="profileBtn"
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition">
-                        <div class="text-right hidden sm:block">
-                           <p class="text-sm font-semibold">{{ session('user.name') }}</p>
-                        </div>
-                        @php
-                           $userData = DB::table('users')->where('id', session('user.id'))->first();
-                           $photo = $userData->profile_photo ?? null;
-
-                           if ($photo && (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://'))) {
-                              $displayPhoto = $photo;
-                           } elseif ($photo && file_exists(storage_path('app/public/avatars/' . $photo))) {
-                              $displayPhoto = asset('storage/avatars/' . $photo);
-                           } else {
-                              $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
-                           }
-                        @endphp
-                        <div class="h-10 w-10 rounded-full bg-cover bg-center border-2 border-primary/30"
-                           style="background-image:url({{ $displayPhoto }})">
-                        </div>
-                        <span class="material-symbols-outlined text-[#92adc9]">expand_more</span>
-                     </button>
-                     <div id="profileDropdown"
-                        class="hidden absolute right-0 mt-3 w-52 rounded-xl bg-[#192633] shadow-xl border border-white/10 z-50">
-                        <a href="/" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
-                           <span class="material-symbols-outlined text-sm">home</span>Home
-                        </a>
-                        <a href="/profile" class="flex items-center gap-3 px-4 py-3 hover:bg-[#233648] transition">
-                           <span class="material-symbols-outlined text-sm">settings</span>Settings
-                        </a>
-                        <div class="border-t border-white/10"></div>
-                        <a href="/logout"
-                           class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition">
-                           <span class="material-symbols-outlined text-sm">logout</span>Logout
-                        </a>
-                     </div>
-                  </div>
-               </div>
-            </header>
             <div class="p-8 max-w-6xl mx-auto space-y-8">
                <!-- Profile Hero Card -->
                <div class="glass-card rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -445,7 +403,6 @@
                </div>
             </footer>
          </main>
-
       </main>
    </div>
 

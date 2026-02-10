@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pinjaman - Jokopus</title>
+    <title>Denda - Jokopus</title>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -130,144 +130,121 @@
         <div class="flex-1 flex flex-col min-w-0">
 
             <main class="p-8 flex-1">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h2 class="text-3xl font-black tracking-tight text-white uppercase">Pinjaman Aktif</h2>
-                        <p class="text-[#92adc9] mt-1">Kamu sedang meminjam {{ $pinjaman->count() }} buku.</p>
+                <div class="mb-8">
+                    <h1 class="text-3xl font-black tracking-tight text-white uppercase">Informasi Denda</h1>
+                    <p class="text-slate-400 text-sm mt-1">Halo {{ $user->name }}, berikut adalah rincian keterlambatan
+                        kamu.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div
+                        class="md:col-span-2 glass-card p-8 rounded-3xl relative overflow-hidden border border-primary/20">
+                        <div class="absolute top-0 right-0 p-8 opacity-30">
+                            <span class="material-symbols-outlined text-9xl">request_quote</span>
+                        </div>
+
+                        <p class="text-[11px] text-white text-md font-black uppercase tracking-[0.2em] text-primary mb-2">Total Tagihan
+                            Kamu</p>
+                        <h2 class="text-5xl font-black text-white mb-6">
+                            Rp {{ number_format($totalTagihan, 0, ',', '.') }}
+                        </h2>
+
+                        <div class="flex gap-4">
+                            <div class="bg-white/5 rounded-2xl p-4 flex-1 border border-white/5">
+                                <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Total Hari Telat</p>
+                                <p class="text-xl font-bold text-white">{{ $totalHariTelat }} <span
+                                        class="text-sm font-normal text-slate-400">Hari</span></p>
+                            </div>
+                            <div class="bg-white/5 rounded-2xl p-4 flex-1 border border-white/5">
+                                <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Status</p>
+                                @if($totalTagihan > 0)
+                                    <p class="text-xl font-bold text-red-400">Belum Lunas</p>
+                                @else
+                                    <p class="text-xl font-bold text-emerald-400">Bersih</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="glass-card p-6 rounded-3xl border border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent">
+                        <h3 class="text-3xl font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">info</span>
+                            Cara Pembayaran
+                        </h3>
+                        <ul class="space-y-4">
+                            <li class="flex gap-3">
+                                <div
+                                    class="size-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                                    1</div>
+                                <p class="text-md text-slate-400 leading-relaxed">Kunjungi meja pustakawan di gedung
+                                    utama.</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <div
+                                    class="size-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                                    2</div>
+                                <p class="text-md text-slate-400 leading-relaxed">Tunjukkan ID User atau Email kamu ke
+                                    petugas.</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <div
+                                    class="size-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                                    3</div>
+                                <p class="text-md text-slate-400 leading-relaxed">Bayar sesuai nominal denda dan minta
+                                    petugas reset status.</p>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                @if($pinjaman->isEmpty())
-                    <div class="glass-card rounded-3xl p-12 text-center flex flex-col items-center">
-                        <span class="material-symbols-outlined text-64px text-primary/30 mb-4 scale-[2]">book_5</span>
-                        <h3 class="text-xl font-bold mt-4">Belum ada pinjaman</h3>
-                        <p class="text-[#92adc9] mb-6">Kamu tidak sedang meminjam buku apapun saat ini.</p>
-                        <a href="/" class="bg-primary px-8 py-3 rounded-xl font-bold hover:shadow-lg transition-all">Cari
-                            Buku</a>
-                    </div>
-                @else
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        @foreach($pinjaman as $item)
-                            @php
-                                $due = \Carbon\Carbon::parse($item->tanggal_jatuh_tempo);
-                                $diff = now()->diffInDays($due, false); // false biar bisa minus kalau telat
-                                $isUrgent = $diff <= 1; // Merah kalau 1 hari lagi atau sudah lewat
-                            @endphp
+                <h3
+                    class="text-sm font-black uppercase tracking-widest text-slate-500 mt-12 mb-6 flex items-center gap-2">
+                    <span class="size-2 bg-red-500 rounded-full animate-pulse"></span>
+                    Rincian Buku Terlambat
+                </h3>
 
-                            <div
-                                class="glass-card p-4 rounded-2xl group relative transition-all duration-300 {{ $isUrgent ? 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : '' }}">
-                                <div class="absolute top-6 right-6 z-10">
-                                    <span
-                                        class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $isUrgent ? 'bg-red-500 text-white animate-pulse' : 'bg-primary/20 text-primary border border-primary/30' }}">
-                                        {{ $isUrgent ? 'Urgent / Telat' : 'Dipinjam' }}
-                                    </span>
-                                </div>
-
-                                <div class="aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-lg">
-                                    <img src="{{ $item->buku->gambar_sampul }}"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        alt="{{ $item->buku->judul }}">
-                                </div>
-
-                                <div class="px-1">
-                                    <h4 class="font-bold text-sm truncate">{{ $item->buku->judul }}</h4>
-                                    <p class="text-[11px] text-[#92adc9] mb-4">{{ $item->buku->penulis->nama ?? 'Anonim' }}</p>
-
-                                    <div class="space-y-2 bg-black/20 p-3 rounded-xl border border-white/5">
-                                        <div class="flex justify-between text-[10px]">
-                                            <span class="text-[#92adc9]">Sisa Waktu:</span>
-                                            <span class="{{ $isUrgent ? 'text-red-400 font-bold' : 'text-primary font-bold' }}">
-                                                @if($diff < 0)
-                                                    Telat {{ abs($diff) }} Hari
-                                                @elseif($diff == 0)
-                                                    Hari Ini!
-                                                @else
-                                                    {{ $diff }} Hari Lagi
-                                                @endif
-                                            </span>
-                                        </div>
-                                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                                            @php
-                                                $start = \Carbon\Carbon::parse($item->tanggal_pinjam);
-                                                $total = $start->diffInDays($due) ?: 1;
-                                                $elapsed = $start->diffInDays(now());
-                                                $percent = min(100, ($elapsed / $total) * 100);
-                                            @endphp
-                                            <div class="h-full rounded-full {{ $isUrgent ? 'bg-red-500' : 'bg-primary' }}"
-                                                style="width: {{ $percent }}%"></div>
-                                        </div>
-                                    </div>
-
-                                    <form action="/dashboard/kembalikan/{{ $item->id }}" method="POST" class="mt-4">
-                                        @csrf
-                                        <button type="submit"
-                                            class="w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 {{ $isUrgent ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20' : 'bg-white/5 hover:bg-white/10 text-white border border-white/10' }}">
-                                            <span class="material-symbols-outlined text-sm">keyboard_return</span>
-                                            Kembalikan Buku
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-                        @if(session('success'))
-                            <div id="toast">
+                <div class="grid grid-cols-1 gap-4">
+                    @forelse($bukuTelat as $b)
+                        <div class="glass-card p-4 rounded-2xl flex items-center gap-6 border border-white/5">
+                            <div class="relative">
+                                <img src="{{ $b->buku->gambar_sampul }}"
+                                    class="w-16 h-20 object-cover rounded-xl shadow-2xl">
                                 <div
-                                    class="fixed bottom-8 right-8 z-[100] transform translate-y-0 opacity-100 transition-all duration-300">
-                                    <div
-                                        class="bg-slate-900 dark:bg-[#233648] border border-primary/30 rounded-xl px-5 py-4 shadow-2xl flex items-center gap-4">
-                                        <div class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                                        </div>
-                                        <div>
-                                            <p class="text-white text-sm font-bold">Buku dikembalikan!</p>
-                                            <p class="text-[#92adc9] text-xs">Bukunya udah dikembaliin ya...</p>
-                                        </div>
-                                        <button class="ml-4 text-slate-400 hover:text-white">
-                                            <span class="material-symbols-outlined text-lg">close</span>
-                                        </button>
-                                    </div>
+                                    class="absolute -top-2 -right-2 bg-red-500 text-[10px] font-black px-2 py-1 rounded-lg text-white">
+                                    {{ $b->hari_telat }} HARI
                                 </div>
                             </div>
-                            <script>setTimeout(() => document.getElementById('toast')?.remove(), 2500);</script>
-                        @endif
+
+                            <div class="flex-1">
+                                <h4 class="text-white font-bold">{{ $b->buku->judul }}</h4>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">
+                                    Jatuh Tempo: {{ \Carbon\Carbon::parse($b->tanggal_jatuh_tempo)->format('d M Y') }}
+                                </p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-500 font-black uppercase mb-1">Denda</p>
+                                <p class="text-lg font-black text-amber-500">Rp
+                                    {{ number_format($p->total_denda_item ?? $b->total_denda_item, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="glass-card p-12 rounded-3xl text-center border-dashed border-white/10">
+                            <p class="text-slate-500 text-sm italic">Tidak ada buku yang terlambat. Akun kamu aman!</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                @if($totalTagihan > 0)
+                    <div class="mt-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
+                        <span class="material-symbols-outlined text-amber-500">warning</span>
+                        <p class="text-1xl text-amber-200/80 leading-relaxed">
+                            <strong>Perhatian:</strong> Keterlambatan dikenakan denda progresif. Akun kamu mungkin dibekukan
+                            sementara sampai denda dilunasi.
+                        </p>
                     </div>
                 @endif
-                <div class="mt-20">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                        <h3 class="text-xl font-bold flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary">auto_awesome</span>
-                            Mungkin Kamu Suka
-                        </h3>
-                        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                    </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                        @foreach($suggestedBooks as $sBook)
-                            <div onclick="window.location.href='/detail/{{ $sBook->id }}'"
-                                class="glass-card p-3 rounded-2xl group cursor-pointer hover:border-primary/30 transition-all">
-
-                                <div class="aspect-[3/4] rounded-xl overflow-hidden mb-3 relative">
-                                    <img src="{{ $sBook->gambar_sampul }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    <div
-                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <span
-                                            class="bg-white text-black text-[10px] font-bold px-3 py-1.5 rounded-full uppercase">Lihat</span>
-                                    </div>
-                                </div>
-
-                                <div class="px-1">
-                                    <h4
-                                        class="font-bold text-xs truncate text-white/90 group-hover:text-primary transition-colors">
-                                        {{ $sBook->judul }}
-                                    </h4>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">{{ $sBook->penulis->nama }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
             </main>
 
             <footer

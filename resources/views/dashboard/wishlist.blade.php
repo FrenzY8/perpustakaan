@@ -87,6 +87,12 @@
                         class="material-symbols-outlined {{ request()->is('dashboard/history') ? 'fill-1' : '' }}">history</span>
                     <span>History</span>
                 </a>
+                <a href="/dashboard/uang"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ request()->is('dashboard/uang') ? 'bg-primary/10 text-primary font-bold' : 'text-[#92adc9] hover:bg-[#233648] hover:text-white' }}">
+                    <span
+                        class="material-symbols-outlined {{ request()->is('dashboard/uang') ? 'fill-1' : '' }}">monetization_on</span>
+                    <span>Denda</span>
+                </a>
 
                 <!-- Settings -->
                 <div class="pt-4 mt-4 border-t border-[#233648]">
@@ -126,7 +132,7 @@
             <main class="p-8 flex-1">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-3xl font-bold">Koleksi Favorit</h2>
+                        <h2 class="text-3xl font-black tracking-tight text-white uppercase">Koleksi Favorit</h2>
                         <p class="text-[#92adc9] mt-1">Kamu punya {{ $wishlist->count() }} buku di wishlist.</p>
                     </div>
                 </div>
