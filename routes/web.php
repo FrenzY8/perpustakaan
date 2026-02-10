@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\BukuController;
 use App\Models\Buku;
 use App\Models\Wishlist;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -437,6 +438,54 @@ Route::post('/users/store', function (Request $request) {
 
     return redirect('/otp')->with('success', $request->email);
 });
+
+Route::post('/admin/users/store', function (Request $request) {
+    $validator = Validator::make($request->all(), [
+        'name'     => 'required|string|max:255',
+        'email'    => 'required|email|unique:users,email',
+        'password' => 'required|min:8',
+        'role'     => 'required',
+    ], [
+        'email.unique' => 'Email sudah terdaftar.',
+        'password.min' => 'Password minimal 8 karakter.',
+        'required'     => ':attribute wajib diisi.'
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->with('error', $validator->errors()->first())
+            ->withInput();
+    }
+
+    try {
+        User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => (int)$request->role,
+        ]);
+
+        return redirect()->back()->with('success', 'User ' . $request->name . ' berhasil ditambahkan!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Detail Error: ' . $e->getMessage());
+    }
+})->name('admin.users.store');
+
+Route::delete('/admin/users/{id}', function ($id) {
+    try {
+        $user = User::findOrFail($id);
+        
+        if (auth()->id() == $user->id) {
+            return redirect()->back()->with('error', 'Akun sendiri!');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User ' . $user->name . ' udah dihapus!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Gagal hapus user.');
+    }
+})->name('admin.users.destroy');
 
 Route::post('/otp/resend', function () {
 

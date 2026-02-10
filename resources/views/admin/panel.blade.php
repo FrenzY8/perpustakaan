@@ -108,7 +108,7 @@
                     </div>
                     <div class="overflow-hidden">
                         <p class="text-sm font-bold truncate">{{ $user->name }}</p>
-                        <p class="text-[10px] text-slate-400">Super Admin</p>
+                        <p class="text-[10px] text-slate-400">Admin</p>
                     </div>
                 </div>
             </div>
@@ -154,9 +154,15 @@
                 </div>
 
                 <section id="table-user" class="space-y-4">
-                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
-                        <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span> Manajemen Pengguna
-                    </h3>
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span> Manajemen Pengguna
+                        </h3>
+                        <button onclick="toggleModal('modal-add-user')"
+                            class="px-5 py-2.5 bg-amber-500 text-white text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20 transition-all">
+                            + Add User
+                        </button>
+                    </div>
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
@@ -178,7 +184,7 @@
                                             <td class="px-6 py-4">
                                                 <span
                                                     class="px-3 py-1 rounded-full text-[9px] font-black {{ $u->role == 1 ? 'bg-primary/20 text-primary border border-primary/20' : 'bg-slate-500/10 text-slate-400 border border-white/5' }}">
-                                                    {{ $u->role == 1 ? 'SUPER ADMIN' : 'MEMBER' }}
+                                                    {{ $u->role == 1 ? 'ADMIN' : 'MEMBER' }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 text-center">
@@ -186,7 +192,7 @@
                                                     class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
                                                     <span class="material-symbols-outlined text-sm">edit</span>
                                                 </button>
-                                                <button onclick="openEditUserModal({{ json_encode($u) }})"
+                                                <button onclick="openDeleteModal({{ json_encode($u) }})"
                                                     class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
                                                     <span class="material-symbols-outlined text-sm">delete</span>
                                                 </button>
@@ -198,7 +204,35 @@
                         </div>
                     </div>
                 </section>
+                <div id="deleteUserModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
 
+                    <div
+                        class="relative bg-[#0f172a] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="h-16 w-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-red-500 text-3xl">warning</span>
+                            </div>
+                            <h3 class="text-white font-black uppercase tracking-widest text-lg">Hapus User?</h3>
+                            <p class="text-slate-400 text-sm mt-2">Akun <span id="deleteUserName"
+                                    class="text-white font-bold"></span> akan dihapus permanen. Tindakan ini tidak bisa
+                                dibatalkan.</p>
+                        </div>
+
+                        <form id="deleteUserForm" method="POST" class="mt-8 flex gap-3">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" onclick="closeDeleteModal()"
+                                class="flex-1 px-4 py-3 rounded-xl bg-white/5 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white text-xs font-bold uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/20">
+                                Ya, Hapus
+                            </button>
+                        </form>
+                    </div>
+                </div>
                 <section id="table-peminjaman" class="space-y-4">
                     <h3 class="text-xl font-bold flex items-center gap-3 px-2">
                         <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
@@ -520,11 +554,76 @@
                     </div>
                 </div>
             </div>
+            <div id="modal-add-user" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-4xl font-bold italic tracking-tight uppercase">TAMBAH <span
+                                    class="text-amber-500">USER</span></h3>
+                            <button onclick="toggleModal('modal-add-user')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="/admin/users/store" method="POST" class="space-y-5">
+                            @csrf
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Nama
+                                        Lengkap</label>
+                                    <input type="text" name="name" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-amber-500 focus:ring-0 transition-all text-white"
+                                        placeholder="Contoh: John Doe">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email</label>
+                                    <input type="email" name="email" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-amber-500 focus:ring-0 transition-all text-white"
+                                        placeholder="email@contoh.com">
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
+                                        <input type="password" name="password" required
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-amber-500 focus:ring-0 transition-all text-white"
+                                            placeholder="••••••••">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Role</label>
+                                        <select name="role" required
+                                            class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-amber-500 focus:ring-0 transition-all text-white">
+                                            <option value="0">Member</option>
+                                            <option value="1">Admin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-add-user')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95">
+                                    TAMBAH PENGGUNA
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div id="modal-edit-user" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
                 <div class="min-h-screen flex items-center justify-center p-4">
                     <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
-                        <h3 class="text-xl font-bold italic mb-6">UPDATE <span class="text-primary">USER ROLE</span>
+                        <h3 class="text-4xl font-bold italic mb-6">UPDATE <span class="text-primary">USER ROLE</span>
                         </h3>
 
                         <form action="/admin/users/update-role" method="POST">
@@ -722,6 +821,37 @@
             if (event.target == modal) {
                 toggleModal('modal-add-book');
             }
+        }
+
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.toggle('hidden');
+            }
+        }
+
+        window.onclick = function (event) {
+            if (event.target.classList.contains('fixed') && event.target.id.includes('modal')) {
+                event.target.classList.add('hidden');
+            }
+        }
+
+        function openDeleteModal(user) {
+            const modal = document.getElementById('deleteUserModal');
+            const form = document.getElementById('deleteUserForm');
+            const nameSpan = document.getElementById('deleteUserName');
+
+            form.action = `/admin/users/${user.id}`;
+            nameSpan.innerText = user.name;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteUserModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         function openEditModal(book) {
