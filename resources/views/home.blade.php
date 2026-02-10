@@ -139,7 +139,7 @@
                 style="background-image: linear-gradient(rgba(16,25,34,.8), rgba(16,25,34,.8)), url('https://media.istockphoto.com/id/1339845062/photo/reading-room-or-library-interior-with-leather-armchair-bookshelf-and-floor-lamp.jpg?s=612x612&w=0&k=20&c=2ghOW2DCvb49Up3D0eFeVzv1kbSMjUq-_psohUYeZB0=');">
                 <div class="z-10 flex max-w-[800px] flex-col gap-4">
 
-                  <h1 class="text-4xl font-black tracking-tight leading-tight text-white @[480px]:text-6xl">
+                  <h1 class="text-4xl font-black tracking-tight leading-tight text-white @[480px]:text-7xl">
                     @if (session()->has('user'))
                       Halo, {{ session('user.name') }}
                     @else
@@ -148,8 +148,11 @@
                   </h1>
                   <p class="text-base font-normal text-white/80 md:text-lg leading-relaxed">
                     Mau baca buku apa hari ini? Kita punya
-                    <span class="text font-bold">{{ $totalBuku }}</span> buku dari
-                    <span class="text font-bold">{{ $totalPenulis }}</span> penulis!
+                    <span class="text font-bold">{{ $totalBuku }}</span> Buku,
+                    <span class="text font-bold">{{ $totalTag }}</span> Tagar, 
+                    <span class="text font-bold">{{ $totalKategori }}</span> Kategori Buku dan 
+                    <span class="text font-bold">{{ $totalPenulis }}</span> Penulis, dan
+                    <span class="text font-bold">{{ $totalUser }}</span> Pengguna!
                   </p>
                 </div>
 

@@ -12,7 +12,10 @@ class PageController extends Controller
         $books = Buku::with('penulis')->latest()->get();
         $totalBuku = Buku::count();
         $totalPenulis = \App\Models\Penulis::count();
+        $totalTag = \App\Models\Tag::count();
+        $totalKategori = \App\Models\Kategori::count();
+        $totalUser = \App\Models\User::count();
 
-        return view('home', compact('books', 'totalBuku', 'totalPenulis'));
+        return view('home', compact('books', 'totalUser', 'totalBuku', 'totalPenulis', 'totalKategori', 'totalTag'));
     }
 }

@@ -67,7 +67,7 @@ Route::get('/detail/{id}', function ($id) {
 
     $wishlistCount = Wishlist::where('id_buku', $id)->count();
 
-    return view('detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
+    return view('buku/detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 });
 
 Route::post('/buku/{id}/komentar', function (Request $request, $id) {
@@ -168,7 +168,7 @@ Route::get('/buku', function (Request $request) {
     $books = $query->paginate(6);
     $categories = DB::table('kategori')->get();
 
-    return view('buku', compact('books', 'categories'));
+    return view('buku/buku', compact('books', 'categories'));
 });
 
 Route::post('/pinjam/{id}', function (Request $request, $id) {
@@ -399,7 +399,7 @@ Route::post('/profile/update', function (Request $request) {
 Route::get('/daftar', function () {
     $dbStatus = 'Database berhasil terhubung';
 
-    return view('daftar', compact('dbStatus'));
+    return view('auth/daftar', compact('dbStatus'));
 });
 
 Route::get('/otp', function () {
@@ -407,7 +407,7 @@ Route::get('/otp', function () {
         abort(403);
     }
 
-    return view('otp');
+    return view('auth/otp');
 });
 
 Route::post('/users/store', function (Request $request) {
@@ -562,7 +562,7 @@ Route::get('/dashboard', function () {
         ->limit(5)
         ->get();
 
-    return view('dashboard', compact('currentlyBorrowed', 'suggestedBooks', 'favGenre', 'wishlist', 'totalPinjam', 'totalFavorit'));
+    return view('dashboard/dashboard', compact('currentlyBorrowed', 'suggestedBooks', 'favGenre', 'wishlist', 'totalPinjam', 'totalFavorit'));
 });
 
 Route::get('/dashboard/pinjaman', function () {
@@ -638,7 +638,7 @@ Route::get('/login', function () {
         return redirect('/dashboard');
     }
 
-    return view('login');
+    return view('auth/login');
 });
 
 Route::post('/login', function (Request $request) {
