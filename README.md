@@ -40,14 +40,14 @@
 - Menghapus buku dari panel
 - Mengubah role user dari panel
 - Memperbarui dashboard (User & Admin)
-- History / Sejarah buku yang dipinjam works
+- History buku yang dipinjam works
 
 ### Rabu, 4 Februari 2026
 - Menambahkan kontrol peminjaman di Admin Panel
 - Menambahkan fitur pencarian untuk manajemen buku dan user
 - Menambahkan rekomendasi "Mungkin Anda Juga Suka" di beberapa halaman
 - Menambahkan modal custom durasi peminjaman
-- Menambahkan statistik User, Buku, Pinjaman, Tunggak, Dikembalikan pada Admin Panel
+- Menambahkan statistik ```User, Buku, Pinjaman, Tunggak, Dikembalikan pada Admin Panel```
 - Merapikan Controller dan Route: Soon
 
 ### Selasa, 10 Februari 2026
@@ -58,6 +58,16 @@
 - Merapihkan struktur folder views
 - Merapihkan header panel, dashboard
 - Redesign panel
-- Banyak
+
+### Senin, 16 Maret 2026
+- Merapihkan ```routes/web.php``` (Lebih clean and readable)
+- Membuat controller untuk masing-masin route
+- Menambahkan integrated AI Chat System (Masih test, so far works...)
+  1. Memungkinkan AI untuk bekerja di sisi data
+  2. Menggunakan NVIDIA Builds
+  3. Dengan model ```deepseek-ai/deepseek-v3.1-terminus```
+- Menambah Chat System antar pengguna (works)
+- Menambah Beberapa Detail Buku
+- etc
 
 ---
