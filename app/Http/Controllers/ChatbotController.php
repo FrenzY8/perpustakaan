@@ -54,6 +54,7 @@ class ChatbotController extends Controller
         }
 
         $intentPrompt = "
+Please respond naturally in Indonesian:
 User message: $userQuery
 
 Classify intent.
@@ -73,6 +74,7 @@ Return only one word.
 
         if (str_contains($intent, 'CASUAL')) {
             $chatPrompt = "
+Please respond naturally in Indonesian:
 You are Jokopus library assistant.
 
 Conversation history:
@@ -98,6 +100,7 @@ Answer naturally and helpfully.
         $schemaInfo = $this->getDetailedSchema();
 
         $promptSql = "
+Please respond naturally in Indonesian:
 You are an expert SQL query generator for a library database.
 
 Database Schema:
@@ -142,6 +145,7 @@ Return ONLY the SQL query, no explanations, no markdown formatting.
             }
 
             $fallbackPrompt = "
+Please respond naturally in Indonesian:
 You are Jokopus library assistant.
 
 User asked: \"$userQuery\"
@@ -199,6 +203,7 @@ Answer in Indonesian.
             }
 
             $promptFinal = "
+Please respond naturally in Indonesian:
 You are Jokopus library assistant.
 
 User question: \"$userQuery\"
@@ -247,7 +252,6 @@ Answer in Indonesian.
     }
     private function tryAlternativeSearch($userQuery, &$debugInfo)
     {
-        // Ekstrak kata kunci dari query user
         $keywords = $this->extractKeywords($userQuery);
 
         if (empty($keywords)) {
@@ -309,6 +313,11 @@ Answer in Indonesian.
     private function getDetailedSchema()
     {
         $schemaText = "";
+        if (Schema::hasTable('peminjaman')) {
+            $columns = Schema::getColumnListing('peminjaman');
+            $schemaText .= "Table peminjaman (" . implode(', ', $columns) . ")\n";
+        }
+        
         if (Schema::hasTable('buku')) {
             $columns = Schema::getColumnListing('buku');
             $schemaText .= "Table buku (";

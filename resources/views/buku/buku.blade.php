@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>List Buku - Jokopus</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
@@ -91,10 +92,10 @@
                             Dashboard
                         </a>
 
-                        <a href="/chat/jokobot"
+                        <a href="/chat"
                             class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
        {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
-                            Jokobot
+                            Chat
                         </a>
                     </nav>
 
@@ -139,51 +140,128 @@
         </header>
 
         <main class="flex-1 px-4 lg:px-40 py-8 max-w-[1200px] mx-auto w-full">
-            <div class="flex pt-28 flex-col md:flex-row md:items-center justify-between gap-6 mb-12 px-2">
-                <div>
-                    <h1 class="text-white text-5xl font-bold tracking-tight mb-2">Temukan Buku</h1>
-                    <p class="text-slate-400 text-md">Temukan koleksi bacaan terbaik kami yang dikurasi khusus untukmu.
-                    </p>
+            <div class="flex pt-28 flex-col md:flex-row md:items-center justify-between gap-6 mb-4 px-2">
+                <div class="flex flex-col gap-6 mb-12" x-data="{ open: false }">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <h1 class="text-white text-5xl font-bold tracking-tight mb-3">Temukan Buku</h1>
+                            <p class="text-slate-400 text-md max-w-2xl leading-relaxed">
+                                Temukan koleksi bacaan terbaik kami yang dikurasi khusus untukmu.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form action="{{ url()->current() }}" method="GET">
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <div class="relative flex-1 w-full group">
+                            <div class="relative group flex-1 w-full">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-500 group-focus-within:text-primary transition-colors pointer-events-none">
+                                    search
+                                </span>
+
+                                <input type="text" name="search" value="{{ request('search') }}"
+                                    placeholder="Cari judul atau penulis..."
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white focus:border-primary/50 focus:ring-0 transition-all outline-none glass relative z-0">
+
+                                @if(request('search'))
+                                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-slate-500 hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined text-lg font-bold">close</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+
+
+                        <div class="relative w-full sm:w-auto" x-data="{ open: false }">
+                            <button type="button" @click="open = !open" @click.outside="open = false"
+                                class="w-full flex items-center justify-between sm:justify-start gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all glass">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-primary text-lg">grid_view</span>
+                                    <span
+                                        class="whitespace-nowrap">{{ request('category') && request('category') !== 'all' ? request('category') : 'Kategori' }}</span>
+                                </div>
+                                <span class="material-symbols-outlined transition-transform duration-300"
+                                    :class="open ? 'rotate-180' : ''">expand_more</span>
+                            </button>
+
+                            <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95 translate-y-[-10px]"
+                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                class="absolute right-0 mt-3 w-64 glass border border-white/10 rounded-2xl shadow-2xl z-[60] p-2">
+
+                                <div class="flex flex-col gap-1 max-h-[280px] overflow-y-auto no-scrollbar">
+                                    <a href="{{ request()->fullUrlWithQuery(['category' => 'all', 'page' => 1]) }}"
+                                        class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                    {{ request('category') == 'all' || !request('category') ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                        All Collection
+                                    </a>
+
+                                    @foreach($categories as $cat)
+                                        <a href="{{ request()->fullUrlWithQuery(['category' => $cat->nama, 'page' => 1]) }}"
+                                            class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                                                {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                            {{ $cat->nama }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <form action="{{ url()->current() }}" method="GET">
+                        <div class="relative h-full w-full sm:w-auto">
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-lg pointer-events-none z-10">
+                                swap_vert
+                            </span>
+
+                            <select name="sort" onchange="this.form.submit()"
+                                class="appearance-none h-full w-full sm:w-auto pl-12 pr-10 bg-white/5 border border-white/10 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-widest text-white focus:border-primary/50 focus:ring-0 glass cursor-pointer transition-all outline-none relative z-0">
+
+                                <option value="latest" class="bg-slate-900" {{ request('sort') == 'latest' ? 'selected' : '' }}>
+                                    Terbaru
+                                </option>
+                                <option value="year_new" class="bg-slate-900" {{ request('sort') == 'year_new' ? 'selected' : '' }}>
+                                    Tahun: Terbaru
+                                </option>
+                                <option value="year_old" class="bg-slate-900" {{ request('sort') == 'year_old' ? 'selected' : '' }}>
+                                    Tahun: Terlama
+                                </option>
+                                <option value="author_asc" class="bg-slate-900" {{ request('sort') == 'author_asc' ? 'selected' : '' }}>
+                                    Penulis: A-Z
+                                </option>
+                                <option value="title_asc" class="bg-slate-900" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>
+                                    Judul: A-Z
+                                </option>
+                                <option value="pages" class="bg-slate-900" {{ request('sort') == 'pages' ? 'selected' : '' }}>
+                                    Halaman: Terbanyak
+                                </option>
+                            </select>
+
+                            <span
+                                class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none z-10">
+                                unfold_more
+                            </span>
+                        </div>
+                    </div>
+
+                    @if(request('category') && request('category') !== 'all')
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Filter
+                                Aktif:</span>
+                            <div
+                                class="flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1 rounded-lg">
+                                <span
+                                    class="text-[10px] font-bold text-primary uppercase tracking-widest">{{ request('category') }}</span>
+                                <a href="{{ request()->fullUrlWithQuery(['category' => 'all', 'page' => 1]) }}"
+                                    class="text-primary hover:text-white transition-colors">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
-
-                <form action="/buku" method="GET" class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-
-                    <div class="relative group">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari judul atau penulis..."
-                            class="w-full sm:w-64 bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:border-primary focus:ring-0 transition-all outline-none">
-                        <button id="clearSearch"
-                            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-lg">close</span>
-                        </button>
-                    </div>
-
-                    <div class="relative">
-                        <select name="sort" onchange="this.form.submit()"
-                            class="appearance-none h-10 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-[11px] font-bold uppercase tracking-wider focus:border-primary/50 focus:ring-0 text-slate-400">
-                            <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru (Input)
-                            </option>
-
-                            {{-- Sort by Year --}}
-                            <option value="year_new" {{ request('sort') == 'year_new' ? 'selected' : '' }}>Tahun: Terbaru
-                            </option>
-                            <option value="year_old" {{ request('sort') == 'year_old' ? 'selected' : '' }}>Tahun: Terlama
-                            </option>
-
-                            <option value="author_asc" {{ request('sort') == 'author_asc' ? 'selected' : '' }}>Penulis:
-                                A-Z</option>
-
-                            <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Judul: A-Z
-                            </option>
-                            <option value="pages" {{ request('sort') == 'pages' ? 'selected' : '' }}>Halaman: Terbanyak
-                            </option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="hidden"></button>
-                </form>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-2">

@@ -511,6 +511,48 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <div class="px-6 py-4 bg-white/5 border-t border-white/5">
+                                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <p class="text-[11px] text-[#92adc9]">
+                                        Menampilkan <span class="font-bold text-white">{{ $books->firstItem() }}</span>
+                                        sampai <span class="font-bold text-white">{{ $books->lastItem() }}</span>
+                                        dari <span class="font-bold text-white">{{ $books->total() }}</span> buku
+                                    </p>
+
+                                    <div class="flex items-center gap-2">
+                                        {{-- Tombol Previous --}}
+                                        @if ($books->onFirstPage())
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </span>
+                                        @else
+                                            <a href="{{ $books->previousPageUrl() }}"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </a>
+                                        @endif
+
+                                        {{-- Info Halaman --}}
+                                        <span class="text-[11px] font-bold px-3 text-white">
+                                            Hal {{ $books->currentPage() }} / {{ $books->lastPage() }}
+                                        </span>
+
+                                        {{-- Tombol Next --}}
+                                        @if ($books->hasMorePages())
+                                            <a href="{{ $books->nextPageUrl() }}"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </a>
+                                        @else
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -643,7 +685,32 @@
                                         HALAMAN</label>
                                     <input type="text" name="halaman"
                                         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                        placeholder="Contoh: 978-602...">
+                                        placeholder="Contoh: 100">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">FORMAT</label>
+                                    <input type="text" name="pormat"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                        placeholder="Contoh: Soft Cover">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">HARGA</label>
+                                    <input type="text" name="price"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                        placeholder="Contoh: Rp. 100.000">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">UKURAN
+                                        FISIK</label>
+                                    <input type="text" name="size"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                        value="22,9 cm x 15,2 cm" placeholder="Contoh: 22,9 cm x 15,2 cm">
                                 </div>
                             </div>
 
@@ -660,7 +727,8 @@
                                     Gambar Sampul</label>
                                 <input type="text" name="gambar_sampul"
                                     class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                    placeholder="https://image-url.com/book.jpg">
+                                    value="https://pngimg.com/uploads/book/book_PNG51090.png"
+                                    placeholder="https://pngimg.com/uploads/book/book_PNG51090.png">
                             </div>
 
                             <div class="mt-8 flex justify-end gap-3">

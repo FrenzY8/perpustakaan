@@ -39,9 +39,9 @@ class AuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => $request->password,
-                'otp_code' => $otp,
                 'otp_generated_at' => now(),
             ],
+            'otp_code' => $otp,
             'otp_generated_at' => now(),
             'otp_nonce' => Str::uuid()->toString(),
         ]);
@@ -147,17 +147,14 @@ class AuthController extends Controller
             return back()->withErrors(['otp' => 'Tunggu 60 detik sebelum kirim ulang OTP']);
         }
 
+        $otp = rand(100000, 999999);
         session([
+            'otp_code' => $otp,
             'otp_generated_at' => now(),
             'otp_nonce' => Str::uuid()->toString(),
         ]);
 
-        Http::withoutVerifying()->post('https://otp-service-beta.vercel.app/api/otp/generate', [
-            'email' => $data['email'],
-            'type' => 'numeric',
-            'organization' => 'Jokopus',
-            'subject' => 'Verifikasi Daftar Akun'
-        ]);
+        Mail::to($request->email ?? $request['email'])->send(new SendOtpMail($otp, $request->name));
 
         return back()->with('success', $data['email']);
     }

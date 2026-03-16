@@ -28,7 +28,7 @@ class AdminController extends Controller
                         $q->where('nama', 'like', "%{$search}%");
                     });
             })
-            ->latest()->get();
+            ->latest()->paginate(10);
 
         $searchUser = request('search_user');
         $users = User::when($searchUser, function ($query, $search) {
@@ -139,10 +139,13 @@ class AdminController extends Controller
             'id_penulis' => $request->id_penulis,
             'id_kategori' => $request->id_kategori,
             'isbn' => $request->isbn,
+            'price' => $request->price,
+            'size' => $request->size,
             'jumlah_halaman' => $request->halaman,
             'ringkasan' => $request->ringkasan,
-            'gambar_sampul' => $request->gambar_sampul ?? 'https://via.placeholder.com/150',
+            'gambar_sampul' => $request->gambar_sampul ?? 'https://pngimg.com/uploads/book/book_PNG51090.png',
             'penerbit' => 'Jokopus Publishing',
+            'format' => $request->pormat,
             'tanggal_terbit' => now(),
             'created_at' => now(),
             'updated_at' => now(),

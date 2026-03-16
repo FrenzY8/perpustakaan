@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Message;
+use App\Models\User;
+
 
 class ChatController extends Controller
 {
     public function index()
     {
-        $users = \App\Models\User::where('id', '!=', session('user.id'))->get();
+        $senderId = session('user.id');
+        if (!$senderId) return redirect('/login');
+        $users = User::where('id', '!=', session('user.id'))->get();
         return view('chat.index', compact('users'));
     }
     public function getMessages($receiverId)
