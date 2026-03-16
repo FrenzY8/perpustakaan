@@ -151,9 +151,11 @@
                             <div class="flex items-center gap-3 pl-4 border-l border-white/10">
                                 <div class="hidden sm:block text-right">
                                     <p class="text-[10px] font-black text-primary uppercase tracking-widest">
-                                        {{ session('user.role') == 1 ? 'Admin' : 'Member' }}</p>
+                                        {{ session('user.role') == 1 ? 'Admin' : 'Member' }}
+                                    </p>
                                     <p class="text-xs font-bold text-white truncate max-w-[100px]">
-                                        {{ session('user.name') }}</p>
+                                        {{ session('user.name') }}
+                                    </p>
                                 </div>
                                 <div onclick="window.location.href='/dashboard'"
                                     class="h-10 w-10 rounded-xl border-2 border-white/10 bg-center bg-cover hover:border-primary hover:scale-105 transition-all cursor-pointer shadow-lg"
@@ -175,28 +177,31 @@
 
                 <aside class="hidden md:flex flex-col w-80 glass rounded-3xl overflow-hidden border-white/5">
                     <div class="p-6 border-b border-white/10">
-                        <h3 class="text-xl font-black tracking-tighter">CHAT <span
-                                class="text-primary">TERSEDIA</span></h3>
+                        <h3 class="text-xl font-black tracking-tighter">CHAT <span class="text-primary">TERSEDIA</span>
+                        </h3>
                     </div>
 
                     <div class="flex-1 overflow-y-auto scrollbar-hide p-2 space-y-1">
-                        <div onclick= "window.location.href='/chat/jokobot'" // "loadChat(0,'Jokobot','https://ui-avatars.com/api/?name=Jokobot&background=137fec&color=fff')"
+                        <div onclick="window.location.href='/chat/jokobot'"
+                            // "loadChat(0,'Jokobot','https://ui-avatars.com/api/?name=Jokobot&background=137fec&color=fff')"
                             class="user-card flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-all cursor-pointer group"
                             data-user-id="0">
-                        <div class="relative size-11 flex-none">
-                        <img src="https://ui-avatars.com/api/?name=Jokobot&background=137fec&color=fff"
-                            class="rounded-xl object-cover w-full h-full shadow-md">
-                        <div class="absolute -bottom-1 -right-1 size-3 bg-primary border-2 border-background-dark rounded-full"></div>
-                        </div>
+                            <div class="relative size-11 flex-none">
+                                <img src="https://ui-avatars.com/api/?name=Jokobot&background=137fec&color=fff"
+                                    class="rounded-xl object-cover w-full h-full shadow-md">
+                                <div
+                                    class="absolute -bottom-1 -right-1 size-3 bg-primary border-2 border-background-dark rounded-full">
+                                </div>
+                            </div>
 
-                        <div class="overflow-hidden">
-                        <p class="text-sm font-bold truncate group-hover:text-primary transition-colors">
-                            JOKOBOT
-                        </p>
-                        <p class="text-[10px] text-primary uppercase font-black tracking-widest">
-                            System
-                        </p>
-                        </div>
+                            <div class="overflow-hidden">
+                                <p class="text-sm font-bold truncate group-hover:text-primary transition-colors">
+                                    JOKOBOT
+                                </p>
+                                <p class="text-[10px] text-primary uppercase font-black tracking-widest">
+                                    System
+                                </p>
+                            </div>
                         </div>
                         @foreach($users as $u)
                             @php
@@ -221,9 +226,11 @@
                                 </div>
                                 <div class="overflow-hidden">
                                     <p class="text-sm font-bold truncate group-hover:text-primary transition-colors">
-                                        {{ $u->name }}</p>
+                                        {{ $u->name }}
+                                    </p>
                                     <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest">
-                                        {{ $u->role == 1 ? 'Admin' : 'Member' }}</p>
+                                        {{ $u->role == 1 ? 'Admin' : 'Member' }}
+                                    </p>
                                 </div>
                             </div>
                         @endforeach
@@ -307,22 +314,41 @@
                 const container = document.getElementById('chat-container')
                 container.innerHTML = ''
 
-                messages.forEach((msg, index) => {
-                    const isMe = msg.sender_id == currentUserId
-                    const shouldAnimate = (index >= lastMessageCount || lastMessageCount === 0)
-                    const animationClass = shouldAnimate ? 'animate-fade-in' : ''
+                messages.forEach((msg) => {
+                    const isMe = msg.sender_id == currentUserId;
+                    let displayMessage = msg.message;
+
+                    // Cek apakah ini pesan sharing buku
+                    if (msg.message.includes('[BOOK_ID:')) {
+                        const bookId = msg.message.match(/\[BOOK_ID:(\d+)\]/)[1];
+                        displayMessage = `
+            <div class="flex flex-col gap-2 bg-white/5 rounded-xl p-2 border border-white/10 mt-2">
+                <div class="flex gap-3">
+                    <div class="w-12 h-16 bg-slate-700 rounded-md flex-none shadow-inner flex items-center justify-center">
+                        <span class="material-symbols-outlined text-slate-500">book</span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-[10px] text-primary font-black uppercase">Berbagi Buku</p>
+                        <p class="text-xs font-bold text-white truncate">${msg.message.split('] ')[1]}</p>
+                        <a href="/buku/${bookId}" class="text-[9px] text-slate-400 hover:text-white underline mt-1 block italic">Lihat Detail</a>
+                    </div>
+                </div>
+            </div>
+        `;
+                    }
 
                     const msgHtml = `
-                    <div class="flex gap-3 max-w-[80%] ${isMe ? 'ml-auto flex-row-reverse' : ''} ${animationClass} mb-4">
-                        <div class="${isMe ? 'bg-primary/20 border border-primary/30 rounded-tr-none' : 'glass border-white/5 rounded-tl-none'} p-3 rounded-2xl shadow-lg">
-                    <p class="text-sm text-slate-200">${msg.message}</p>
-                    <span class="text-[9px] ${isMe ? 'text-primary/70' : 'text-slate-500'} mt-1 block ${isMe ? 'text-right' : ''}">
-                        ${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                    </div>
-                    </div>`
-                    container.insertAdjacentHTML('beforeend', msgHtml)
-                })
+        <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4">
+            <div class="${isMe ? 'bg-primary/20 border border-primary/30 rounded-tr-none' : 'bg-slate-800/80 border-2 border-slate-700 rounded-tl-none'} p-3 rounded-2xl shadow-xl">
+                ${displayMessage}
+                <span class="text-[9px] ${isMe ? 'text-primary/70' : 'text-slate-500'} mt-1 block ${isMe ? 'text-right' : ''}">
+                    ${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+            </div>
+        </div>
+    `;
+                    container.insertAdjacentHTML('beforeend', msgHtml);
+                });
 
                 lastMessageCount = messages.length
 

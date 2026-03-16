@@ -40,6 +40,7 @@ Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 Route::get('/chat/history/{receiverId}', [ChatController::class, 'getMessages']);
 Route::post('/chat/send-user', [ChatController::class, 'sendMessage']);
 Route::post('/chat/send', [ChatbotController::class, 'chat']);
+Route::post('/share-book', [ChatController::class, 'shareBook']);
 
 // ADMIN PANEL
 Route::post('/admin/kurangi-denda/{id}', [AdminController::class, 'kurangi_denda']);
@@ -63,3 +64,7 @@ Route::get('/logout', [AuthController::class, 'logout']);
 Route::get('/daftar', [AuthController::class, 'daftar_page']);
 Route::get('/otp', [AuthController::class, 'otp']);
 Route::post('/users/store', [AuthController::class, 'users_store']);
+
+// GOOGLE AUTH
+Route::get('/auth/google', [AuthController::class, 'google_redirect']);
+Route::get('/auth/google/callback', [AuthController::class, 'google_callback']);

@@ -152,115 +152,166 @@
                     </div>
 
                     <form action="{{ url()->current() }}" method="GET">
-                    <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <div class="relative flex-1 w-full group">
-                            <div class="relative group flex-1 w-full">
-                                <span
-                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-500 group-focus-within:text-primary transition-colors pointer-events-none">
-                                    search
-                                </span>
-
-                                <input type="text" name="search" value="{{ request('search') }}"
-                                    placeholder="Cari judul atau penulis..."
-                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white focus:border-primary/50 focus:ring-0 transition-all outline-none glass relative z-0">
-
-                                @if(request('search'))
-                                    <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-slate-500 hover:text-white transition-colors">
-                                        <span class="material-symbols-outlined text-lg font-bold">close</span>
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-
-
-                        <div class="relative w-full sm:w-auto" x-data="{ open: false }">
-                            <button type="button" @click="open = !open" @click.outside="open = false"
-                                class="w-full flex items-center justify-between sm:justify-start gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all glass">
-                                <div class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-primary text-lg">grid_view</span>
+                        <div class="flex flex-col sm:flex-row items-center gap-3">
+                            <div class="relative flex-1 w-full group">
+                                <div class="relative group flex-1 w-full">
                                     <span
-                                        class="whitespace-nowrap">{{ request('category') && request('category') !== 'all' ? request('category') : 'Kategori' }}</span>
-                                </div>
-                                <span class="material-symbols-outlined transition-transform duration-300"
-                                    :class="open ? 'rotate-180' : ''">expand_more</span>
-                            </button>
+                                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-500 group-focus-within:text-primary transition-colors pointer-events-none">
+                                        search
+                                    </span>
 
-                            <div x-show="open" x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 scale-95 translate-y-[-10px]"
-                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                                class="absolute right-0 mt-3 w-64 glass border border-white/10 rounded-2xl shadow-2xl z-[60] p-2">
+                                    <input type="text" name="search" value="{{ request('search') }}"
+                                        placeholder="Cari judul atau penulis..."
+                                        class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white focus:border-primary/50 focus:ring-0 transition-all outline-none glass relative z-0">
 
-                                <div class="flex flex-col gap-1 max-h-[280px] overflow-y-auto no-scrollbar">
-                                    <a href="{{ request()->fullUrlWithQuery(['category' => 'all', 'page' => 1]) }}"
-                                        class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                    {{ request('category') == 'all' || !request('category') ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
-                                        All Collection
-                                    </a>
-
-                                    @foreach($categories as $cat)
-                                        <a href="{{ request()->fullUrlWithQuery(['category' => $cat->nama, 'page' => 1]) }}"
-                                            class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
-                                            {{ $cat->nama }}
+                                    @if(request('search'))
+                                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-slate-500 hover:text-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg font-bold">close</span>
                                         </a>
-                                    @endforeach
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="relative w-full sm:w-auto" x-data="{ open: false }">
+                                <button type="button" @click="open = !open" @click.outside="open = false"
+                                    class="w-full flex items-center justify-between sm:justify-start gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all glass">
+                                    <div class="flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary text-lg">grid_view</span>
+                                        <span
+                                            class="whitespace-nowrap">{{ request('category') && request('category') !== 'all' ? request('category') : 'Kategori' }}</span>
+                                    </div>
+                                    <span class="material-symbols-outlined transition-transform duration-300"
+                                        :class="open ? 'rotate-180' : ''">expand_more</span>
+                                </button>
+
+                                <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-[-10px]"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    class="absolute right-0 mt-3 w-64 glass border border-white/10 rounded-2xl shadow-2xl z-[60] p-2">
+
+                                    <div class="flex flex-col gap-1 max-h-[280px] overflow-y-auto no-scrollbar">
+                                        <a href="{{ request()->fullUrlWithQuery(['category' => 'all', 'page' => 1]) }}"
+                                            class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                    {{ request('category') == 'all' || !request('category') ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                            All Collection
+                                        </a>
+
+                                        @foreach($categories as $cat)
+                                            <a href="{{ request()->fullUrlWithQuery(['category' => $cat->nama, 'page' => 1]) }}"
+                                                class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                                                                {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                {{ $cat->nama }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="relative w-full sm:w-auto" x-data="{ open: false }">
+                                <button type="button" @click="open = !open" @click.outside="open = false"
+                                    class="w-full flex items-center justify-between sm:justify-start gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all glass">
+                                    <div class="flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary text-lg">person</span>
+                                        <span class="whitespace-nowrap">
+                                            {{ request('penulis') && request('penulis') !== 'all' ? request('penulis') : 'Penulis' }}
+                                        </span>
+                                    </div>
+                                    <span class="material-symbols-outlined transition-transform duration-300"
+                                        :class="open ? 'rotate-180' : ''">expand_more</span>
+                                </button>
+
+                                <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-[-10px]"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    class="absolute right-0 mt-3 w-64 glass border border-white/10 rounded-2xl shadow-2xl z-[60] p-2">
+
+                                    <div class="flex flex-col gap-1 max-h-[280px] overflow-y-auto no-scrollbar">
+                                        <a href="{{ request()->fullUrlWithQuery(['penulis' => 'all', 'page' => 1]) }}"
+                                            class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                {{ request('penulis') == 'all' || !request('penulis') ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                            All Authors
+                                        </a>
+
+                                        @foreach($penulis as $p)
+                                                                <a href="{{ request()->fullUrlWithQuery(['penulis' => $p->nama, 'page' => 1]) }}"
+                                                                    class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                                            {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                                    {{ $p->nama }}
+                                                                </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="relative w-full sm:w-auto" x-data="{ 
+                                open: false,
+                                sortLabels: {
+                                    'latest': 'Terbaru',
+                                    'year_new': 'Tahun: Terbaru',
+                                    'year_old': 'Tahun: Terlama',
+                                    'author_asc': 'Penulis: A-Z',
+                                    'title_asc': 'Judul: A-Z',
+                                    'pages': 'Halaman: Terbanyak'
+                                    }
+                                }">
+                                <button type="button" @click="open = !open" @click.outside="open = false"
+                                    class="w-full flex items-center justify-between sm:justify-start gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all glass">
+                                    <div class="flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary text-lg">swap_vert</span>
+                                        <span class="whitespace-nowrap">
+                                            {{ request('sort') ? '' : 'Urutkan' }}
+                                            <span x-text="sortLabels['{{ request('sort', 'latest') }}']"></span>
+                                        </span>
+                                    </div>
+                                    <span class="material-symbols-outlined transition-transform duration-300"
+                                        :class="open ? 'rotate-180' : ''">expand_more</span>
+                                </button>
+
+                                <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-[-10px]"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    class="absolute right-0 mt-3 w-64 glass border border-white/10 rounded-2xl shadow-2xl z-[60] p-2">
+
+                                    <div class="flex flex-col gap-1 max-h-[280px] overflow-y-auto no-scrollbar">
+                                        @php
+                                            $sortOptions = [
+                                                'latest' => 'Terbaru',
+                                                'year_new' => 'Tahun: Terbaru',
+                                                'year_old' => 'Tahun: Terlama',
+                                                'author_asc' => 'Penulis: A-Z',
+                                                'title_asc' => 'Judul: A-Z',
+                                                'pages' => 'Halaman: Terbanyak'
+                                            ];
+                                        @endphp
+
+                                        @foreach($sortOptions as $value => $label)
+                                            <a href="{{ request()->fullUrlWithQuery(['sort' => $value]) }}"
+                                                class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                                                        {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                {{ $label }}
+                                            </a>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <form action="{{ url()->current() }}" method="GET">
-                        <div class="relative h-full w-full sm:w-auto">
-                            <span
-                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-lg pointer-events-none z-10">
-                                swap_vert
-                            </span>
-
-                            <select name="sort" onchange="this.form.submit()"
-                                class="appearance-none h-full w-full sm:w-auto pl-12 pr-10 bg-white/5 border border-white/10 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-widest text-white focus:border-primary/50 focus:ring-0 glass cursor-pointer transition-all outline-none relative z-0">
-
-                                <option value="latest" class="bg-slate-900" {{ request('sort') == 'latest' ? 'selected' : '' }}>
-                                    Terbaru
-                                </option>
-                                <option value="year_new" class="bg-slate-900" {{ request('sort') == 'year_new' ? 'selected' : '' }}>
-                                    Tahun: Terbaru
-                                </option>
-                                <option value="year_old" class="bg-slate-900" {{ request('sort') == 'year_old' ? 'selected' : '' }}>
-                                    Tahun: Terlama
-                                </option>
-                                <option value="author_asc" class="bg-slate-900" {{ request('sort') == 'author_asc' ? 'selected' : '' }}>
-                                    Penulis: A-Z
-                                </option>
-                                <option value="title_asc" class="bg-slate-900" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>
-                                    Judul: A-Z
-                                </option>
-                                <option value="pages" class="bg-slate-900" {{ request('sort') == 'pages' ? 'selected' : '' }}>
-                                    Halaman: Terbanyak
-                                </option>
-                            </select>
-
-                            <span
-                                class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none z-10">
-                                unfold_more
-                            </span>
-                        </div>
-                    </div>
-
-                    @if(request('category') && request('category') !== 'all')
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Filter
-                                Aktif:</span>
-                            <div
-                                class="flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1 rounded-lg">
-                                <span
-                                    class="text-[10px] font-bold text-primary uppercase tracking-widest">{{ request('category') }}</span>
-                                <a href="{{ request()->fullUrlWithQuery(['category' => 'all', 'page' => 1]) }}"
-                                    class="text-primary hover:text-white transition-colors">
-                                    <span class="material-symbols-outlined text-sm">close</span>
-                                </a>
+                        @if(request('category') && request('category') !== 'all')
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Filter
+                                    Aktif:</span>
+                                <div
+                                    class="flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1 rounded-lg">
+                                    <span
+                                        class="text-[10px] font-bold text-primary uppercase tracking-widest">{{ request('category') }}</span>
+                                    <a href="{{ request()->fullUrlWithQuery(['category' => 'all', 'page' => 1]) }}"
+                                        class="text-primary hover:text-white transition-colors">
+                                        <span class="material-symbols-outlined text-sm">close</span>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
                 </div>
             </div>
 

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login di Jokopus</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..0" />
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -35,6 +36,7 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 50px rgba(0, 0, 0, 0.3);
         }
+
         .bg-image {
             background-image: linear-gradient(rgba(16, 25, 34, 0.85), rgba(16, 25, 34, 0.85)),
                 url('https://media.istockphoto.com/id/1339845062/photo/reading-room-or-library-interior-with-leather-armchair-bookshelf-and-floor-lamp.jpg?s=612x612&w=0&k=20&c=2ghOW2DCvb49Up3D0eFeVzv1kbSMjUq-_psohUYeZB0=');
@@ -85,19 +87,26 @@
 
                 <button type="submit"
                     class="w-full h-11 mt-2 rounded-xl bg-primary font-bold text-white hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
-                    Masuk Sekarang
+                    Masuk
                 </button>
 
-                <div class="pt-4 flex flex-col gap-3 text-center">
-                    <a href="/daftar" class="text-sm text-slate-400 hover:text-white transition">
-                        Belum punya akun? <span class="text-primary font-semibold">Daftar</span>
-                    </a>
-
+                <div class="flex flex-col gap-3 text-center">
                     <div class="flex items-center gap-4 my-2">
                         <div class="h-[1px] w-full bg-white/10"></div>
                         <span class="text-xs text-slate-500 uppercase tracking-widest">atau</span>
                         <div class="h-[1px] w-full bg-white/10"></div>
                     </div>
+
+                    <a href="{{ url('/auth/google') }}"
+                        class="flex items-center justify-center w-full h-11 mt-2 rounded-xl bg-primary font-bold text-white hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+                        style="height: 45px; border-radius: 8px; font-weight: 500; transition: 0.3s;">
+                        <i class="fab fa-google mr-2"></i>
+                        <span>Masuk dengan Google</span>
+                    </a>
+
+                    <a href="/daftar" class="text-sm text-slate-400 hover:text-white transition">
+                        Belum punya akun? <span class="text-primary font-semibold">Daftar</span>
+                    </a>
 
                     <a href="/"
                         class="group text-sm font-medium text-slate-400 hover:text-white flex items-center justify-center gap-2 transition">

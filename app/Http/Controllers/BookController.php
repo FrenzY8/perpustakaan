@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Buku;
 use App\Models\Komentar;
 use App\Models\Peminjaman;
+use App\Models\User;
 use App\Models\Wishlist;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class BookController extends Controller
         $category = $request->query('category');
         $format = $request->query('format');
         $sort = $request->query('sort');
+        $penulis_filter = $request->query('penulis');
 
         $query = Buku::with(['penulis', 'kategori']);
 
@@ -33,6 +35,12 @@ class BookController extends Controller
         if ($category && $category !== 'all') {
             $query->whereHas('kategori', function ($q) use ($category) {
                 $q->where('nama', $category);
+            });
+        }
+
+        if ($penulis_filter && $penulis_filter !== 'all') {
+            $query->whereHas('penulis', function ($q) use ($penulis_filter) {
+                $q->where('nama', $penulis_filter);
             });
         }
 
@@ -74,8 +82,9 @@ class BookController extends Controller
 
         $books = $query->paginate(6)->appends($request->query());
         $categories = DB::table('kategori')->get();
+        $penulis = DB::table('penulis')->orderBy('nama', 'asc')->get();
 
-        return view('buku/buku', compact('books', 'categories'));
+        return view('buku/buku', compact('books', 'categories', 'penulis'));
     }
     public function pinjam(Request $request, $id)
     {
@@ -168,6 +177,7 @@ class BookController extends Controller
         if (session()->has('user')) {
             $userId = session('user.id');
 
+            $users = User::where('id', '!=', $userId)->get();
             $isWishlisted = Wishlist::where('id_user', $userId)->where('id_buku', $id)->exists();
 
             $isCurrentlyBorrowing = Peminjaman::where('id_user', $userId)
@@ -189,7 +199,7 @@ class BookController extends Controller
 
         $wishlistCount = Wishlist::where('id_buku', $id)->count();
 
-        return view('buku/detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
+        return view('buku/detail', compact('book', 'users', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 
     }
     public function borrow(Request $request, $id)

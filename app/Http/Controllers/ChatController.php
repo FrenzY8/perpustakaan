@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
-
+use App\Models\Buku;
+use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
     public function index()
     {
         $senderId = session('user.id');
-        if (!$senderId) return redirect('/login');
+        if (!$senderId)
+            return redirect('/login');
         $users = User::where('id', '!=', session('user.id'))->get();
         return view('chat.index', compact('users'));
     }
@@ -28,7 +30,20 @@ class ChatController extends Controller
 
         return response()->json($messages);
     }
+    public function shareBook(Request $request)
+    {
+        $book = Buku::findOrFail($request->book_id);
+        $messageContent = "[BOOK_ID:{$book->id}] " . $book->judul;
 
+        DB::table('messages')->insert([
+            'sender_id' => session('user.id'),
+            'receiver_id' => $request->receiver_id,
+            'message' => $messageContent,
+            'created_at' => now(),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
     public function sendMessage(Request $request)
     {
         $message = Message::create([

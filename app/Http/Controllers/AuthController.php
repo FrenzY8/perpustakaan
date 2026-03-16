@@ -6,12 +6,62 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-
 use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
 use App\Mail\SendOtpMail;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
+    public function google_redirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function google_callback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+            $user = DB::table('users')->where('email', $googleUser->getEmail())->first();
+
+            $avatarUrl = $googleUser->getAvatar();
+            $filename = null;
+
+            if ($avatarUrl) {
+                $imageContents = Http::withoutVerifying()->get($avatarUrl)->body();
+                $filename = 'google_' . time() . '_' . Str::random(5) . '.jpg';
+                Storage::disk('public')->put('avatars/' . $filename, $imageContents);
+            }
+
+            if (!$user) {
+                $userId = DB::table('users')->insertGetId([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'profile_photo' => $filename,
+                    'password' => bcrypt(Str::random(16)),
+                    'role' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $user = DB::table('users')->where('id', $userId)->first();
+            }
+
+            session([
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ]
+            ]);
+
+            return redirect('/dashboard');
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect('/login')->withErrors(['login' => 'Error: ' . $e->getMessage()]);
+        }
+    }
     public function login_page()
     {
         if (session()->has('user')) {
