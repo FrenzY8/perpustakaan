@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Buku extends Model
+{
+    use HasFactory;
+    protected $table = 'buku';
+    protected $fillable = [
+        'judul',
+        'gambar_sampul',
+        'ringkasan',
+        'penerbit',
+        'isbn',
+        'jumlah_halaman',
+        'tanggal_terbit',
+        'format',
+        'id_penulis',
+        'id_kategori',
+    ];
+    public function komentar()
+    {
+        return $this->hasMany(Komentar::class, 'id_buku');
+    }
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class, 'id_kategori');
+    }
+    public function penulis()
+    {
+        return $this->belongsTo(Penulis::class, 'id_penulis', 'id');
+    }
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'buku_tag', 'id_buku', 'id_tag');
+    }
+}

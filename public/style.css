@@ -1,0 +1,533 @@
+.page-hero {
+    position: relative;
+    height: 260px;
+    background-image: url("/images/kabi.png");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+}
+
+.page-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.page-hero-content {
+    position: relative;
+    color: #ffffff;
+}
+
+.page-hero-content h1 {
+    font-size: 42px;
+    font-weight: 700;
+}
+
+.page-hero-content p {
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.page-hero-content a {
+    color: #f2a62d;
+    text-decoration: none;
+}
+
+.news-search input {
+    border-radius: 999px 0 0 999px;
+    padding: 12px 20px;
+}
+
+.news-search button {
+    border-radius: 0 999px 999px 0;
+    padding: 0 22px;
+}
+
+.news-card {
+    border: none;
+    height: 100%;
+}
+
+.news-card img {
+    border-radius: 18px;
+}
+
+.news-card .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.news-card p {
+    font-size: 14px;
+    color: #555555;
+}
+
+.brand-card {
+    padding: 24px;
+    border-radius: 18px;
+    outline: 2px solid #000;
+    outline-offset: 4px;
+    transition:
+        box-shadow 0.35s ease,
+        transform 0.35s ease,
+        outline-color 0.35s ease;
+}
+
+.brand-card:hover {
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    outline-color: #8ffd00;
+}
+
+.brand-card img {
+    transition: transform 0.35s ease;
+}
+
+.brand-card:hover img {
+    transform: scale(1.05);
+}
+
+.award-card {
+    background: #fff;
+    padding: 18px;
+    border-radius: 16px;
+    outline: 2px solid #000;
+    outline-offset: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        outline-color 0.35s ease;
+}
+
+.award-card img {
+    max-width: 100%;
+    max-height: 120px;
+    transition: transform 0.35s ease;
+}
+
+.award-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.15);
+    outline-color: #8ffd00;
+}
+
+.award-card:hover img {
+    transform: scale(1.05);
+}
+
+.about-section {
+  padding: 40px 0;
+  background-color: #ffffff;
+}
+
+.about-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f2762e;
+  line-height: 1.2;
+}
+
+.about-desc {
+  font-size: 16px;
+  color: #1e1e1e;
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+
+.brand-orange {
+  color: #f2762e;
+  font-weight: 600;
+}
+
+.about-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  color: #f2762e;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.about-link i {
+  font-size: 14px;
+}
+
+.about-link:hover {
+  color: #d9641f;
+  transform: translateX(4px);
+}
+
+.about-image {
+  max-width: 360px;
+  max-height: 300px;
+  width: 100%;
+  object-fit: contain;
+  margin-left: 200px;
+}
+
+@media (max-width: 992px) {
+  .about-title {
+    font-size: 28px;
+  }
+
+  .about-image {
+    max-width: 300px;
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 32px 0;
+  }
+
+  .about-title {
+    font-size: 24px;
+  }
+
+  .about-desc {
+    font-size: 15px;
+  }
+
+  .about-image {
+    max-width: 260px;
+    max-height: 220px;
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .about-title {
+    font-size: 22px;
+  }
+
+  .about-desc {
+    font-size: 14.5px;
+  }
+}
+
+.banner-page {
+    position: relative;
+    min-height: 260px;
+    background-image: url("/images/kabi.png");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+}
+
+.banner-page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.banner-page .content-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+.page-heading {
+    font-size: 42px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.page-sub-heading {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff;
+}
+
+#karir .input-group input {
+    border-radius: 999px 0 0 999px;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+}
+
+#karir .btn-primary-search {
+    border-radius: 0 999px 999px 0;
+    padding: 0 22px;
+    background-color: #f2a62d;
+    border: none;
+    color: #fff;
+    transition: background 0.3s ease;
+}
+
+#karir .btn-primary-search:hover {
+    background-color: #d98f1f;
+}
+
+.rs-karir-1 {
+    background: #ffffff;
+    border-radius: 18px;
+    outline: 2px solid #000;
+    outline-offset: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        outline-color 0.35s ease;
+}
+
+.rs-karir-1:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+    outline-color: #8ffd00;
+}
+
+.rs-karir-1 img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 14px;
+    transition: transform 0.35s ease;
+}
+
+.rs-karir-1:hover img {
+    transform: scale(1.05);
+}
+
+.rs-karir-1 .vag {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+    text-decoration: none;
+}
+
+.rs-karir-1 .vag:hover {
+    color: #f2762e;
+}
+
+.rs-karir-1 .btn-primary {
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: #f2762e;
+    border: none;
+}
+
+.rs-karir-1 .btn-primary:hover {
+    background-color: #d9641f;
+}
+
+.btn-primary-hover {
+    border-radius: 999px;
+    padding: 8px 24px;
+    font-weight: 600;
+    background: transparent;
+    border: 2px solid #000;
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.btn-primary-hover:hover {
+    background: #8ffd00;
+    color: #000;
+    transform: translateY(-3px);
+}
+
+.circle-number {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f2762e;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.line-blue {
+    flex: 1;
+    height: 2px;
+    background: #ddd;
+    margin: auto 8px;
+}
+
+.img-rekrutmen {
+    max-width: 80px;
+    transition: transform 0.3s ease;
+}
+
+.img-rekrutmen:hover {
+    transform: scale(1.1);
+}
+
+.span-rekrutmen {
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .page-heading {
+        font-size: 32px;
+    }
+
+    .rs-karir-1 img {
+        height: 180px;
+    }
+}
+
+.img-workspace {
+    width: 100%;
+    max-width: 980px;
+    border-radius: 18px;
+    outline: 2px solid #000;
+    outline-offset: 4px;
+    display: block;
+    margin: 0 auto;
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        outline-color 0.35s ease;
+}
+
+.img-workspace:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+    outline-color: #8ffd00;
+}
+
+.align-items-end h2 {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.align-items-end p {
+    font-size: 15px;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .align-items-end h2 {
+        font-size: 26px;
+    }
+
+    .img-workspace {
+        max-width: 100%;
+        border-radius: 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .align-items-end h2 {
+        font-size: 22px;
+    }
+
+    .align-items-end p {
+        font-size: 14px;
+    }
+}
+
+#btn-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#btn-search i {
+    position: relative;
+    top: -1px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.py-3 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.px-4 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.pt-4 { padding-top: 1.5rem; }
+.pb-1 { padding-bottom: 0.25rem; }
+.pb-4 { padding-bottom: 1.5rem; }
+
+.rs-contact-us .d-flex {
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.rs-contact-us i.icon-rounded {
+    font-size: 1.8rem;
+    width: 50px;
+    height: 50px;
+    background-color: #f3e5d5;
+    color: #a0522d;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rs-contact-us p.vag {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #1e1e1e; /* ubah jadi hitam */
+}
+
+.rs-contact-us p.text-dark {
+    margin-bottom: 0.3rem;
+    color: #1e1e1e;
+}
+
+.rs-contact-us a.text-warning {
+    color: #1e1e1e; /* ubah link jadi hitam */
+    text-decoration: none;
+}
+
+.rs-contact-us a.text-warning:hover {
+    text-decoration: underline;
+}
+
+.rs-google-maps iframe.google-maps {
+    width: 100%;
+    height: 350px;
+    border: 0;
+    border-radius: 8px;
+}
+
+@media (max-width: 991px) {
+    .rs-google-maps iframe.google-maps {
+        height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .rs-contact-us .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .rs-contact-us i.icon-rounded {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+}
