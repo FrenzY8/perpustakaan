@@ -17,13 +17,13 @@ class AuthController extends Controller
     {
         return Socialite::driver('google')->redirect();
     }
-
     public function google_callback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            /** @var \Laravel\Socialite\Two\AbstractProvider $googleDriver */
+            $googleDriver = Socialite::driver('google');
+            $googleUser = $googleDriver->stateless()->user();
             $user = DB::table('users')->where('email', $googleUser->getEmail())->first();
-
             $avatarUrl = $googleUser->getAvatar();
             $filename = null;
 
@@ -58,8 +58,10 @@ class AuthController extends Controller
             return redirect('/dashboard');
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            return redirect('/login')->withErrors(['login' => 'Error: ' . $e->getMessage()]);
+            \Log::error('Google Auth Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            dd($e);
         }
     }
     public function login_page()

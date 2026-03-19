@@ -274,11 +274,6 @@
             </div>
           </div>
         </div>
-        <button type="button" onclick="toggleModal('modal-share-book')"
-          class="flex-1 md:flex-none w-full md:min-w-[200px] h-14 rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.95] border font-bold glass-panel border-white/10 hover:bg-white/10 text-white shadow-lg">
-          <span class="material-symbols-outlined">share</span>
-          Bagikan
-        </button>
         <div class="flex flex-wrap gap-4 pt-2">
           @if($isCurrentlyBorrowing)
             <button disabled
@@ -601,67 +596,6 @@
     </div>
   </footer>
 </body>
-<div id="modal-share-book" class="fixed inset-0 z-[110] hidden overflow-y-auto bg-black/80 backdrop-blur-md">
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <div class="absolute inset-0" onclick="toggleModal('modal-share-book')"></div>
-
-    <div
-      class="glass border border-white/10 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl relative animate-fade-in">
-      <div class="p-8 border-b border-white/10 bg-white/[0.02]">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="text-3xl font-black tracking-tighter uppercase italic">Share <span
-                class="text-primary">Book</span></h3>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Membagikan: <span
-                class="text-white">{{ $book->judul }}</span></p>
-          </div>
-          <button onclick="toggleModal('modal-share-book')" class="text-slate-500 hover:text-white transition-colors">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="max-h-[400px] overflow-y-auto p-4 space-y-2 no-scrollbar">
-        @if(isset($users) && count($users) > 0)
-          @foreach($users as $u)
-            <button onclick="sendShareBook({{ $book->id }}, {{ $u->id }})"
-              class="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all group text-left border border-transparent hover:border-white/10 active:scale-[0.98]">
-
-              @php
-                $uPhoto = $u->profile_photo ? asset('storage/avatars/' . $u->profile_photo) : "https://ui-avatars.com/api/?name=" . urlencode($u->name) . "&background=137fec&color=fff";
-              @endphp
-
-              <div
-                class="size-12 rounded-xl border-2 border-white/10 bg-cover bg-center shadow-lg group-hover:border-primary transition-all"
-                style="background-image: url('{{ $uPhoto }}')">
-              </div>
-
-              <div class="flex-1">
-                <p class="text-sm font-bold group-hover:text-primary transition-colors uppercase tracking-tight">
-                  {{ $u->name }}
-                </p>
-                <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">
-                  {{ $u->role == 1 ? 'Administrator' : 'Verified Member' }}
-                </p>
-              </div>
-
-              <span class="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">send</span>
-            </button>
-          @endforeach
-        @else
-          <div class="p-8 text-center opacity-50">
-            <p class="text-xs uppercase tracking-widest font-bold">Tidak ada teman tersedia</p>
-          </div>
-        @endif
-      </div>
-
-      <div class="p-6 bg-white/[0.02] text-center">
-        <p class="text-[9px] text-slate-500 font-medium uppercase tracking-[0.3em]">Pilih teman untuk mengirim
-          rekomendasi</p>
-      </div>
-    </div>
-  </div>
-</div>
 
 </html>
 <script>
@@ -687,45 +621,5 @@
     if (event.target == modal) {
       toggleModalPinjam();
     }
-  }
-</script>
-<script>
-  // Fungsi umum untuk buka/tutup modal apa saja
-  function toggleModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.toggle('hidden');
-    }
-  }
-
-  // Fungsi khusus kirim share via AJAX
-  function sendShareBook(bookId, targetUserId) {
-    // Tampilkan loading simpel atau ganti icon
-    console.log("Mengirim buku " + bookId + " ke user " + targetUserId);
-
-    fetch('/share-book', { 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-      },
-      body: JSON.stringify({
-        id_buku: bookId,
-        id_penerima: targetUserId
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Buku berhasil dibagikan!');
-          toggleModal('modal-share-book');
-        } else {
-          alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan jaringan.');
-      });
   }
 </script>

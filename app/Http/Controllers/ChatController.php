@@ -30,20 +30,6 @@ class ChatController extends Controller
 
         return response()->json($messages);
     }
-    public function shareBook(Request $request)
-    {
-        $book = Buku::findOrFail($request->book_id);
-        $messageContent = "[BOOK_ID:{$book->id}] " . $book->judul;
-
-        DB::table('messages')->insert([
-            'sender_id' => session('user.id'),
-            'receiver_id' => $request->receiver_id,
-            'message' => $messageContent,
-            'created_at' => now(),
-        ]);
-
-        return response()->json(['success' => true]);
-    }
     public function sendMessage(Request $request)
     {
         $message = Message::create([

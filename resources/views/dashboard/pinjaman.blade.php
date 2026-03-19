@@ -47,7 +47,7 @@
             <!-- Sidebar Header -->
             <div class="flex items-center justify-between px-4 py-3">
                 <div class="flex pt-3 items-center gap-3">
-                    <div class="size-6 text-white">
+                    <div class="size-12 text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -55,7 +55,7 @@
                         </svg>
                     </div>
 
-                    <h2 onclick="window.location.href='/'" class="text-3xl font-bold tracking-light text-white">
+                    <h2 onclick="window.location.href='/'" class="text-4xl font-bold tracking-light text-white">
                         Jokopus
                     </h2>
                 </div>

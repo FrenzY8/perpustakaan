@@ -199,7 +199,7 @@ class BookController extends Controller
 
         $wishlistCount = Wishlist::where('id_buku', $id)->count();
 
-        return view('buku/detail', compact('book', 'users', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
+        return view('buku/detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 
     }
     public function borrow(Request $request, $id)
