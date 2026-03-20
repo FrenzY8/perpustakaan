@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Buku;
 use App\Models\User;
 use App\Models\Peminjaman;
+use App\Models\Message;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -82,7 +83,7 @@ class AdminController extends Controller
     }
     public function reset_denda($id)
     {
-        $peminjaman = Peminjaman::with('buku')->find($id);
+        $peminjaman = Peminjaman::with('buku', 'user')->find($id);
 
         if (!$peminjaman) {
             return redirect()->back()->with('error', 'Data peminjaman tidak ditemukan.');
@@ -112,7 +113,17 @@ class AdminController extends Controller
         ]);
 
         $fileName = 'invoice_' . $id . '_' . time() . '.pdf';
+        $filePath = 'invoice/' . $fileName;
         Storage::disk('public')->put('invoice/' . $fileName, $pdf->output());
+
+        $urlInvoice = asset('storage/' . $filePath);
+        $pesanInvoice = "[INVOICE_PDF] Halo {$peminjaman->user->name}, pengembalian buku '{$peminjaman->buku->judul}' telah diproses. Silahkan unduh invoice Anda di sini: " . $urlInvoice;
+
+        Message::create([
+            'sender_id' => session('user.id'),
+            'receiver_id' => $peminjaman->id_user,
+            'message' => $pesanInvoice  
+        ]);
 
         return redirect()->back()->with('success', 'Buku berhasil dikembalikan. Denda Rp ' . number_format($nominalDenda, 0, ',', '.') . ' telah dilunasi.');
     }

@@ -220,9 +220,6 @@
                                 data-user-id="{{ $u->id }}">
                                 <div class="relative size-11 flex-none">
                                     <img src="{{ $displayPhoto }}" class="rounded-xl object-cover w-full h-full shadow-md">
-                                    <div
-                                        class="absolute -bottom-1 -right-1 size-3 bg-green-500 border-2 border-background-dark rounded-full">
-                                    </div>
                                 </div>
                                 <div class="overflow-hidden">
                                     <p class="text-sm font-bold truncate group-hover:text-primary transition-colors">
@@ -288,7 +285,7 @@
                 document.getElementById('active-name').innerText = userName
                 document.getElementById('active-avatar').src = userAvatar
                 document.getElementById('active-avatar').classList.remove('hidden')
-                document.getElementById('active-status').innerText = "Online"
+                document.getElementById('active-status').innerText = ""
                 document.getElementById('active-status').classList.replace('text-slate-500', 'text-green-500')
                 document.getElementById('receiver-id').value = userId
 
@@ -317,6 +314,28 @@
                 messages.forEach((msg) => {
                     const isMe = msg.sender_id == currentUserId;
                     let displayMessage = msg.message;
+                    if (msg.message.includes('[INVOICE_PDF]')) {
+                        const url = msg.message.split(': ')[1];
+                        const textPart = msg.message.split('] ')[1].split('. Silahkan')[0];
+
+                        displayMessage = `
+                        <div class="flex flex-col gap-2 bg-primary/10 rounded-xl p-3 border border-primary/20 mt-2">
+                            <div class="flex items-center gap-3">
+                                <div class="size-10 bg-primary rounded-lg flex items-center justify-center shadow-lg">
+                                    <span class="material-symbols-outlined text-white">description</span>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="text-[10px] text-primary font-black uppercase tracking-tighter">Official Invoice</p>
+                                    <p class="text-xs font-bold text-white truncate">${textPart}</p>
+                                </div>
+                            </div>
+                            <a href="${url}" target="_blank" 
+                            class="w-full mt-2 py-2 bg-primary/20 hover:bg-primary text-primary hover:text-white text-[10px] font-bold uppercase rounded-lg transition-all text-center border border-primary/30">
+                            Download Invoice (PDF)
+                            </a>
+                        </div>
+                        `;
+                    }
                     const msgHtml = `
                     <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4">
                         <div class="${isMe ? 'bg-primary/20 border border-primary/30 rounded-tr-none' : 'bg-slate-800/80 border-2 border-slate-700 rounded-tl-none'} p-3 rounded-2xl shadow-xl">
