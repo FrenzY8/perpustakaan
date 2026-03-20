@@ -68,6 +68,10 @@
   3. Dengan model ```deepseek-ai/deepseek-v3.1-terminus```
 - Menambah Chat System antar pengguna (works)
 - Menambah Beberapa Detail Buku
+- Menambah Login & Sign Up with Google
+  1. Get avatar
+  2. Get email
+  3. Get username
 - etc
 
 ### Jumat, 20 Maret 2026
