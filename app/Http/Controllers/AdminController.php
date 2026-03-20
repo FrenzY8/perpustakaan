@@ -117,7 +117,7 @@ class AdminController extends Controller
         Storage::disk('public')->put('invoice/' . $fileName, $pdf->output());
 
         $urlInvoice = asset('storage/' . $filePath);
-        $pesanInvoice = "[INVOICE_PDF] Halo {$peminjaman->user->name}, pengembalian buku '{$peminjaman->buku->judul}' telah diproses. Silahkan unduh invoice Anda di sini: " . $urlInvoice;
+        $pesanInvoice = "[INVOICE_PDF] Halo, {$peminjaman->user->name}, Invoice denda '{$peminjaman->buku->judul}' telah di rilis: " . $urlInvoice;
 
         Message::create([
             'sender_id' => session('user.id'),

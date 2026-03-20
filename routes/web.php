@@ -10,6 +10,8 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 // LANDING
 Route::get('/', [PageController::class, 'home']);
@@ -67,3 +69,17 @@ Route::post('/users/store', [AuthController::class, 'users_store']);
 // GOOGLE AUTH
 Route::get('/auth/google', [AuthController::class, 'google_redirect']);
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback']);
+
+// UTILS
+Route::get('/api/users-search', function (Request $request) {
+    $q = $request->query('q');
+    $currentUserId = session('user.id');
+
+    $users = DB::table('users')
+        ->where('name', 'LIKE', "%{$q}%")
+        ->where('id', '!=', $currentUserId)
+        ->limit(5)
+        ->get(['id', 'name', 'profile_photo']);
+        
+    return response()->json($users);
+});

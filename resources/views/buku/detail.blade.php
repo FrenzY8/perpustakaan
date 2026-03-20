@@ -286,7 +286,7 @@
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                                {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -331,6 +331,12 @@
               {{ ($isWishlisted ? 'Difavoritkan' : 'Favorit') . ' (' . $wishlistCount . ')' }}
             </button>
           </form>
+          <button type="button" id="btn-share-main" data-id="{{ $book->id }}" data-judul="{{ $book->judul }}"
+            data-cover="{{ $book->gambar_sampul ?? asset('images/cover-default.jpg') }}"
+            class="w-full md:min-w-[200px] h-14 rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.95] border font-bold">
+            <span class="material-symbols-outlined">share</span>
+            Share ke Chat
+          </button>
         </div>
 
         {{-- Ringkasan --}}
@@ -486,6 +492,30 @@
         @endforeach
       </div>
     </div>
+    <div id="modal-share" class="fixed inset-0 z-[110] hidden overflow-y-auto bg-black/80 backdrop-blur-md">
+      <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10 relative">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-4xl font-black italic uppercase tracking-tighter text-white">Share <span
+                class="text-primary">Buku</span></h3>
+            <button onclick="toggleModalShare()" class="text-slate-400 hover:text-white transition-colors">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="relative mb-6">
+            <span
+              class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+            <input type="text" id="search-user" onkeyup="searchUsersToShare()" placeholder="Cari nama teman..."
+              class="w-full bg-white/5 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm text-white outline-none focus:border-primary transition-all">
+          </div>
+
+          <div id="user-share-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <p class="text-center text-slate-500 text-xs py-4">Mencari user...</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="modal-pinjam" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
       <div class="min-h-screen flex items-center justify-center p-4">
         <div class="glass w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-white/10 relative">
@@ -607,19 +637,114 @@
       }, 300);
     }, 4000);
   });
-  function toggleModalPinjam() {
-    const modal = document.getElementById('modal-pinjam');
-    if (modal.classList.contains('hidden')) {
-      modal.classList.remove('hidden');
-    } else {
-      modal.classList.add('hidden');
-    }
-  }
-
   window.onclick = function (event) {
     const modal = document.getElementById('modal-pinjam');
     if (event.target == modal) {
       toggleModalPinjam();
     }
+  }
+  document.getElementById('btn-share-main').addEventListener('click', function () {
+    const id = this.getAttribute('data-id');
+    const judul = this.getAttribute('data-judul');
+    const cover = this.getAttribute('data-cover');
+
+    shareBook(id, judul, cover);
+  });
+  let currentShareData = null;
+
+  function toggleModalShare() {
+    const modal = document.getElementById('modal-share');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+      searchUsersToShare(); // Load initial 5 users
+    }
+  }
+
+  // Fungsi utama saat tombol share di detail buku ditekan
+  function shareBook(id, judul, cover) {
+    const senderId = {{ session('user.id') ?? 'null' }};
+    if (!senderId) {
+      alert('Silahkan login terlebih dahulu untuk berbagi buku.');
+      window.location.href = '/login';
+      return;
+    }
+
+    // Simpan data buku yang akan dishare ke variabel global
+    currentShareData = { id, judul, cover, senderId };
+    toggleModalShare();
+  }
+
+  function searchUsersToShare() {
+    const keyword = document.getElementById('search-user').value;
+    const container = document.getElementById('user-share-list');
+
+    fetch(`/api/users-search?q=${keyword}`)
+      .then(res => res.json())
+      .then(users => {
+        container.innerHTML = '';
+
+        if (users.length === 0) {
+          container.innerHTML = '<p class="text-center text-slate-500 text-xs py-4">User tidak ditemukan.</p>';
+          return;
+        }
+
+        users.forEach(user => {
+          let displayPhoto;
+          const photo = user.profile_photo;
+
+          if (photo && (photo.startsWith('http://') || photo.startsWith('https://'))) {
+            displayPhoto = photo;
+          } else if (photo) {
+            displayPhoto = `/storage/avatars/${photo}`;
+          } else {
+            displayPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=137fec&color=fff`;
+          }
+
+          const userItem = `
+                    <div onclick="confirmShareToUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')" 
+                        class="flex items-center gap-3 p-3 rounded-2xl hover:bg-primary/10 border border-transparent hover:border-primary/30 cursor-pointer transition-all group">
+                        
+                        <div class="h-10 w-10 rounded-full border border-white/10 bg-center bg-cover group-hover:scale-110 transition-transform shrink-0"
+                             style="background-image: url('${displayPhoto}')">
+                        </div>
+
+                        <div class="flex-1 overflow-hidden text-left">
+                            <p class="text-sm font-bold text-white truncate">${user.name}</p>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Member</p>
+                        </div>
+                        <span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">send</span>
+                    </div>`;
+          container.insertAdjacentHTML('beforeend', userItem);
+        });
+      });
+  }
+
+  function confirmShareToUser(receiverId, receiverName) {
+    if (!confirm(`Kirim rekomendasi buku ke ${receiverName}?`)) return;
+
+    const { id, judul, cover, senderId } = currentShareData;
+    const message = `[SHARE_BOOK]: ${id}]&&${judul}&&${cover}`;
+
+    fetch('/chat/send-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      },
+      body: JSON.stringify({
+        sender_id: senderId,
+        receiver_id: receiverId,
+        message: message
+      })
+    })
+      .then(response => {
+        if (response.ok) {
+          alert(`Berhasil dikirim ke ${receiverName}!`);
+          toggleModalShare();
+        } else {
+          alert('Gagal mengirim pesan.');
+        }
+      })
+      .catch(err => console.error(err));
   }
 </script>

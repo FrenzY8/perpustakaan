@@ -404,21 +404,5 @@
          </main>
       </main>
    </div>
-
-   <script>
-      const btn = document.getElementById('profileBtn');
-      const dropdown = document.getElementById('profileDropdown');
-
-      btn.addEventListener('click', e => {
-         e.stopPropagation();
-         dropdown.classList.toggle('hidden');
-      });
-
-      document.addEventListener('click', () => {
-         dropdown.classList.add('hidden');
-      });
-   </script>
-
 </body>
-
 </html>

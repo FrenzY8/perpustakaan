@@ -278,49 +278,70 @@
         const currentUserId ={{ session('user.id') }}
 
             async function loadChat(userId, userName, userAvatar) {
-                lastMessageCount = 0
-                currentReceiverId = userId
+                lastMessageCount = 0;
+                currentReceiverId = userId;
 
-                document.getElementById('main-chat-area').classList.remove('opacity-50', 'pointer-events-none')
-                document.getElementById('active-name').innerText = userName
-                document.getElementById('active-avatar').src = userAvatar
-                document.getElementById('active-avatar').classList.remove('hidden')
-                document.getElementById('active-status').innerText = ""
-                document.getElementById('active-status').classList.replace('text-slate-500', 'text-green-500')
-                document.getElementById('receiver-id').value = userId
+                const container = document.getElementById('chat-container');
+                container.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center text-slate-500 animate-pulse">
+                    <span class="material-symbols-outlined text-4xl">sync</span>
+                    <p class="text-sm italic">Memuat pesan...</p>
+                </div>`;
 
-                document.querySelectorAll('.user-card').forEach(el => el.classList.remove('bg-primary/10', 'border', 'border-primary/20'))
-                const activeCard = document.querySelector(`.user-card[data-user-id="${userId}"]`)
-                if (activeCard) activeCard.classList.add('bg-primary/10', 'border', 'border-primary/20')
+                document.getElementById('main-chat-area').classList.remove('opacity-100', 'pointer-events-none');
+                document.getElementById('active-name').innerText = userName;
+                document.getElementById('active-avatar').src = userAvatar;
+                document.getElementById('active-avatar').classList.remove('hidden');
+                document.getElementById('active-status').innerText = "";
+                document.getElementById('receiver-id').value = userId;
 
-                fetchMessages()
-
-                if (pollingInterval) clearInterval(pollingInterval)
-                pollingInterval = setInterval(fetchMessages, 3000)
+                document.querySelectorAll('.user-card').forEach(el => el.classList.remove('bg-primary/10', 'border', 'border-primary/20'));
+                const activeCard = document.querySelector(`.user-card[data-user-id="${userId}"]`);
+                if (activeCard) activeCard.classList.add('bg-primary/10', 'border', 'border-primary/20');
+                await fetchMessages();
+                if (pollingInterval) clearInterval(pollingInterval);
+                pollingInterval = setInterval(fetchMessages, 3000);
             }
 
         async function fetchMessages() {
-            if (!currentReceiverId) return
+            if (!currentReceiverId) return;
+            const requestedId = currentReceiverId;
 
             try {
-                const response = await fetch(`/chat/history/${currentReceiverId}`)
-                const messages = await response.json()
+                const response = await fetch(`/chat/history/${requestedId}`);
+                const messages = await response.json();
 
-                if (messages.length === lastMessageCount) return
+                if (requestedId !== currentReceiverId) return;
+                if (messages.length === lastMessageCount && messages.length > 0) return;
 
-                const container = document.getElementById('chat-container')
-                container.innerHTML = ''
+                const container = document.getElementById('chat-container');
+                if (messages.length === 0) {
+                    if (lastMessageCount === -1) return;
 
+                    container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-500/50 space-y-2 animate-fade-in">
+                        <span class="material-symbols-outlined text-6xl">chat_bubble_outline</span>
+                        <p class="text-sm italic font-medium">Belum ada percakapan di sini.</p>
+                        <p class="text-[10px] uppercase tracking-widest">Kirim pesan untuk memulai</p>
+                    </div>`;
+
+                    lastMessageCount = -1;
+                    return;
+                }
+
+                let htmlContent = '';
                 messages.forEach((msg) => {
                     const isMe = msg.sender_id == currentUserId;
                     let displayMessage = msg.message;
+
                     if (msg.message.includes('[INVOICE_PDF]')) {
-                        const url = msg.message.split(': ')[1];
-                        const textPart = msg.message.split('] ')[1].split('. Silahkan')[0];
+                        const parts = msg.message.split(': ');
+                        const url = parts[1];
+                        const textPart = msg.message.split('] ')[1]?.split('. Silahkan')[0] || "Invoice Baru";
 
                         displayMessage = `
                         <div class="flex flex-col gap-2 bg-primary/10 rounded-xl p-3 border border-primary/20 mt-2">
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 text-left">
                                 <div class="size-10 bg-primary rounded-lg flex items-center justify-center shadow-lg">
                                     <span class="material-symbols-outlined text-white">description</span>
                                 </div>
@@ -329,32 +350,61 @@
                                     <p class="text-xs font-bold text-white truncate">${textPart}</p>
                                 </div>
                             </div>
-                            <a href="${url}" target="_blank" 
-                            class="w-full mt-2 py-2 bg-primary/20 hover:bg-primary text-primary hover:text-white text-[10px] font-bold uppercase rounded-lg transition-all text-center border border-primary/30">
-                            Download Invoice (PDF)
+                            <a href="${url}" target="_blank" class="w-full mt-2 py-2 bg-primary/20 hover:bg-primary text-primary hover:text-white text-[10px] font-bold uppercase rounded-lg transition-all text-center border border-primary/30">
+                                Download Invoice
+                            </a>
+                        </div>`;
+                    }
+                    if (msg.message.includes('[SHARE_BOOK]')) {
+                        const bookId = msg.message.split(': ')[1].split(']')[0];
+                        const sisaPesan = msg.message.split(']&&')[1] || "";
+                        const dataBuku = sisaPesan.split('&&');
+
+                        const bookTitle = dataBuku[0] || "Lihat Buku";
+                        const bookCover = dataBuku[1] || "";
+
+                        displayMessage = `
+                        <div class="flex flex-col gap-4 bg-white/5 rounded-2xl p-4 border border-white/10 mt-2 hover:border-primary/40 transition-all group overflow-hidden w-full max-w-[260px]">
+                            <div class="flex items-center gap-2 px-1">
+                                <span class="material-symbols-outlined text-sm text-primary fill">auto_stories</span>
+                                <p class="text-[9px] text-primary font-black uppercase tracking-widest leading-none">SAYA MEMBAGIKAN BUKU</p>
+                            </div>
+
+                            <div class="relative aspect-[3/4] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                    style="background-image:url('${bookCover}');">
+                                </div>
+                            </div>
+                            
+                            <div class="text-center px-1">
+                                <p class="text-sm font-bold text-white leading-tight break-words line-clamp-2">${bookTitle}</p>
+                            </div>
+                            
+                            <a href="/detail/${bookId}" class="w-full py-2.5 bg-primary text-white text-[10px] font-bold uppercase rounded-xl text-center transition-all shadow-lg shadow-primary/10 hover:shadow-primary/30 active:scale-95">
+                                Lihat Detail Buku
                             </a>
                         </div>
                         `;
                     }
-                    const msgHtml = `
-                    <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4">
+                    htmlContent += `
+                    <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4 animate-fade-in">
                         <div class="${isMe ? 'bg-primary/20 border border-primary/30 rounded-tr-none' : 'bg-slate-800/80 border-2 border-slate-700 rounded-tl-none'} p-3 rounded-2xl shadow-xl">
-                            ${displayMessage}
+                            <div class="text-sm">${displayMessage}</div>
                             <span class="text-[9px] ${isMe ? 'text-primary/70' : 'text-slate-500'} mt-1 block ${isMe ? 'text-right' : ''}">
                                 ${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </div>
-                    </div> `;
-                    container.insertAdjacentHTML('beforeend', msgHtml);
+                    </div>`;
                 });
 
-                lastMessageCount = messages.length
+                container.innerHTML = htmlContent;
+                lastMessageCount = messages.length;
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
 
-                container.scrollTo({
-                    top: container.scrollHeight,
-                    behavior: 'smooth'
-                })
-            } catch (e) { console.error(e) }
+            } catch (e) {
+                console.error("Fetch Error:", e);
+            }
         }
 
         document.getElementById('chat-form-user').addEventListener('submit', async e => {
@@ -384,7 +434,6 @@
             } catch (e) { console.error(e) }
         })
     </script>
-
 </body>
 
 </html>

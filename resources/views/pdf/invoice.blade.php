@@ -124,7 +124,7 @@
         <h2>{{ $peminjaman->buku->judul }}</h2>
         <p class="subtitle">
             Pembayaran denda berhasil dilunaskan senilai <span style="color: #00d2ff;">Rp.
-                {{ number_format($denda, 0, ',', '.') }}</span> untuk<br>Buku: <span style="color: #00d2ff;">
+                {{ number_format($denda, 0, ',', '.') }}</span> untuk<br>Buku:<span style="color: #00d2ff;">
             {{ $peminjaman->buku->judul }}</span>
         </p>
 
