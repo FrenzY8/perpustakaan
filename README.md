@@ -70,4 +70,11 @@
 - Menambah Beberapa Detail Buku
 - etc
 
+### Jumat, 20 Maret 2026
+- Invoice system saat denda telat
+- Invoice dikirim ke chat user (yang denda) saat diselesaikan admin
+- Sistem share book
+- Sistem chatting fixed
+- etc
+
 ---
