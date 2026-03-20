@@ -73,6 +73,11 @@
   1. Get avatar
   2. Get email
   3. Get username
+- Menggunakan SMTP untuk Email (bukan 3rd api lagi)
+- Redesign route ```/detail```
+  1. Filter by penulis
+  2. Filter by kategori
+  3. Filter search
 - etc
 
 ### Jumat, 20 Maret 2026
