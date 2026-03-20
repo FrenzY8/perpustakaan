@@ -1,8 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "api/*.php": {
-      "runtime": "vercel-php@0.7.1"
+    "api/index.php": {
+      "runtime": "vercel-php@0.6.0"
     }
   },
   "routes": [
@@ -18,7 +18,6 @@
   "env": {
     "APP_ENV": "production",
     "APP_DEBUG": "false",
-    "APP_KEY": "base64:aNcfAK4znQXzSkm1//JYrY6jHVEuMUFFxQqSmepi+/8=",
     "VIEW_COMPILED_PATH": "/tmp",
     "CACHE_DRIVER": "array",
     "SESSION_DRIVER": "cookie"
