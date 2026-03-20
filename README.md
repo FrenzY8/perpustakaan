@@ -6,6 +6,7 @@
 
 # UI Design dari:
 ### • [Google Stitch](https://stitch.withgoogle.com/)
+<img src="https://app-companion-430619.appspot.com/static/og.png" alt="Invoice" width="500">
 
 ---
 # Update yang dilakukan
@@ -77,6 +78,7 @@
 ### Jumat, 20 Maret 2026
 - Invoice system saat denda telat
 - Invoice dikirim ke chat user (yang denda) saat diselesaikan admin
+- <img src="documentation/invoice.png" alt="Invoice" width="500">
 - Sistem share book
 - Sistem chatting fixed
 - etc
