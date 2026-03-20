@@ -317,36 +317,15 @@
                 messages.forEach((msg) => {
                     const isMe = msg.sender_id == currentUserId;
                     let displayMessage = msg.message;
-
-                    // Cek apakah ini pesan sharing buku
-                    if (msg.message.includes('[BOOK_ID:')) {
-                        const bookId = msg.message.match(/\[BOOK_ID:(\d+)\]/)[1];
-                        displayMessage = `
-            <div class="flex flex-col gap-2 bg-white/5 rounded-xl p-2 border border-white/10 mt-2">
-                <div class="flex gap-3">
-                    <div class="w-12 h-16 bg-slate-700 rounded-md flex-none shadow-inner flex items-center justify-center">
-                        <span class="material-symbols-outlined text-slate-500">book</span>
-                    </div>
-                    <div class="overflow-hidden">
-                        <p class="text-[10px] text-primary font-black uppercase">Berbagi Buku</p>
-                        <p class="text-xs font-bold text-white truncate">${msg.message.split('] ')[1]}</p>
-                        <a href="/buku/${bookId}" class="text-[9px] text-slate-400 hover:text-white underline mt-1 block italic">Lihat Detail</a>
-                    </div>
-                </div>
-            </div>
-        `;
-                    }
-
                     const msgHtml = `
-        <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4">
-            <div class="${isMe ? 'bg-primary/20 border border-primary/30 rounded-tr-none' : 'bg-slate-800/80 border-2 border-slate-700 rounded-tl-none'} p-3 rounded-2xl shadow-xl">
-                ${displayMessage}
-                <span class="text-[9px] ${isMe ? 'text-primary/70' : 'text-slate-500'} mt-1 block ${isMe ? 'text-right' : ''}">
-                    ${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-            </div>
-        </div>
-    `;
+                    <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4">
+                        <div class="${isMe ? 'bg-primary/20 border border-primary/30 rounded-tr-none' : 'bg-slate-800/80 border-2 border-slate-700 rounded-tl-none'} p-3 rounded-2xl shadow-xl">
+                            ${displayMessage}
+                            <span class="text-[9px] ${isMe ? 'text-primary/70' : 'text-slate-500'} mt-1 block ${isMe ? 'text-right' : ''}">
+                                ${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                        </div>
+                    </div> `;
                     container.insertAdjacentHTML('beforeend', msgHtml);
                 });
 

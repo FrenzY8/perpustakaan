@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -80,12 +82,39 @@ class AdminController extends Controller
     }
     public function reset_denda($id)
     {
-        DB::table('peminjaman')->where('id', $id)->update([
+        $peminjaman = Peminjaman::with('buku')->find($id);
+
+        if (!$peminjaman) {
+            return redirect()->back()->with('error', 'Data peminjaman tidak ditemukan.');
+        }
+
+        $jatuhTempo = Carbon::parse($peminjaman->tanggal_jatuh_tempo)->startOfDay();
+        $hariIni = Carbon::now()->startOfDay();
+        $selisih = $jatuhTempo->diffInDays($hariIni, false);
+
+        $hariTelat = ($selisih > 0) ? (int) $selisih : 0;
+        $nominalDenda = 0;
+
+        if ($hariTelat > 0) {
+            $nominalDenda = 5000 + (($hariTelat - 1) * 2000);
+        }
+
+        $peminjaman->update([
             'tanggal_kembali' => now(),
             'status' => 'dikembalikan'
         ]);
 
-        return redirect()->back()->with('success', 'Buku telah kembali & denda dianggap lunas!');
+        $pdf = Pdf::loadView('pdf.invoice', [
+            'peminjaman' => $peminjaman,
+            'denda' => $nominalDenda,
+            'hari_telat' => $hariTelat,
+            'admin' => session('user.name')
+        ]);
+
+        $fileName = 'invoice_' . $id . '_' . time() . '.pdf';
+        Storage::disk('public')->put('invoice/' . $fileName, $pdf->output());
+
+        return redirect()->back()->with('success', 'Buku berhasil dikembalikan. Denda Rp ' . number_format($nominalDenda, 0, ',', '.') . ' telah dilunasi.');
     }
     public function potong_denda($id, Request $request)
     {
