@@ -6,6 +6,7 @@
 
 # UI Design dari:
 ### • [Google Stitch](https://stitch.withgoogle.com/)
+<img src="https://app-companion-430619.appspot.com/static/og.png" alt="Invoice" width="500">
 
 ---
 # Update yang dilakukan
@@ -72,11 +73,17 @@
   1. Get avatar
   2. Get email
   3. Get username
+- Menggunakan SMTP untuk Email (bukan 3rd api lagi)
+- Redesign route ```/detail```
+  1. Filter by penulis
+  2. Filter by kategori
+  3. Filter search
 - etc
 
 ### Jumat, 20 Maret 2026
 - Invoice system saat denda telat
 - Invoice dikirim ke chat user (yang denda) saat diselesaikan admin
+- <img src="documentation/invoice.png" alt="Invoice" width="500">
 - Sistem share book
 - Sistem chatting fixed
 - etc
