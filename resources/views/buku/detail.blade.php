@@ -286,7 +286,7 @@
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                  {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -629,6 +629,16 @@
 
 </html>
 <script>
+  function toggleModalPinjam() {
+    const modal = document.getElementById('modal-pinjam');
+    if (modal.style.display === 'none' || modal.style.display === '') {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    } else {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  }
   document.querySelectorAll('.toast-card').forEach(toast => {
     setTimeout(() => {
       toast.classList.add('toast-fade-out');

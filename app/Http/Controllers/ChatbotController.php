@@ -389,7 +389,7 @@ Answer in Indonesian.
                 ])
                 ->timeout(30)
                 ->post('https://integrate.api.nvidia.com/v1/chat/completions', [
-                    'model' => 'deepseek-ai/deepseek-v3.1-terminus',
+                    'model' => 'deepseek-ai/deepseek-v3.2',
                     'messages' => [
                         ['role' => 'system', 'content' => 'You are a precise AI assistant.'],
                         ['role' => 'user', 'content' => $prompt]

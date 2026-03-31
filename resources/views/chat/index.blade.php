@@ -300,7 +300,7 @@
                 if (activeCard) activeCard.classList.add('bg-primary/10', 'border', 'border-primary/20');
                 await fetchMessages();
                 if (pollingInterval) clearInterval(pollingInterval);
-                pollingInterval = setInterval(fetchMessages, 3000);
+                pollingInterval = setInterval(fetchMessages, 1000);
             }
 
         async function fetchMessages() {
