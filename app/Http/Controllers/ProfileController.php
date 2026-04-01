@@ -27,6 +27,7 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $userId = session('user.id');
+        $user = DB::table('users')->where('id', $userId)->first();
         if (!session()->has('user')) {
             return redirect('/login')->with('error', 'Login dulu');
         }
@@ -51,6 +52,9 @@ class ProfileController extends Controller
         }
 
         if ($request->filled('password')) {
+            if ($request->current_password != $user->password) {
+                return back()->with('error', 'Password lama yang Anda masukkan tidak sesuai.');
+            }
             $updateData['password'] = $request->password;
         }
 

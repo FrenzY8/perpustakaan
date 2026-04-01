@@ -15,6 +15,8 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
+        $isWishlisted = false;
+        $userId = session('user.id');
         $search = $request->query('search');
         $category = $request->query('category');
         $format = $request->query('format');
@@ -84,7 +86,14 @@ class BookController extends Controller
         $categories = DB::table('kategori')->get();
         $penulis = DB::table('penulis')->orderBy('nama', 'asc')->get();
 
-        return view('buku/buku', compact('books', 'categories', 'penulis'));
+        $userWishlists = [];
+        if ($userId) {
+            $userWishlists = Wishlist::where('id_user', $userId)
+                ->pluck('id_buku')
+                ->toArray();
+        }
+
+        return view('buku/buku', compact('books', 'categories', 'penulis', 'userWishlists'));
     }
     public function pinjam(Request $request, $id)
     {

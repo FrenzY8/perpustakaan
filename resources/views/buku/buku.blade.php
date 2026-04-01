@@ -200,7 +200,7 @@
                                         @foreach($categories as $cat)
                                             <a href="{{ request()->fullUrlWithQuery(['category' => $cat->nama, 'page' => 1]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                                {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                                    {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $cat->nama }}
                                             </a>
                                         @endforeach
@@ -234,11 +234,11 @@
                                         </a>
 
                                         @foreach($penulis as $p)
-                                                                <a href="{{ request()->fullUrlWithQuery(['penulis' => $p->nama, 'page' => 1]) }}"
-                                                                    class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                            {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
-                                                                    {{ $p->nama }}
-                                                                </a>
+                                            <a href="{{ request()->fullUrlWithQuery(['penulis' => $p->nama, 'page' => 1]) }}"
+                                                class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
+                                                {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                {{ $p->nama }}
+                                            </a>
                                         @endforeach
                                     </div>
                                 </div>
@@ -288,7 +288,7 @@
                                         @foreach($sortOptions as $value => $label)
                                             <a href="{{ request()->fullUrlWithQuery(['sort' => $value]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                        {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                            {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $label }}
                                             </a>
                                         @endforeach
@@ -362,10 +362,32 @@
                                         Halaman</span>
                                 </div>
 
-                                <span
-                                    class="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-                                    bookmark_add
-                                </span>
+                                <div class="flex items-center">
+                                    @if(session()->has('user'))
+                                        @php
+                                            $isFav = in_array($item->id, $userWishlists ?? []);
+                                        @endphp
+
+                                        <form action="{{ url('/wishlist/' . $item->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" onclick="event.stopPropagation();"
+                                                class="focus:outline-none group/heart">
+                                                <span
+                                                    class="material-symbols-outlined transition-all duration-300 {{ $isFav ? 'text-red-500' : 'text-slate-500' }} group-hover/heart:text-red-500 group-hover/heart:scale-125"
+                                                    style="font-variation-settings: 'FILL' {{ $isFav ? 1 : 0 }}, 'wght' 400, 'GRAD' 0, 'opsz' 24;">
+                                                    favorite
+                                                </span>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="/daftar" onclick="event.stopPropagation();" class="group/heart">
+                                            <span
+                                                class="material-symbols-outlined text-slate-500 group-hover/heart:text-red-500 transition-colors">
+                                                favorite
+                                            </span>
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>

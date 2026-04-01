@@ -78,6 +78,16 @@
                         </div>
                     </div>
 
+                    @if ($errors->any())
+                        <div class="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
+                            <ul class="text-red-500 text-sm">
+                                @foreach ($errors->all() as $error)
+                                    <li>• {{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="glass-panel rounded-xl overflow-hidden shadow-2xl">
                         <div class="flex p-6 md:p-8 border-b border-white/5">
                             <div class="flex w-full flex-col gap-6 md:flex-row md:justify-between md:items-center">
@@ -137,6 +147,14 @@
                                     <span class="material-symbols-outlined text-primary">lock</span> Change Password
                                 </h2>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="flex flex-col gap-2 mb-4">
+                                        <label class="text-sm font-semibold text-slate-300">Current Password</label>
+                                        <input name="current_password"
+                                            class="bg-[#111a22] border-[#233648] rounded-lg text-white px-4 py-2.5 focus:border-primary outline-none"
+                                            type="password" placeholder="••••••••" />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="flex flex-col gap-2">
                                         <label class="text-sm font-medium text-slate-300">New Password</label>
                                         <input name="password"
@@ -144,7 +162,7 @@
                                             type="password" placeholder="••••••••" />
                                     </div>
                                     <div class="flex flex-col gap-2">
-                                        <label class="text-sm font-medium text-slate-300">Confirm Password</label>
+                                        <label class="text-sm font-medium text-slate-300">Confirm New Password</label>
                                         <input name="password_confirmation"
                                             class="bg-[#111a22] border-[#233648] rounded-lg text-white px-4 py-2.5"
                                             type="password" placeholder="••••••••" />

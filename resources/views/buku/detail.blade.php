@@ -286,7 +286,7 @@
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                  {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                      {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -516,16 +516,21 @@
         </div>
       </div>
     </div>
-    <div id="modal-pinjam" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
-      <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="glass w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-white/10 relative">
-          <h3 class="text-4xl font-bold italic mb-2 uppercase">Pinjam <span class="text-primary">Buku</span></h3>
+    <div id="modal-pinjam" style="display: none;"
+      class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md overflow-y-auto">
+
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg p-4">
+
+        <div class="glass w-full rounded-[2.5rem] p-8 shadow-2xl border border-white/10 relative"
+          onclick="event.stopPropagation()">
+
+          <h3 class="text-4xl font-bold italic mb-2 uppercase text-white">Pinjam <span class="text-primary">Buku</span>
+          </h3>
           <p class="text-slate-400 text-sm mb-8">Konfirmasi detail peminjaman untuk buku ini.</p>
 
           <form action="/pinjam/{{ $book->id }}" method="POST" class="space-y-6">
             @csrf
             <div class="space-y-4">
-              {{-- Info Buku --}}
               <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
                 <p class="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Buku yang dipilih</p>
                 <p class="text-white font-bold">{{ $book->judul }}</p>
@@ -535,12 +540,12 @@
                 <div class="space-y-2">
                   <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Tanggal Pinjam</label>
                   <input type="text" value="{{ date('d M Y') }}" disabled
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 outline-none">
+                    class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 outline-none">
                 </div>
                 <div class="space-y-2">
-                  <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Durasi Pinjaman (Hari)</label>
+                  <label class="text-[10px] font-black uppercase text-slate-500 ml-1 text-nowrap">Durasi (Hari)</label>
                   <input type="number" name="durasi" value="7" min="2" max="31" required
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-emerald-400 font-bold outline-none focus:border-primary">
+                    class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-sm text-emerald-400 font-bold outline-none focus:border-primary">
                 </div>
               </div>
             </div>
@@ -631,6 +636,7 @@
 <script>
   function toggleModalPinjam() {
     const modal = document.getElementById('modal-pinjam');
+
     if (modal.style.display === 'none' || modal.style.display === '') {
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
@@ -639,6 +645,14 @@
       document.body.style.overflow = 'auto';
     }
   }
+
+  window.onclick = function (event) {
+    const modal = document.getElementById('modal-pinjam');
+    if (event.target === modal) {
+      toggleModalPinjam();
+    }
+  }
+
   document.querySelectorAll('.toast-card').forEach(toast => {
     setTimeout(() => {
       toast.classList.add('toast-fade-out');
@@ -647,12 +661,7 @@
       }, 300);
     }, 4000);
   });
-  window.onclick = function (event) {
-    const modal = document.getElementById('modal-pinjam');
-    if (event.target == modal) {
-      toggleModalPinjam();
-    }
-  }
+
   document.getElementById('btn-share-main').addEventListener('click', function () {
     const id = this.getAttribute('data-id');
     const judul = this.getAttribute('data-judul');
@@ -666,20 +675,17 @@
     const modal = document.getElementById('modal-share');
     modal.classList.toggle('hidden');
     if (!modal.classList.contains('hidden')) {
-      searchUsersToShare(); // Load initial 5 users
+      searchUsersToShare();
     }
   }
 
-  // Fungsi utama saat tombol share di detail buku ditekan
   function shareBook(id, judul, cover) {
     const senderId = {{ session('user.id') ?? 'null' }};
     if (!senderId) {
-      alert('Silahkan login terlebih dahulu untuk berbagi buku.');
       window.location.href = '/login';
       return;
     }
 
-    // Simpan data buku yang akan dishare ke variabel global
     currentShareData = { id, judul, cover, senderId };
     toggleModalShare();
   }
