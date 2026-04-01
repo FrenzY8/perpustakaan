@@ -168,6 +168,22 @@
                                 @endif
                             </div>
                         </div>
+                        @php
+                            $totalPotongan = $bukuTelat->sum('total_denda_item') - $totalTagihan;
+                        @endphp
+
+                        @if($totalPotongan > 0)
+                            <div
+                                class="glass-card p-4 mt-4 rounded-2xl flex justify-between items-center border border-emerald-500/30 bg-emerald-500/5">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-emerald-500">sell</span>
+                                    <p class="text-white font-bold">Potongan Denda</p>
+                                </div>
+                                <p class="text-lg font-black text-emerald-500">- Rp
+                                    {{ number_format($totalPotongan, 0, ',', '.') }}
+                                </p>
+                            </div>
+                        @endif
                     </div>
 
                     <div
@@ -228,9 +244,9 @@
                             </div>
 
                             <div class="text-right">
-                                <p class="text-[10px] text-slate-500 font-black uppercase mb-1">Denda</p>
-                                <p class="text-lg font-black text-amber-500">Rp
-                                    {{ number_format($p->total_denda_item ?? $b->total_denda_item, 0, ',', '.') }}
+                                <p class="text-[10px] text-slate-500 font-black uppercase mb-1">Denda dibuku</p>
+                                <p class="text-lg font-black text-amber-500">
+                                    Rp {{ number_format($b->total_denda_item, 0, ',', '.') }}
                                 </p>
                             </div>
                         </div>
@@ -329,22 +345,5 @@
             </footer>
         </div>
     </div>
-
-    <script>
-        const btn = document.getElementById('profileBtn');
-        const dropdown = document.getElementById('profileDropdown');
-
-        btn.addEventListener('click', e => {
-            e.stopPropagation();
-            dropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', e => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-    </script>
 </body>
-
 </html>

@@ -151,9 +151,18 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @foreach($pinjaman as $item)
                             @php
+                                $start = \Carbon\Carbon::parse($item->tanggal_pinjam);
                                 $due = \Carbon\Carbon::parse($item->tanggal_jatuh_tempo);
-                                $diff = now()->diffInDays($due, false); // false biar bisa minus kalau telat
-                                $isUrgent = $diff <= 1; // Merah kalau 1 hari lagi atau sudah lewat
+                                $now = now();
+                                $diffDays = $now->diffInDays($due, false);
+                                $isUrgent = $diffDays <= 1;
+                                $totalMinutes = $start->diffInMinutes($due) ?: 1;
+                                $passedMinutes = $start->diffInMinutes($now, false);
+                                if ($now > $due) {
+                                    $percent = 100;
+                                } else {
+                                    $percent = min(100, max(0, ($passedMinutes / $totalMinutes) * 100));
+                                }
                             @endphp
 
                             <div
@@ -161,7 +170,7 @@
                                 <div class="absolute top-6 right-6 z-10">
                                     <span
                                         class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $isUrgent ? 'bg-red-500 text-white animate-pulse' : 'bg-primary/20 text-primary border border-primary/30' }}">
-                                        {{ $isUrgent ? 'Urgent / Telat' : 'Dipinjam' }}
+                                        {{ $isUrgent ? ($diffDays < 0 ? 'Terlambat' : 'Urgent') : 'Dipinjam' }}
                                     </span>
                                 </div>
 
@@ -179,23 +188,18 @@
                                         <div class="flex justify-between text-[10px]">
                                             <span class="text-[#92adc9]">Sisa Waktu:</span>
                                             <span class="{{ $isUrgent ? 'text-red-400 font-bold' : 'text-primary font-bold' }}">
-                                                @if($diff < 0)
-                                                    Telat {{ abs($diff) }} Hari
-                                                @elseif($diff == 0)
+                                                @if($diffDays < 0)
+                                                    Telat {{ abs($diffDays) }} Hari
+                                                @elseif($diffDays == 0)
                                                     Hari Ini!
                                                 @else
-                                                    {{ $diff }} Hari Lagi
+                                                    {{ $diffDays }} Hari Lagi
                                                 @endif
                                             </span>
                                         </div>
+
                                         <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                                            @php
-                                                $start = \Carbon\Carbon::parse($item->tanggal_pinjam);
-                                                $total = $start->diffInDays($due) ?: 1;
-                                                $elapsed = $start->diffInDays(now());
-                                                $percent = min(100, ($elapsed / $total) * 100);
-                                            @endphp
-                                            <div class="h-full rounded-full {{ $isUrgent ? 'bg-red-500' : 'bg-primary' }}"
+                                            <div class="h-full rounded-full transition-all duration-500 {{ $isUrgent ? 'bg-red-500' : 'bg-primary' }}"
                                                 style="width: {{ $percent }}%"></div>
                                         </div>
                                     </div>
@@ -347,24 +351,8 @@
                     </div>
                 </div>
             </footer>
+            x
         </div>
     </div>
-
-    <script>
-        const btn = document.getElementById('profileBtn');
-        const dropdown = document.getElementById('profileDropdown');
-
-        btn.addEventListener('click', e => {
-            e.stopPropagation();
-            dropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', e => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-    </script>
 </body>
-
 </html>

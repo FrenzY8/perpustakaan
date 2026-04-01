@@ -167,18 +167,13 @@
                   <form action="/buku" method="GET">
                     <label class="flex h-14 w-full flex-col md:h-16 cursor-text">
                       <div class="flex h-full w-full flex-1 items-stretch rounded-xl shadow-2xl">
-                        {{-- Ikon Search --}}
                         <div
                           class="flex items-center justify-center rounded-l-xl border border-white/10 border-r-0 bg-white/5 pl-5 text-[#92adc9] backdrop-blur-md">
                           <span class="material-symbols-outlined">search</span>
                         </div>
-
-                        {{-- Input Field - Tambahkan name="search" --}}
                         <input type="text" name="search" value="{{ request('search') }}"
                           placeholder="Cari judul, penulis, atau genre..."
                           class="form-input flex-1 border border-x-0 border-white/10 bg-white/5 px-4 text-sm text-white placeholder:text-[#92adc9] focus:outline-0 focus:ring-2 focus:ring-primary/50 backdrop-blur-md md:text-base" />
-
-                        {{-- Button Submit --}}
                         <div
                           class="flex items-center justify-center rounded-r-xl border border-white/10 border-l-0 bg-white/5 pr-2 backdrop-blur-md">
                           <button type="submit"
@@ -190,7 +185,6 @@
                     </label>
                   </form>
                 </div>
-
               </div>
             </div>
           </div>
@@ -213,12 +207,9 @@
             @forelse ($books->take(8) as $book)
               <div onclick="window.location.href='/detail/{{ $book->id }}'"
                 class="glass flex cursor-pointer snap-start flex-col gap-4 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-                {{-- Cover Buku --}}
                 <div class="aspect-[3/4] w-full rounded-lg bg-cover bg-center shadow-lg"
                   style="background-image: url('{{ $book->gambar_sampul ? $book->gambar_sampul : asset('images/cover-default.jpg') }}');">
                 </div>
-
-                {{-- Info Buku --}}
                 <div class="space-y-1">
                   <h3 class="text-xl line-clamp-2 text-lg font-bold text-white">
                     {{ $book->judul }}
@@ -308,5 +299,4 @@
 
   </div>
 </body>
-
 </html>

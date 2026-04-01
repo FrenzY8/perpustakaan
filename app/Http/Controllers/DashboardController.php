@@ -178,9 +178,11 @@ class DashboardController extends Controller
             }
 
             return $p;
-        })->where('hari_telat', '>', 0);
+        })->where('hari_telat', '>', 0)->values();
 
-        $totalTagihan = $bukuTelat->sum('total_denda_item');
+        $dendaBersih = $bukuTelat->sum('total_denda_item') - Peminjaman::where('id_user', $userId)->whereNull('tanggal_kembali')->sum('potongan_denda');
+        $totalTagihan = max(0, $dendaBersih);
+
         $totalHariTelat = $bukuTelat->sum('hari_telat');
 
         return view('dashboard.uang', compact('user', 'bukuTelat', 'totalTagihan', 'totalHariTelat'));
