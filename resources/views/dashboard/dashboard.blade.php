@@ -214,47 +214,69 @@
                      <div class="space-y-3">
                         @forelse($currentlyBorrowed as $pinjam)
                            @php
-                              $due = \Carbon\Carbon::parse($pinjam->tanggal_jatuh_tempo);
-                              $isOverdue = now()->gt($due);
-                              $diff = now()->diffInDays($due, false);
-
                               $start = \Carbon\Carbon::parse($pinjam->tanggal_pinjam);
-                              $totalDays = $start->diffInDays($due) ?: 1;
-                              $elapsed = $start->diffInDays(now());
-                              $percent = min(100, max(0, ($elapsed / $totalDays) * 100));
-                            @endphp
+                              $due = \Carbon\Carbon::parse($pinjam->tanggal_jatuh_tempo);
+                              $now = now();
+                              $isOverdue = $now->gt($due);
+                              $diff = (int) $now->diffInDays($due, false);
+                              $totalHours = $start->diffInHours($due) ?: 1;
+                              $elapsedHours = $start->diffInHours($now, false);
+
+                              if ($isOverdue) {
+                                 $percent = 100;
+                              } else {
+                                 $percent = min(100, max(0, ($elapsedHours / $totalHours) * 100));
+                              }
+                             @endphp
 
                            <div
                               class="glass-card p-4 rounded-xl flex items-center gap-4 hover:bg-[#2a3f55] transition-colors group">
-                              <div class="h-20 w-14 rounded bg-cover bg-center shrink-0 shadow-md"
+                              <div class="h-20 w-14 rounded bg-cover bg-center shrink-0 shadow-md border border-white/5"
                                  style='background-image: url("{{ $pinjam->buku->gambar_sampul }}");'>
                               </div>
+
                               <div class="flex-1 min-w-0">
-                                 <h4 class="font-bold truncate group-hover:text-primary transition-colors">
+                                 <h4 class="font-bold truncate group-hover:text-primary transition-colors text-sm">
                                     {{ $pinjam->buku->judul }}
                                  </h4>
-                                 <p class="text-xs text-[#92adc9]">{{ $pinjam->buku->penulis->nama ?? 'Unknown' }}</p>
+                                 <p class="text-[11px] text-[#92adc9]">{{ $pinjam->buku->penulis->nama ?? 'Unknown' }}</p>
+
                                  <div class="mt-2 flex items-center gap-3">
-                                    <div class="flex-1 bg-[#111a22] rounded-full h-1.5">
+                                    <div class="flex-1 bg-[#111a22] rounded-full h-1.5 overflow-hidden">
                                        <div
-                                          class="{{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }} h-1.5 rounded-full"
-                                          style="width: {{ $percent }}%"></div>
+                                          class="h-full rounded-full transition-all duration-700 
+                                           {{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }}"
+                                          style="width: {{ $percent }}%">
+                                       </div>
                                     </div>
+
                                     <span
-                                       class="text-[10px] {{ $isOverdue ? 'text-red-500 font-bold' : 'text-[#92adc9]' }}">
-                                       {{ $isOverdue ? 'Overdue ' . abs($diff) . ' days' : 'Due in ' . $diff . ' days' }}
+                                       class="text-[10px] whitespace-nowrap {{ $isOverdue ? 'text-red-500 font-bold' : 'text-[#92adc9]' }}">
+                                       @if($isOverdue)
+                                          Telat {{ abs($diff) }} hari
+                                       @elseif($diff == 0)
+                                          Hari ini!
+                                       @else
+                                          {{ $diff }} hari lagi
+                                       @endif
                                     </span>
                                  </div>
                               </div>
-                              <button
-                                 class="p-2 {{ $isOverdue ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary' }} rounded-lg hover:scale-110 transition-all">
-                                 <span
-                                    class="material-symbols-outlined text-lg">{{ $isOverdue ? 'priority_high' : 'keyboard_return' }}</span>
-                              </button>
+
+                              <form action="/dashboard/kembalikan/{{ $pinjam->id }}" method="POST">
+                                 @csrf
+                                 <button type="submit"
+                                    class="p-2.5 {{ $isOverdue ? 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white' : 'bg-primary/10 text-primary hover:bg-primary hover:text-white' }} rounded-lg transition-all transform hover:scale-110">
+                                    <span class="material-symbols-outlined text-lg">
+                                       {{ $isOverdue ? 'priority_high' : 'keyboard_return' }}
+                                    </span>
+                                 </button>
+                              </form>
                            </div>
                         @empty
-                           <div class="text-center py-10 glass-card rounded-xl opacity-50">
-                              <p class="text-sm">Kamu tidak sedang meminjam buku.</p>
+                           <div class="text-center py-10 glass-card rounded-xl border border-dashed border-white/10">
+                              <span class="material-symbols-outlined text-4xl text-white/10 mb-2">auto_stories</span>
+                              <p class="text-sm text-[#92adc9]">Kamu tidak sedang meminjam buku.</p>
                            </div>
                         @endforelse
                      </div>
@@ -405,4 +427,5 @@
       </main>
    </div>
 </body>
+
 </html>

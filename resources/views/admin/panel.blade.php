@@ -195,10 +195,8 @@
                     </div>
                 </section>
 
-
-
                 <div id="deleteUserModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4">
-                    <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+                    <div class="absolute inset-0 bg-slate-950/40" onclick="closeDeleteModal()"></div>
 
                     <div
                         class="relative bg-[#0f172a] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
