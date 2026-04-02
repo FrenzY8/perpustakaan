@@ -142,12 +142,44 @@
         <main class="flex-1 px-4 lg:px-40 py-8 max-w-[1200px] mx-auto w-full">
             <div class="flex pt-28 flex-col md:flex-row md:items-center justify-between gap-6 mb-4 px-2">
                 <div class="flex flex-col gap-6 mb-12" x-data="{ open: false }">
-                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                        <div>
-                            <h1 class="text-white text-5xl font-bold tracking-tight mb-3">Temukan Buku</h1>
-                            <p class="text-slate-400 text-md max-w-2xl leading-relaxed">
+                    <div
+                        class="relative flex min-h-[520px] flex-col items-center justify-center gap-6 overflow-hidden rounded-xl p-6 text-center @[480px]:gap-10">
+                        <video autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover">
+                            <source src="{{ asset('video/library_3.mp4') }}" type="video/mp4">
+                        </video>
+
+                        <div class="absolute inset-0 bg-[#101922]/80"></div>
+
+                        <div class="z-10 flex max-w-[800px] flex-col gap-4">
+                            <h1 class="text-4xl font-black tracking-tight leading-tight text-white @[480px]:text-7xl">
+                                Tempat Semua Buku
+                            </h1>
+                            <p class="text-base font-normal text-white/80 md:text-lg leading-relaxed">
                                 Temukan koleksi bacaan terbaik kami yang dikurasi khusus untukmu.
                             </p>
+                        </div>
+
+                        <div class="z-10 w-full max-w-[600px]">
+                            <form action="/buku" method="GET">
+                                <label class="flex h-14 w-full flex-col md:h-16 cursor-text">
+                                    <div class="flex h-full w-full flex-1 items-stretch rounded-xl shadow-2xl">
+                                        <div
+                                            class="flex items-center justify-center rounded-l-xl border border-white/10 border-r-0 bg-white/5 pl-5 text-[#92adc9] backdrop-blur-md">
+                                            <span class="material-symbols-outlined">search</span>
+                                        </div>
+                                        <input type="text" name="search" value="{{ request('search') }}"
+                                            placeholder="Cari judul, penulis, atau genre..."
+                                            class="form-input flex-1 border border-x-0 border-white/10 bg-white/5 px-4 text-sm text-white placeholder:text-[#92adc9] focus:outline-0 focus:ring-2 focus:ring-primary/50 backdrop-blur-md md:text-base" />
+                                        <div
+                                            class="flex items-center justify-center rounded-r-xl border border-white/10 border-l-0 bg-white/5 pr-2 backdrop-blur-md">
+                                            <button type="submit"
+                                                class="h-10 min-w-[100px] rounded-lg bg-primary px-5 text-sm font-bold tracking-wide text-white transition hover:scale-95 active:bg-primary/90 md:h-12">
+                                                Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                </label>
+                            </form>
                         </div>
                     </div>
 
@@ -200,7 +232,7 @@
                                         @foreach($categories as $cat)
                                             <a href="{{ request()->fullUrlWithQuery(['category' => $cat->nama, 'page' => 1]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                                    {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                                        {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $cat->nama }}
                                             </a>
                                         @endforeach
@@ -236,7 +268,7 @@
                                         @foreach($penulis as $p)
                                             <a href="{{ request()->fullUrlWithQuery(['penulis' => $p->nama, 'page' => 1]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                    {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $p->nama }}
                                             </a>
                                         @endforeach
@@ -288,7 +320,7 @@
                                         @foreach($sortOptions as $value => $label)
                                             <a href="{{ request()->fullUrlWithQuery(['sort' => $value]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                            {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                                {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $label }}
                                             </a>
                                         @endforeach

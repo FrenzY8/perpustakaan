@@ -245,7 +245,7 @@
                                     <div class="flex-1 bg-[#111a22] rounded-full h-1.5 overflow-hidden">
                                        <div
                                           class="h-full rounded-full transition-all duration-700 
-                                           {{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }}"
+                                              {{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }}"
                                           style="width: {{ $percent }}%">
                                        </div>
                                     </div>

@@ -141,10 +141,14 @@
           <div class="@container">
             <div class="@[480px]:p-4">
               <div
-                class="relative flex min-h-[520px] flex-col items-center justify-center gap-6 overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat p-6 text-center @[480px]:gap-10"
-                style="background-image: linear-gradient(rgba(16,25,34,.8), rgba(16,25,34,.8)), url('https://media.istockphoto.com/id/1339845062/photo/reading-room-or-library-interior-with-leather-armchair-bookshelf-and-floor-lamp.jpg?s=612x612&w=0&k=20&c=2ghOW2DCvb49Up3D0eFeVzv1kbSMjUq-_psohUYeZB0=');">
-                <div class="z-10 flex max-w-[800px] flex-col gap-4">
+                class="relative flex min-h-[520px] flex-col items-center justify-center gap-6 overflow-hidden rounded-xl p-6 text-center @[480px]:gap-10">
+                <video autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover">
+                  <source src="{{ asset('video/library_2.mp4') }}" type="video/mp4">
+                </video>
 
+                <div class="absolute inset-0 bg-[#101922]/80"></div>
+
+                <div class="z-10 flex max-w-[800px] flex-col gap-4">
                   <h1 class="text-4xl font-black tracking-tight leading-tight text-white @[480px]:text-7xl">
                     @if (session()->has('user'))
                       Halo, {{ session('user.name') }}
@@ -156,13 +160,11 @@
                     Mau baca buku apa hari ini? Kita punya
                     <span class="text font-bold">{{ $totalBuku }}</span> Buku,
                     <span class="text font-bold">{{ $totalTag }}</span> Tagar,
-                    <span class="text font-bold">{{ $totalKategori }}</span> Kategori Buku dan
-                    <span class="text font-bold">{{ $totalPenulis }}</span> Penulis, dan
-                    <span class="text font-bold">{{ $totalUser }}</span> Pengguna!
+                    <span class="text font-bold">{{ $totalKategori }}</span> Kategori Buku, dari  
+                    <span class="text font-bold">{{ $totalPenulis }}</span> Penulis.
                   </p>
                 </div>
 
-                <!-- Search -->
                 <div class="z-10 w-full max-w-[600px]">
                   <form action="/buku" method="GET">
                     <label class="flex h-14 w-full flex-col md:h-16 cursor-text">
@@ -299,4 +301,5 @@
 
   </div>
 </body>
+
 </html>

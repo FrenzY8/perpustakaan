@@ -46,6 +46,9 @@ Route::post('/chat/send', [ChatbotController::class, 'chat']);
 // ADMIN PANEL
 Route::post('/admin/kurangi-denda/{id}', [AdminController::class, 'kurangi_denda']);
 Route::get('/admin/panel', [AdminController::class, 'index']);
+Route::get('/admin/peminjaman', [AdminController::class, 'index_pinjaman']);
+Route::post('/admin/peminjaman/approve/{id}', [AdminController::class, 'terima_pinjaman']);
+Route::post('/admin/peminjaman/reject/{id}', [AdminController::class, 'tolak_pinjaman']);
 Route::post('/admin/denda/reset/{id}', [AdminController::class, 'reset_denda']);
 Route::post('/admin/denda/potong/{id}', [AdminController::class, 'potong_denda']);
 Route::post('/admin/peminjaman/kembali/{id}', [AdminController::class, 'kembali']);

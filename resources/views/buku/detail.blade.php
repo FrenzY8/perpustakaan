@@ -286,7 +286,7 @@
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                      {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                              {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -301,6 +301,32 @@
           <div id="notification-container"
             class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 max-w-sm w-full items-end">
             @if(session('success'))
+              <div id="modal-success" class="fixed inset-0 z-[110] bg-black/85 flex items-center justify-center p-4">
+                <div
+                  class="glass max-w-md w-full rounded-[2.5rem] p-8 text-center border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-300">
+
+                  <div
+                    class="relative w-full aspect-video mb-6 rounded-3xl overflow-hidden border border-white/10 bg-black">
+                    <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                      <source src="{{ asset('video/library_4.mp4') }}" type="video/mp4">
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+
+                  <h3 class="text-3xl font-bold text-white mb-2 uppercase tracking-tight">
+                    Permintaan <span class="text-primary">Dikirim!</span>
+                  </h3>
+
+                  <p class="text-slate-400 text-sm mb-8 px-4">
+                    Permintaan untuk meminjam berhasil dikirim, Selanjutnya, Tunggu konfirmasi dari Admin.
+                  </p>
+
+                  <button onclick="this.closest('#modal-success').remove()"
+                    class="w-full py-4 bg-primary hover:bg-primary/90 text-white text-xs font-black tracking-widest rounded-2xl transition-all shadow-lg shadow-primary/20 uppercase active:scale-95">
+                    Oke, Mengerti
+                  </button>
+                </div>
+              </div>
               <div
                 class="toast-card flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/50 backdrop-blur-xl text-green-400 rounded-2xl shadow-2xl animate-slide-in-right">
                 <span class="material-symbols-outlined">check_circle</span>

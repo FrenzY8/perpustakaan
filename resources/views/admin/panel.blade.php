@@ -49,10 +49,23 @@
                 <p class="px-4 text-white text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-4">
                     Main Menu</p>
                 <a href="/admin/panel"
-                    class="flex text-white items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->is('admin/panel') ? 'bg-primary/20 text-primary font-bold shadow-lg shadow-primary/10' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->is('admin/panel') ? 'bg-primary/20 text-primary font-bold shadow-lg shadow-primary/10' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                     <span
-                        class="material-symbols-outlined {{ request()->is('admin/panel') ? 'fill-1' : '' }}">admin_panel_settings</span>
+                        class="material-symbols-outlined {{ request()->is('admin/panel') ? 'fill-1 text-primary' : '' }}">
+                        admin_panel_settings
+                    </span>
                     <span>Admin Panel</span>
+                </a>
+
+                <div class="mt-2"></div>
+
+                <a href="/admin/peminjaman"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->is('admin/peminjaman*') ? 'bg-primary/20 text-primary font-bold shadow-lg shadow-primary/10' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span
+                        class="material-symbols-outlined {{ request()->is('admin/peminjaman*') ? 'fill-1 text-primary' : '' }}">
+                        book
+                    </span>
+                    <span>Kelola Pinjaman</span>
                 </a>
 
                 <p
@@ -225,72 +238,6 @@
                     </div>
                 </div>
 
-                <section id="table-denda" class="space-y-4">
-                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
-                        <span class="w-1.5 h-6 bg-red-500 rounded-full"></span> Detail Denda Member
-                    </h3>
-
-                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr
-                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
-                                        <th class="px-6 py-5">Nama Member</th>
-                                        <th class="px-6 py-5">Total Denda</th>
-                                        <th class="px-6 py-5">Status</th>
-                                        <th class="px-6 py-5 text-center">Aksi Cepat</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-white/5">
-                                    @foreach($dendaUser as $d)
-                                        <tr class="hover:bg-white/[0.02] transition-colors">
-                                            <td class="px-6 py-4">
-                                                <p class="font-bold text-sm text-white">{{ $d->nama_member }}</p>
-                                                <p
-                                                    class="text-[10px] font-medium tracking-wide text-[11px] text-[#92adc9] mt-1">
-                                                    "{{ $d->judul_buku }}"</p>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <p class="text-amber-500 font-black text-sm">
-                                                    Rp {{ number_format($d->total_tagihan, 0, ',', '.') }}
-                                                </p>
-                                                <p class="text-[9px] text-slate-500">{{ $d->hari_telat }} Hari Telat</p>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span
-                                                    class="px-2 py-1 rounded bg-red-500/10 text-red-500 text-[9px] font-bold border border-red-500/20">
-                                                    BELUM LUNAS
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 text-center">
-                                                <div class="flex justify-center gap-2">
-                                                    <button
-                                                        onclick="openPaymentModal({{ json_encode(['id' => $d->id, 'name' => $d->nama_member, 'buku' => $d->judul_buku, 'denda' => $d->total_tagihan]) }})"
-                                                        class="px-3 text-white py-1.5 bg-primary/20 text-primary text-[10px] font-bold rounded-lg hover:bg-primary hover:text-white transition-all">
-                                                        KELOLA DENDA
-                                                    </button>
-
-                                                    <form action="/admin/denda/reset/{{ $d->id }}" method="POST"
-                                                        onsubmit="return confirm('Selesaikan peminjaman ini dan lunaskan?')">
-                                                        @csrf
-                                                        <button type="submit"
-                                                            class="p-1.5 bg-emerald-500/10 font-bold text-emerald-500 rounded-lg hover:bg-emerald-500 hover:text-white transition-all">
-                                                            <span
-                                                                class="material-symbols-outlined text-sm">check_circle</span>
-                                                            LUNAS KAN
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
                 <div id="paymentModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
                     <div
                         class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -350,91 +297,6 @@
                         </div>
                     </div>
                 </div>
-
-                <section id="table-peminjaman" class="space-y-4">
-                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
-                        <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
-                    </h3>
-
-                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr
-                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
-                                        <th class="px-6 py-5">Peminjam & Buku</th>
-                                        <th class="px-6 py-5">Tgl Pinjam</th>
-                                        <th class="px-6 py-5">Jatuh Tempo</th>
-                                        <th class="px-6 py-5">Status</th>
-                                        <th class="px-6 py-5 text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-white/5">
-                                    @foreach($peminjaman as $p)
-                                        <tr class="hover:bg-white/[0.02] transition-colors">
-                                            <td class="px-6 py-4">
-                                                <p class="font-bold text-sm text-white">{{ $p->nama_user }}</p>
-                                                <p class="text-[11px] text-[#92adc9] mt-1">{{ $p->judul_buku }}</p>
-                                            </td>
-                                            <td class="px-6 py-4 text-xs text-slate-400">
-                                                {{ date('d M Y', strtotime($p->tanggal_pinjam)) }}
-                                            </td>
-                                            <td
-                                                class="px-6 py-4 text-xs {{ strtotime($p->tanggal_jatuh_tempo) < time() && $p->status == 'dipinjam' ? 'text-red-400 font-bold' : 'text-slate-400' }}">
-                                                {{ date('d M Y', strtotime($p->tanggal_jatuh_tempo)) }}
-
-                                                @if($p->status !== 'dikembalikan')
-                                                    @php
-                                                        $deadline = \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
-                                                        $now = \Carbon\Carbon::now()->startOfDay();
-                                                        $diff = $now->diffInDays($deadline, false); 
-                                                    @endphp
-
-                                                    <div class="mt-1 text-[10px] uppercase tracking-wider">
-                                                        @if($diff > 0)
-                                                            <span class="text-blue-400">{{ $diff }} Hari lagi</span>
-                                                        @elseif($diff == 0)
-                                                            <span class="text-amber-500 font-bold">Hari ini!</span>
-                                                        @else
-                                                            <span class="text-red-500">Telat {{ abs($diff) }} Hari</span>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                @php
-                                                    $statusColor = [
-                                                        'dipinjam' => 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-                                                        'dikembalikan' => 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-                                                        'terlambat' => 'bg-red-500/10 text-red-500 border-red-500/20'
-                                                    ][$p->status];
-                                                @endphp
-                                                <span
-                                                    class="px-3 py-1 rounded-full text-[9px] font-black border {{ $statusColor }} uppercase">
-                                                    {{ $p->status }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 text-center">
-                                                @if($p->status == 'dipinjam')
-                                                    <form action="/admin/peminjaman/kembali/{{ $p->id }}" method="POST">
-                                                        @csrf
-                                                        <button type="submit"
-                                                            class="text-[10px] font-bold bg-primary/20 text-primary px-3 py-1.5 rounded-lg hover:bg-primary text-white hover:text-red transition-all">
-                                                            SELESAIKAN PINJAMAN
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <span class="text-[10px] text-slate-600 text-white">Selesai pada
-                                                        {{ date('d/m/y', strtotime($p->tanggal_kembali)) }}</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
 
                 <section id="table-buku" class="space-y-4">
                     <div class="flex justify-between items-center px-2">
@@ -1090,7 +952,7 @@
 
         function openEditUserModal(user) {
             document.getElementById('edit-user-id').value = user.id;
-            document.getElementById('edit-user-nama').value = user.name; // atau user.nama sesuai database
+            document.getElementById('edit-user-nama').value = user.name;
             document.getElementById('edit-user-role').value = user.role;
 
             toggleModal('modal-edit-user');

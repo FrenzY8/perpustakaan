@@ -142,8 +142,8 @@
                 @if($pinjaman->isEmpty())
                     <div class="glass-card rounded-3xl p-12 text-center flex flex-col items-center">
                         <span class="material-symbols-outlined text-64px text-primary/30 mb-4 scale-[2]">book_5</span>
-                        <h3 class="text-xl font-bold mt-4">Belum ada pinjaman</h3>
-                        <p class="text-[#92adc9] mb-6">Kamu tidak sedang meminjam buku apapun saat ini.</p>
+                        <h3 class="text-xl font-bold mt-4">Belum ada aktivitas</h3>
+                        <p class="text-[#92adc9] mb-6">Kamu belum melakukan permintaan peminjaman buku.</p>
                         <a href="/" class="bg-primary px-8 py-3 rounded-xl font-bold hover:shadow-lg transition-all">Cari
                             Buku</a>
                     </div>
@@ -151,26 +151,34 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @foreach($pinjaman as $item)
                             @php
+                                $status = $item->status;
                                 $start = \Carbon\Carbon::parse($item->tanggal_pinjam);
                                 $due = \Carbon\Carbon::parse($item->tanggal_jatuh_tempo);
                                 $now = now();
+
                                 $diffDays = $now->diffInDays($due, false);
-                                $isUrgent = $diffDays <= 1;
+                                $isUrgent = ($status == 'dipinjam' && $diffDays <= 1);
+
                                 $totalMinutes = $start->diffInMinutes($due) ?: 1;
                                 $passedMinutes = $start->diffInMinutes($now, false);
-                                if ($now > $due) {
-                                    $percent = 100;
-                                } else {
-                                    $percent = min(100, max(0, ($passedMinutes / $totalMinutes) * 100));
-                                }
+                                $percent = ($status == 'dipinjam') ? ($now > $due ? 100 : min(100, max(0, ($passedMinutes / $totalMinutes) * 100))) : 0;
+
+                                $statusClasses = [
+                                    'menunggu' => 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
+                                    'dipinjam' => $isUrgent ? 'bg-red-500 text-white animate-pulse' : 'bg-primary/20 text-primary border-primary/30',
+                                    'ditolak' => 'bg-red-500/20 text-red-500 border-red-500/30',
+                                    'dikembalikan' => 'bg-green-500/20 text-green-500 border-green-500/30',
+                                    'terlambat' => 'bg-red-600 text-white'
+                                ];
                             @endphp
 
                             <div
                                 class="glass-card p-4 rounded-2xl group relative transition-all duration-300 {{ $isUrgent ? 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : '' }}">
+
                                 <div class="absolute top-6 right-6 z-10">
                                     <span
-                                        class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $isUrgent ? 'bg-red-500 text-white animate-pulse' : 'bg-primary/20 text-primary border border-primary/30' }}">
-                                        {{ $isUrgent ? ($diffDays < 0 ? 'Terlambat' : 'Urgent') : 'Dipinjam' }}
+                                        class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $statusClasses[$status] ?? 'bg-slate-500/20 text-slate-400' }}">
+                                        @if($status == 'dipinjam' && $diffDays < 0) Terlambat @else {{ $status }} @endif
                                     </span>
                                 </div>
 
@@ -184,58 +192,48 @@
                                     <h4 class="font-bold text-sm truncate">{{ $item->buku->judul }}</h4>
                                     <p class="text-[11px] text-[#92adc9] mb-4">{{ $item->buku->penulis->nama ?? 'Anonim' }}</p>
 
-                                    <div class="space-y-2 bg-black/20 p-3 rounded-xl border border-white/5">
-                                        <div class="flex justify-between text-[10px]">
-                                            <span class="text-[#92adc9]">Sisa Waktu:</span>
-                                            <span class="{{ $isUrgent ? 'text-red-400 font-bold' : 'text-primary font-bold' }}">
-                                                @if($diffDays < 0)
-                                                    Telat {{ abs($diffDays) }} Hari
-                                                @elseif($diffDays == 0)
-                                                    Hari Ini!
-                                                @else
-                                                    {{ $diffDays }} Hari Lagi
-                                                @endif
-                                            </span>
+                                    @if($status == 'dipinjam' || $status == 'terlambat')
+                                        <div class="space-y-2 bg-black/20 p-3 rounded-xl border border-white/5">
+                                            <div class="flex justify-between text-[10px]">
+                                                <span class="text-[#92adc9]">Sisa Waktu:</span>
+                                                <span class="{{ $isUrgent ? 'text-red-400 font-bold' : 'text-primary font-bold' }}">
+                                                    @if($diffDays < 0) Telat {{ abs($diffDays) }} Hari
+                                                    @elseif($diffDays == 0) Hari Ini!
+                                                    @else {{ $diffDays }} Hari Lagi @endif
+                                                </span>
+                                            </div>
+                                            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                                                <div class="h-full rounded-full transition-all duration-500 {{ $isUrgent ? 'bg-red-500' : 'bg-primary' }}"
+                                                    style="width: {{ $percent }}%"></div>
+                                            </div>
                                         </div>
 
-                                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                                            <div class="h-full rounded-full transition-all duration-500 {{ $isUrgent ? 'bg-red-500' : 'bg-primary' }}"
-                                                style="width: {{ $percent }}%"></div>
-                                        </div>
-                                    </div>
+                                        <form action="/dashboard/kembalikan/{{ $item->id }}" method="POST" class="mt-4">
+                                            @csrf
+                                            <button type="submit"
+                                                class="w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 {{ $isUrgent ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20' : 'bg-white/5 hover:bg-white/10 text-white border border-white/10' }}">
+                                                <span class="material-symbols-outlined text-sm">keyboard_return</span>
+                                                Kembalikan Buku
+                                            </button>
+                                        </form>
 
-                                    <form action="/dashboard/kembalikan/{{ $item->id }}" method="POST" class="mt-4">
-                                        @csrf
-                                        <button type="submit"
-                                            class="w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 {{ $isUrgent ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20' : 'bg-white/5 hover:bg-white/10 text-white border border-white/10' }}">
-                                            <span class="material-symbols-outlined text-sm">keyboard_return</span>
-                                            Kembalikan Buku
-                                        </button>
-                                    </form>
+                                    @elseif($status == 'menunggu')
+                                        <div class="bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20 text-center">
+                                            <p class="text-[14px] text-yellow-500 font-bold uppercase tracking-widest">Menunggu Izin
+                                                Admin</p>
+                                            <p class="text-[12px] text-yellow-500/70 mt-1">Permintaanmu sedang diproses</p>
+                                        </div>
+                                    @elseif($status == 'ditolak')
+                                        <div class="bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-center">
+                                            <span class="material-symbols-outlined text-red-500 mb-1">cancel</span>
+                                            <p class="text-[14px] text-red-500 font-bold uppercase tracking-widest">Pinjaman Ditolak
+                                            </p>
+                                            <p class="text-[12px] text-red-500/70 mt-1">Silahkan hubungi atau datangi admin</p>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
-                        @if(session('success'))
-                            <div id="toast">
-                                <div
-                                    class="fixed bottom-8 right-8 z-[100] transform translate-y-0 opacity-100 transition-all duration-300">
-                                    <div
-                                        class="bg-slate-900 dark:bg-[#233648] border border-primary/30 rounded-xl px-5 py-4 shadow-2xl flex items-center gap-4">
-                                        <div class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
-                                        </div>
-                                        <div>
-                                            <p class="text-white text-sm font-bold">Buku dikembalikan!</p>
-                                            <p class="text-[#92adc9] text-xs">Bukunya udah dikembaliin ya...</p>
-                                        </div>
-                                        <button class="ml-4 text-slate-400 hover:text-white">
-                                            <span class="material-symbols-outlined text-lg">close</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <script>setTimeout(() => document.getElementById('toast')?.remove(), 2500);</script>
-                        @endif
                     </div>
                 @endif
                 <div class="mt-20">
@@ -355,4 +353,5 @@
         </div>
     </div>
 </body>
+
 </html>

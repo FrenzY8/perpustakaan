@@ -95,7 +95,7 @@ class BookController extends Controller
 
         return view('buku/buku', compact('books', 'categories', 'penulis', 'userWishlists'));
     }
-    public function pinjam(Request $request, $id)
+    public function pinjam_old(Request $request, $id)
     {
         if (!session()->has('user')) {
             return redirect('/login')->with('error', 'Login dulu');
@@ -127,6 +127,35 @@ class BookController extends Controller
         ]);
 
         return back()->with('success', "Buku berhasil dipinjam selama $durasi hari!");
+    }
+    public function pinjam(Request $request, $id)
+    {
+        if (!session()->has('user')) {
+            return redirect('/login')->with('error', 'Login dulu');
+        }
+
+        $userId = session('user.id');
+        $durasi = min($request->input('durasi', 7), 30);
+
+        $cekPinjam = Peminjaman::where('id_user', $userId)
+            ->where('id_buku', $id)
+            ->whereIn('status', ['menunggu', 'dipinjam'])
+            ->first();
+
+        if ($cekPinjam) {
+            return back()->with('error', 'Permintaan masih diproses atau buku sedang dipinjam!');
+        }
+
+        Peminjaman::create([
+            'id_user' => $userId,
+            'id_buku' => $id,
+            'status' => 'menunggu',
+            'tanggal_pinjam' => now(),
+            'tanggal_jatuh_tempo' => now()->addDays($durasi),
+            'dibuat_pada' => now(),
+        ]);
+
+        return back()->with('success', "Permintaan terkirim. Menunggu persetujuan admin.");
     }
     public function komentar(Request $request, $id)
     {
@@ -210,39 +239,5 @@ class BookController extends Controller
 
         return view('buku/detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
 
-    }
-    public function borrow(Request $request, $id)
-    {
-        $userId = session('user.id');
-        $durasi = min($request->input('durasi', 7), 30); // Maksimal 30 hari
-
-        $isBorrowed = Peminjaman::where('id_user', $userId)
-            ->where('id_buku', $id)
-            ->where('status', 'dipinjam')
-            ->exists();
-
-        if ($isBorrowed) {
-            return back()->with('error', 'Kamu masih meminjam buku ini!');
-        }
-
-        Peminjaman::create([
-            'id_user' => $userId,
-            'id_buku' => $id,
-            'tanggal_pinjam' => now(),
-            'tanggal_jatuh_tempo' => now()->addDays($durasi),
-            'status' => 'dipinjam',
-        ]);
-
-        return back()->with('success', "Buku berhasil dipinjam selama $durasi hari!");
-    }
-    private function applySorting($query, $sort)
-    {
-        return match ($sort) {
-            'year_new' => $query->orderBy('tanggal_terbit', 'desc'),
-            'year_old' => $query->orderBy('tanggal_terbit', 'asc'),
-            'title_asc' => $query->orderBy('judul', 'asc'),
-            'pages' => $query->orderBy('jumlah_halaman', 'desc'),
-            default => $query->latest(),
-        };
     }
 }

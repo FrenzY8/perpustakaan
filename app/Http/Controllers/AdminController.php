@@ -53,6 +53,8 @@ class AdminController extends Controller
             'dipinjam' => DB::table('peminjaman')->where('status', 'dipinjam')->count(),
             'terlambat' => DB::table('peminjaman')->where('status', 'terlambat')->count(),
             'kembali' => DB::table('peminjaman')->where('status', 'dikembalikan')->count(),
+            'menunggu' => DB::table('peminjaman')->where('status', 'menunggu')->count(),
+            'ditolak' => DB::table('peminjaman')->where('status', 'ditolak')->count(),
         ];
 
         $dendaUser = DB::table('peminjaman')
@@ -80,6 +82,129 @@ class AdminController extends Controller
         $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
         return view('admin.panel', compact('user', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+    }
+    public function index_pinjaman()
+    {
+        if (!session()->has('user') || session('user.role') != 1) {
+            return redirect('/')->with('error', 'Akses ditolak!');
+        }
+
+        $user = DB::table('users')->where('id', session('user.id'))->first();
+
+        $searchBook = request('search_book');
+        $books = Buku::with('penulis', 'kategori')
+            ->when($searchBook, function ($query, $search) {
+                return $query->where('judul', 'like', "%{$search}%")
+                    ->orWhereHas('penulis', function ($q) use ($search) {
+                        $q->where('nama', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()->paginate(10);
+
+        $searchUser = request('search_user');
+        $users = User::when($searchUser, function ($query, $search) {
+            return $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        })
+            ->latest()->get();
+
+        $peminjaman = DB::table('peminjaman')
+            ->join('users', 'peminjaman.id_user', '=', 'users.id')
+            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+            ->select('peminjaman.*', 'users.name as nama_user', 'buku.judul as judul_buku')
+            ->latest('peminjaman.dibuat_pada')
+            ->get();
+
+        $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
+        $stats = [
+            'total' => DB::table('peminjaman')->count(),
+            'dipinjam' => DB::table('peminjaman')->where('status', 'dipinjam')->count(),
+            'terlambat' => DB::table('peminjaman')->where('status', 'terlambat')->count(),
+            'kembali' => DB::table('peminjaman')->where('status', 'dikembalikan')->count(),
+            'menunggu' => DB::table('peminjaman')->where('status', 'menunggu')->count(),
+            'ditolak' => DB::table('peminjaman')->where('status', 'ditolak')->count(),
+        ];
+
+        $dendaUser = DB::table('peminjaman')
+            ->join('users', 'peminjaman.id_user', '=', 'users.id')
+            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+            ->select(
+                'peminjaman.*',
+                'users.name as nama_member',
+                'users.email as email_member',
+                'buku.judul as judul_buku'
+            )
+            ->whereNull('peminjaman.tanggal_kembali')
+            ->where('peminjaman.tanggal_jatuh_tempo', '<', now())
+            ->get()
+            ->map(function ($p) {
+                $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+                $hariIni = Carbon::now()->startOfDay();
+                $p->hari_telat = $jatuhTempo->diffInDays($hariIni, false);
+                $dendaAsli = 5000 + (($p->hari_telat - 1) * 2000);
+                $p->total_tagihan = max(0, $dendaAsli - ($p->potongan_denda ?? 0));
+
+                return $p;
+            });
+
+        $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
+        $pendingLoans = DB::table('peminjaman')
+            ->join('users', 'peminjaman.id_user', '=', 'users.id')
+            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+            ->where('peminjaman.status', 'menunggu')
+            ->select(
+                'peminjaman.*',
+                'users.name as nama_peminjam',
+                'users.email as email_peminjam',
+                'buku.judul as judul_buku',
+                'buku.isbn as isbn_buku'
+            )
+            ->get();
+
+        return view('admin.peminjaman', compact('user', 'pendingLoans', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+    }
+    public function terima_pinjaman($id)
+    {
+        if (session('user.role') !== '1') {
+            return back()->with('error', 'Akses ditolak.');
+        }
+
+        try {
+            $pinjaman = Peminjaman::where('id', $id)->where('status', 'menunggu')->firstOrFail();
+            $durasiAsli = Carbon::parse($pinjaman->tanggal_pinjam)->diffInDays($pinjaman->tanggal_jatuh_tempo);
+
+            $pinjaman->update([
+                'status' => 'dipinjam',
+                'id_admin' => session('user.id'),
+                'tanggal_pinjam' => now(),
+                'tanggal_jatuh_tempo' => now()->addDays($durasiAsli),
+                'diperbarui_pada' => now()
+            ]);
+
+            return back()->with('success', 'Peminjaman disetujui! Durasi: ' . $durasiAsli . ' hari.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memproses data.');
+        }
+    }
+    public function tolak_pinjaman($id)
+    {
+        if (session('user.role') !== '1') {
+            return back()->with('error', 'Akses ditolak.');
+        }
+
+        try {
+            $pinjaman = Peminjaman::where('id', $id)->where('status', 'menunggu')->firstOrFail();
+
+            $pinjaman->update([
+                'status' => 'ditolak',
+                'id_admin' => session('user.id'),
+                'diperbarui_pada' => now()
+            ]);
+
+            return back()->with('success', 'Peminjaman ditolak.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menolak peminjaman.');
+        }
     }
     public function reset_denda($id)
     {
@@ -122,7 +247,7 @@ class AdminController extends Controller
         Message::create([
             'sender_id' => session('user.id'),
             'receiver_id' => $peminjaman->id_user,
-            'message' => $pesanInvoice  
+            'message' => $pesanInvoice
         ]);
 
         return redirect()->back()->with('success', 'Buku berhasil dikembalikan. Denda Rp ' . number_format($nominalDenda, 0, ',', '.') . ' telah dilunasi.');
