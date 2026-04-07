@@ -99,6 +99,27 @@
           <div class="flex items-center gap-4">
             @if (session()->has('user'))
               @php
+                $unreadCount = DB::table('notifications')
+                  ->where('user_id', session('user.id'))
+                  ->where('is_read', 0)
+                  ->count();
+              @endphp
+
+              <button onclick="window.location.href='/notifications'"
+                class="relative p-2 text-slate-400 hover:text-white transition-all duration-300 group hover:scale-110 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                @if($unreadCount > 0)
+                  <span class="absolute top-2 right-2 flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  </span>
+                @endif
+              </button>
+              @php
                 $userData = DB::table('users')->where('id', session('user.id'))->first();
                 $photo = $userData->profile_photo ?? null;
                 if ($photo && (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://'))) {
@@ -160,7 +181,7 @@
                     Mau baca buku apa hari ini? Kita punya
                     <span class="text font-bold">{{ $totalBuku }}</span> Buku,
                     <span class="text font-bold">{{ $totalTag }}</span> Tagar,
-                    <span class="text font-bold">{{ $totalKategori }}</span> Kategori Buku, dari  
+                    <span class="text font-bold">{{ $totalKategori }}</span> Kategori Buku, dari
                     <span class="text font-bold">{{ $totalPenulis }}</span> Penulis.
                   </p>
                 </div>

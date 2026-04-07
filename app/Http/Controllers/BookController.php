@@ -155,6 +155,16 @@ class BookController extends Controller
             'dibuat_pada' => now(),
         ]);
 
+        DB::table('notifications')->insert([
+            'user_id' => session('user.id'),
+            'title' => 'Permintaan Pinjaman',
+            'message' => session('user.name') . ', Kamu berhasil meminta permintaan peminjaman buku selama <b>' + $durasi + '<b> hari, sekarang menunggu konfirmasi dari Admin',
+            'link' => '/dashboard/pinjaman',
+            'icon' => 'book',
+            'is_read' => 0,
+            'created_at' => now(),
+        ]);
+
         return back()->with('success', "Permintaan terkirim. Menunggu persetujuan admin.");
     }
     public function rating(Request $request, $id)

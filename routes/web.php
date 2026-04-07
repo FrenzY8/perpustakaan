@@ -9,12 +9,18 @@
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 // LANDING
 Route::get('/', [PageController::class, 'home']);
+
+// NOTIF
+Route::get('/notifications', [NotificationController::class, 'index']);
+Route::get('/notifications/read/{id}', [NotificationController::class, 'read']);
+Route::post('/notifications/mark-as-read', [NotificationController::class, 'read_all']);
 
 // BUKU
 Route::post('/detail/{id}/komentar', [BookController::class, 'komentar_create']);

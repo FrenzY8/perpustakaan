@@ -17,4 +17,13 @@ class PageController extends Controller
 
         return view('home', compact('books', 'totalUser', 'totalBuku', 'totalPenulis', 'totalKategori', 'totalTag'));
     }
+    public function notification()
+    {
+        $notifications = \DB::table('notifications')
+            ->where('user_id', session('user.id'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('notification', compact('notifications'));
+    }
 }

@@ -170,7 +170,8 @@ class AdminController extends Controller
         }
 
         try {
-            $pinjaman = Peminjaman::where('id', $id)->where('status', 'menunggu')->firstOrFail();
+            $pinjaman = Peminjaman::with('buku')->where('id', $id)->where('status', 'menunggu')->firstOrFail();
+
             $durasiAsli = Carbon::parse($pinjaman->tanggal_pinjam)->diffInDays($pinjaman->tanggal_jatuh_tempo);
 
             $pinjaman->update([
@@ -179,6 +180,16 @@ class AdminController extends Controller
                 'tanggal_pinjam' => now(),
                 'tanggal_jatuh_tempo' => now()->addDays($durasiAsli),
                 'diperbarui_pada' => now()
+            ]);
+
+            DB::table('notifications')->insert([
+                'user_id' => $pinjaman->id_user,
+                'title' => 'Peminjaman Disetujui',
+                'message' => 'Permintaan pinjam buku <b>' . ($pinjaman->buku->judul ?? 'Buku') . '</b> telah disetujui oleh Admin selama <b>' . $durasiAsli . ' hari</b>. Silakan ambil buku di perpustakaan!',
+                'link' => '/dashboard/pinjaman',
+                'icon' => 'auto_stories',
+                'is_read' => 0,
+                'created_at' => now(),
             ]);
 
             return back()->with('success', 'Peminjaman disetujui! Durasi: ' . $durasiAsli . ' hari.');
@@ -193,7 +204,7 @@ class AdminController extends Controller
         }
 
         try {
-            $pinjaman = Peminjaman::where('id', $id)->where('status', 'menunggu')->firstOrFail();
+            $pinjaman = Peminjaman::with('buku')->where('id', $id)->where('status', 'menunggu')->firstOrFail();
 
             $pinjaman->update([
                 'status' => 'ditolak',
@@ -201,7 +212,17 @@ class AdminController extends Controller
                 'diperbarui_pada' => now()
             ]);
 
-            return back()->with('success', 'Peminjaman ditolak.');
+            DB::table('notifications')->insert([
+                'user_id' => $pinjaman->id_user,
+                'title' => 'Peminjaman Ditolak',
+                'message' => 'Maaf, permintaan pinjam buku <b>' . ($pinjaman->buku->judul ?? 'Buku') . '</b> ditolak oleh Admin. Silakan hubungi petugas untuk informasi lebih lanjut.',
+                'link' => '/dashboard/pinjaman',
+                'icon' => 'cancel',
+                'is_read' => 0,
+                'created_at' => now(),
+            ]);
+
+            return back()->with('success', 'Peminjaman telah ditolak.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menolak peminjaman.');
         }

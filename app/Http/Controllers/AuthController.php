@@ -55,6 +55,16 @@ class AuthController extends Controller
                 ]
             ]);
 
+            DB::table('notifications')->insert([
+                'user_id' => $user->id,
+                'title' => 'Login Berhasil',
+                'message' => $user->name . ', Kamu berhasil login lewat Google!',
+                'link' => '/dashboard',
+                'icon' => 'login',
+                'is_read' => 0,
+                'created_at' => now(),
+            ]);
+
             return redirect('/dashboard');
 
         } catch (\Exception $e) {
@@ -125,6 +135,30 @@ class AuthController extends Controller
             ]
         ]);
 
+        $userAgent = $request->header('User-Agent');
+        $device = 'Unknown Device';
+
+        if (str_contains($userAgent, 'Mobile')) {
+            $device = 'Smartphone/Mobile';
+        } elseif (str_contains($userAgent, 'Windows')) {
+            $device = 'Windows PC';
+        } elseif (str_contains($userAgent, 'Macintosh')) {
+            $device = 'MacBook/iMac';
+        } elseif (str_contains($userAgent, 'Linux')) {
+            $device = 'Linux Device';
+        }
+
+        DB::table('notifications')->insert([
+            'user_id' => $user->id,
+            'title' => 'Login Berhasil',
+            'message' => $user->name . ', Kamu baru saja login di device: ' . $device,
+            'icon' => 'devices',
+            'link' => '/dashboard',
+            'is_read' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         return redirect('/dashboard');
     }
     public function logout()
@@ -184,6 +218,17 @@ class AuthController extends Controller
             'otp_generated_at',
             'otp_nonce',
             'otp_code'
+        ]);
+
+        DB::table('notifications')->insert([
+            'user_id' => $userId,
+            'title' => 'Selamat Datang!',
+            'message' => 'Halo, ' . $data['name'] . ', selamat datang di Jokopus, Ayo mulai jelajahi buku sekarang!',
+            'icon' => 'waving_hand',
+            'link' => '/buku',
+            'is_read' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect('/dashboard');
