@@ -18,6 +18,7 @@ Route::get('/', [PageController::class, 'home']);
 
 // BUKU
 Route::post('/detail/{id}/komentar', [BookController::class, 'komentar_create']);
+Route::post('/detail/{id}/rating', [BookController::class, 'rating']);
 Route::get('/detail/{id}', [BookController::class, 'show']);
 Route::post('/buku/{id}/komentar', [BookController::class, 'komentar']);
 Route::post('/wishlist/{id}', [BookController::class, 'wishlist']);

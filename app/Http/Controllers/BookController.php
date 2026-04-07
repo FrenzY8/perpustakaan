@@ -157,6 +157,37 @@ class BookController extends Controller
 
         return back()->with('success', "Permintaan terkirim. Menunggu persetujuan admin.");
     }
+    public function rating(Request $request, $id)
+    {
+        $userId = session('user.id');
+
+        $existingRating = DB::table('ratings')
+            ->where('user_id', $userId)
+            ->where('buku_id', $id)
+            ->first();
+
+        if ($existingRating) {
+            return back()->with('error', 'Kamu sudah memberikan penilaian untuk buku ini!');
+        }
+
+        DB::table('ratings')->insert([
+            'user_id' => $userId,
+            'buku_id' => $id,
+            'skor' => $request->rating,
+            'created_at' => now()
+        ]);
+
+        $averageRating = DB::table('ratings')
+            ->where('buku_id', $id)
+            ->avg('skor');
+
+        DB::table('buku')->where('id', $id)->update([
+            'rating' => $averageRating,
+            'updated_at' => now()
+        ]);
+
+        return back()->with('success', 'Penilaian berhasil disimpan!');
+    }
     public function komentar(Request $request, $id)
     {
         if (!session()->has('user')) {
@@ -238,6 +269,5 @@ class BookController extends Controller
         $wishlistCount = Wishlist::where('id_buku', $id)->count();
 
         return view('buku/detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
-
     }
 }

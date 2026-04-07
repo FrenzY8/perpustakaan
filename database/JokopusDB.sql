@@ -1,8 +1,8 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Versi server:                 10.4.32-MariaDB - mariadb.org binary distribution
--- OS Server:                    Win64
--- HeidiSQL Versi:               12.11.0.7065
+-- Server version:               10.4.32-MariaDB - mariadb.org binary distribution
+-- Server OS:                    Win64
+-- HeidiSQL Version:             12.15.0.7171
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -14,43 +14,31 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
--- Pengeluaran data tidak dipilih.
-
--- Pengeluaran data tidak dipilih.
-
--- Pengeluaran data tidak dipilih.
-
--- Pengeluaran data tidak dipilih.
-
--- Pengeluaran data tidak dipilih.
-
--- Pengeluaran data tidak dipilih.
-
--- Pengeluaran data tidak dipilih.
+-- Data exporting was unselected.
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

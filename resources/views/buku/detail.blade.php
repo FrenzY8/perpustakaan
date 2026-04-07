@@ -208,10 +208,26 @@
       <div class="lg:col-span-7 xl:col-span-8 space-y-8">
         <div class="space-y-4">
           <div class="flex flex-wrap items-center gap-4">
-            <span
-              class="px-3 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/20 uppercase tracking-widest">
-              Tersedia
-            </span>
+            <div
+              class="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-2xl backdrop-blur-sm shadow-xl shadow-black/10">
+              <div class="flex items-center gap-0.5 text-yellow-500">
+                @php $rating = $book->rating ?? 4.5; @endphp
+                @for ($i = 1; $i <= 5; $i++)
+                  @if ($i <= floor($rating))
+                    <span class="material-symbols-outlined text-[18px] fill">star</span>
+                  @elseif ($i - 0.5 <= $rating)
+                    <span class="material-symbols-outlined text-[18px] fill">star_half</span>
+                  @else
+                    <span class="material-symbols-outlined text-[18px] opacity-20">star</span>
+                  @endif
+                @endfor
+              </div>
+
+              <div class="flex items-center gap-2 border-l border-white/10 pl-3">
+                <span class="text-lg font-black text-white italic leading-none">{{ number_format($rating, 1) }}</span>
+                <span class="text-[9px] text-white/50 font-bold uppercase tracking-widest">/ 5.0</span>
+              </div>
+            </div>
           </div>
           <div class="space-y-1">
             <h1 class="text-4xl lg:text-5xl font-black text-white leading-tight">{{ $book->judul }}</h1>
@@ -286,7 +302,7 @@
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                              {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                                          {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -374,6 +390,74 @@
           <div class="glass-panel p-6 rounded-xl space-y-4 text-white/70 leading-relaxed font-light">
             <p>{{ $book->ringkasan }}</p>
           </div>
+        </div>
+
+        {{-- Rating Buku --}}
+        <div class="space-y-4">
+          <h3 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">subject</span>
+            Nilai Buku Ini
+          </h3>
+          @php
+            $hasRated = false;
+            if (session()->has('user')) {
+              $hasRated = DB::table('ratings')
+                ->where('user_id', session('user.id'))
+                ->where('buku_id', $book->id)
+                ->exists();
+            }
+          @endphp
+
+          @if($hasRated)
+            <div class="glass-panel p-6 rounded-2xl border border-emerald-500/20 text-center">
+              <span class="material-symbols-outlined text-emerald-400 text-4xl mb-2 fill">verified</span>
+              <p class="text-white font-bold">Kamu Sudah Menilai!</p>
+              <p class="text-white/50 text-xs mt-1">Penilaianmu membantu minat pembaca lain.</p>
+            </div>
+          @else
+            <div class="glass-panel p-6 rounded-2xl border border-white/10" x-data="{ hover: 0, rating: 0 }">
+              <form action="/detail/{{ $book->id }}/rating" method="POST"
+                class="flex flex-col md:flex-row items-center justify-between gap-6">
+                @csrf
+                <input type="hidden" name="rating" :value="rating">
+
+                <div class="flex flex-col gap-2">
+                  <p class="text-xl font-black text-primary uppercase tracking-[0.2em] ml-1">RATING DENGAN BINTANG</p>
+                  <div class="flex items-center gap-1">
+                    <template x-for="i in 5">
+                      <button type="button" @mouseenter="hover = i" @mouseleave="hover = 0" @click="rating = i"
+                        class="transition-all duration-200 transform hover:scale-125 active:scale-95 outline-none">
+                        <span class="material-symbols-outlined text-4xl select-none transition-colors"
+                          :class="(hover >= i || rating >= i) ? 'text-yellow-500 fill' : 'text-white/10'">
+                          star
+                        </span>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+
+                <div class="w-full md:w-auto flex flex-col gap-4">
+                  <div class="text-center md:text-right">
+                    <span class="text-4xl font-black text-white italic tracking-tighter"
+                      x-text="rating > 0 ? rating + '.0' : '0.0'"></span>
+                    <span class="text-xs text-white/30 font-bold uppercase ml-1">/ 5.0</span>
+                  </div>
+
+                  <div class="flex items-center gap-3">
+                    <button type="button" @click="rating = 0; hover = 0" x-show="rating > 0" x-transition
+                      class="px-4 py-3 rounded-xl border border-white/10 text-white/40 hover:text-white hover:bg-white/5 text-[10px] font-black uppercase tracking-widest transition-all">
+                      Reset
+                    </button>
+                    <button type="submit" :disabled="rating === 0" class="flex-1 md:flex-none px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all
+            disabled:opacity-20 disabled:cursor-not-allowed
+            bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 active:scale-95">
+                      Kirim Nilai
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          @endif
         </div>
 
         {{-- Komentar --}}
