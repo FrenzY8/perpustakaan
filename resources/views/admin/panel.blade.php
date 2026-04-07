@@ -454,12 +454,6 @@
                                         @endforeach
                                     </select>
                                 </div>
-
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500 ml-1">ISBN</label>
-                                    <input type="text" name="isbn" id="edit-isbn" required
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
-                                </div>
                             </div>
 
                             <div class="space-y-2">
@@ -529,14 +523,6 @@
                                             <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">ISBN</label>
-                                    <input type="text" name="isbn"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                        placeholder="Contoh: 978-602...">
                                 </div>
 
                                 <div class="space-y-2">

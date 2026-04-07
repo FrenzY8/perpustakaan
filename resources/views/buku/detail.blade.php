@@ -273,7 +273,7 @@
             <span class="material-symbols-outlined text-primary">wallet</span>
             <div>
               <p class="text-white text-base font-bold">
-                Rp {{ number_format($book->price, 0, ',', '.') }}
+                Rp {{ number_format((float)$book->price, 0, ',', '.') }}
               </p>
               </p>
               <p class="text-white/40 text-xs uppercase tracking-wider font-semibold">HARGA RESMI</p>
@@ -302,7 +302,7 @@
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                                          {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                                            {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -316,7 +316,7 @@
           @endif
           <div id="notification-container"
             class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 max-w-sm w-full items-end">
-            @if(session('success'))
+            @if(session('success_pinjam'))
               <div id="modal-success" class="fixed inset-0 z-[110] bg-black/85 flex items-center justify-center p-4">
                 <div
                   class="glass max-w-md w-full rounded-[2.5rem] p-8 text-center border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-300">
@@ -348,6 +348,76 @@
                 <span class="material-symbols-outlined">check_circle</span>
                 <span class="text-sm font-bold">{{ session('success') }}</span>
               </div>
+            @endif
+
+            @if(session('success'))
+              <div id="toast-success"
+                class="fixed bottom-5 right-5 z-[100] flex items-center w-full max-w-xs p-4 rounded-2xl shadow-2xl glass border border-white/20 animate-slide-in-right">
+
+                <div
+                  class="inline-flex items-center justify-center flex-shrink-0 w-12 h-12 text-primary bg-primary/10 rounded-xl">
+                  <span class="material-symbols-outlined text-2xl">check_circle</span>
+                </div>
+
+                <div class="ms-4 text-sm font-medium">
+                  <div class="text-white font-bold text-base mb-0.5">Sukses!</div>
+                  <div class="text-slate-400 leading-tight">{{ session('success') }}</div>
+                </div>
+
+                <button type="button" onclick="closeToast()"
+                  class="ms-auto -mx-1.5 -my-1.5 text-slate-500 hover:text-white p-1.5 inline-flex items-center justify-center h-8 w-8 transition-colors">
+                  <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+              </div>
+
+              <script>
+                // Otomatis hilang setelah 5 detik
+                setTimeout(() => {
+                  closeToast();
+                }, 5000);
+
+                function closeToast() {
+                  const toast = document.getElementById('toast-success');
+                  if (toast) {
+                    toast.classList.add('animate-fade-out');
+                    setTimeout(() => toast.remove(), 500);
+                  }
+                }
+              </script>
+
+              <style>
+                .animate-slide-in-right {
+                  animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+                }
+
+                .animate-fade-out {
+                  animation: fadeOut 0.5s ease forwards;
+                }
+
+                @keyframes slideInRight {
+                  0% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                  }
+
+                  100% {
+                    transform: translateX(0);
+                    opacity: 1;
+                  }
+                }
+
+                @keyframes fadeOut {
+                  0% {
+                    transform: scale(1);
+                    opacity: 1;
+                  }
+
+                  100% {
+                    transform: scale(0.9);
+                    opacity: 0;
+                  }
+                }
+              </style>
             @endif
 
             @if(session('error'))
@@ -449,8 +519,8 @@
                       Reset
                     </button>
                     <button type="submit" :disabled="rating === 0" class="flex-1 md:flex-none px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all
-            disabled:opacity-20 disabled:cursor-not-allowed
-            bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 active:scale-95">
+              disabled:opacity-20 disabled:cursor-not-allowed
+              bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 active:scale-95">
                       Kirim Nilai
                     </button>
                   </div>

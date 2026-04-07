@@ -51,7 +51,6 @@ Route::post('/chat/send-user', [ChatController::class, 'sendMessage']);
 Route::post('/chat/send', [ChatbotController::class, 'chat']);
 
 // ADMIN PANEL
-Route::post('/admin/kurangi-denda/{id}', [AdminController::class, 'kurangi_denda']);
 Route::get('/admin/panel', [AdminController::class, 'index']);
 Route::get('/admin/peminjaman', [AdminController::class, 'index_pinjaman']);
 Route::post('/admin/peminjaman/approve/{id}', [AdminController::class, 'terima_pinjaman']);

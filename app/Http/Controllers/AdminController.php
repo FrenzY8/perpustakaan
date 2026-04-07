@@ -271,12 +271,41 @@ class AdminController extends Controller
             'message' => $pesanInvoice
         ]);
 
+        DB::table('notifications')->insert([
+            'user_id' => $peminjaman->id_user,
+            'title' => $nominalDenda > 0 ? 'Buku Dikembalikan & Denda Lunas' : 'Buku Berhasil Dikembalikan',
+            'message' => "Buku <b>{$peminjaman->buku->judul}</b> telah dikembalikan. " .
+                ($nominalDenda > 0
+                    ? "Denda sebesar <b>Rp " . number_format($nominalDenda, 0, ',', '.') . "</b> telah dinyatakan lunas."
+                    : "Terima kasih telah mengembalikan buku tepat waktu!"),
+            'link' => '/dashboard/pinjaman',
+            'icon' => 'task_alt',
+            'is_read' => 0,
+            'created_at' => now(),
+        ]);
+
         return redirect()->back()->with('success', 'Buku berhasil dikembalikan. Denda Rp ' . number_format($nominalDenda, 0, ',', '.') . ' telah dilunasi.');
     }
     public function potong_denda($id, Request $request)
     {
         $request->validate([
             'nominal_potongan' => 'required|numeric|min:0'
+        ]);
+
+        $peminjaman = DB::table('peminjaman')
+            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+            ->where('peminjaman.id', $id)
+            ->select('peminjaman.id_user', 'buku.judul')
+            ->first();
+
+        DB::table('notifications')->insert([
+            'user_id' => $peminjaman->id_user,
+            'title' => 'Potongan Denda Diberikan',
+            'message' => "Admin memberikan potongan denda untuk buku <b>{$peminjaman->judul}</b> sebesar <b>Rp " . number_format($request->nominal_potongan, 0, ',', '.') . "</b>.",
+            'link' => '/dashboard/pinjaman',
+            'icon' => 'content_cut',
+            'is_read' => 0,
+            'created_at' => now(),
         ]);
 
         DB::table('peminjaman')
@@ -287,19 +316,6 @@ class AdminController extends Controller
             ]);
 
         return redirect()->back()->with('success', 'Potongan denda berhasil diterapkan!');
-    }
-    public function kurangi_denda($id, Request $request)
-    {
-        $request->validate([
-            'nominal_potongan' => 'required|numeric|min:0'
-        ]);
-
-        $pinjaman = Peminjaman::findOrFail($id);
-
-        $pinjaman->potongan_denda = $request->nominal_potongan;
-        $pinjaman->save();
-
-        return back()->with('success', 'Denda berhasil dipotong!');
     }
     public function kembali($id)
     {
@@ -324,18 +340,36 @@ class AdminController extends Controller
             'judul' => $request->judul,
             'id_penulis' => $request->id_penulis,
             'id_kategori' => $request->id_kategori,
-            'isbn' => $request->isbn,
+            'isbn' => $request->isbn ?? rand(1000, 9999),
             'price' => $request->price,
             'size' => $request->size,
             'jumlah_halaman' => $request->halaman,
             'ringkasan' => $request->ringkasan,
             'gambar_sampul' => $request->gambar_sampul ?? 'https://pngimg.com/uploads/book/book_PNG51090.png',
             'penerbit' => 'Jokopus Publishing',
-            'format' => $request->pormat,
             'tanggal_terbit' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        $userIds = DB::table('users')->where('role', 0)->pluck('id');
+
+        $notifications = [];
+        foreach ($userIds as $userId) {
+            $notifications[] = [
+                'user_id' => $userId,
+                'title' => 'Koleksi Buku Baru!',
+                'message' => "Buku baru <b>{$request->judul}</b> sekarang sudah tersedia. Yuk, jadi yang pertama meminjamnya!",
+                'link' => '/buku',
+                'icon' => 'library_add',
+                'is_read' => 0,
+                'created_at' => now(),
+            ];
+        }
+
+        if (!empty($notifications)) {
+            DB::table('notifications')->insert($notifications);
+        }
 
         return redirect('/admin/panel')->with('success', 'Buku baru berhasil dipajang!');
     }
@@ -366,6 +400,16 @@ class AdminController extends Controller
             DB::table('users')->where('id', $request->id)->update([
                 'role' => (int) $request->role,
                 'updated_at' => now(),
+            ]);
+
+            DB::table('notifications')->insert([
+                'user_id' => $request->id,
+                'title' => 'Status Akun Diperbarui',
+                'message' => "Status akun kamu telah diubah oleh Admin menjadi: <b>" . ($request->role == '1' ? 'Admin' : 'Member') . "</b>.",
+                'icon' => 'manage_accounts',
+                'link' => '/dashboard',
+                'is_read' => 0,
+                'created_at' => now(),
             ]);
 
             return redirect()->back()->with('success', 'Role user berhasil diperbarui!');

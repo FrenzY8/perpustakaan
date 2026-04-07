@@ -95,39 +95,6 @@ class BookController extends Controller
 
         return view('buku/buku', compact('books', 'categories', 'penulis', 'userWishlists'));
     }
-    public function pinjam_old(Request $request, $id)
-    {
-        if (!session()->has('user')) {
-            return redirect('/login')->with('error', 'Login dulu');
-        }
-
-        $userId = session('user.id');
-
-        $durasi = $request->input('durasi', 7);
-
-        if ($durasi > 30)
-            $durasi = 30;
-
-        $cekPinjam = Peminjaman::where('id_user', $userId)
-            ->where('id_buku', $id)
-            ->where('status', 'dipinjam')
-            ->first();
-
-        if ($cekPinjam) {
-            return back()->with('error', 'Kamu masih meminjam buku ini!');
-        }
-
-        Peminjaman::create([
-            'id_user' => $userId,
-            'id_buku' => $id,
-            'tanggal_pinjam' => Carbon::now(),
-            'tanggal_jatuh_tempo' => Carbon::now()->addDays($durasi),
-            'status' => 'dipinjam',
-            'dibuat_pada' => Carbon::now(),
-        ]);
-
-        return back()->with('success', "Buku berhasil dipinjam selama $durasi hari!");
-    }
     public function pinjam(Request $request, $id)
     {
         if (!session()->has('user')) {
@@ -158,14 +125,14 @@ class BookController extends Controller
         DB::table('notifications')->insert([
             'user_id' => session('user.id'),
             'title' => 'Permintaan Pinjaman',
-            'message' => session('user.name') . ', Kamu berhasil meminta permintaan peminjaman buku selama <b>' + $durasi + '<b> hari, sekarang menunggu konfirmasi dari Admin',
+            'message' => session('user.name') . ", Kamu berhasil meminta permintaan peminjaman buku selama <b>$durasi</b> hari, sekarang menunggu konfirmasi dari Admin",
             'link' => '/dashboard/pinjaman',
             'icon' => 'book',
             'is_read' => 0,
             'created_at' => now(),
         ]);
 
-        return back()->with('success', "Permintaan terkirim. Menunggu persetujuan admin.");
+        return back()->with('success_pinjam', "Permintaan terkirim. Menunggu persetujuan admin.");
     }
     public function rating(Request $request, $id)
     {
@@ -194,6 +161,18 @@ class BookController extends Controller
         DB::table('buku')->where('id', $id)->update([
             'rating' => $averageRating,
             'updated_at' => now()
+        ]);
+
+        $buku = DB::table('buku')->where('id', $id)->first();
+
+        DB::table('notifications')->insert([
+            'user_id' => $userId,
+            'title' => 'Terima Kasih!',
+            'message' => "Terima kasih atas rating <b>{$request->rating} bintang</b> untuk buku: <b>\"{$buku->judul}\"</b>. Penilaianmu sangat berarti bagi kami!",
+            'icon' => 'star_rate',
+            'link' => '/buku/' . $id,
+            'is_read' => 0,
+            'created_at' => now(),
         ]);
 
         return back()->with('success', 'Penilaian berhasil disimpan!');
@@ -242,7 +221,7 @@ class BookController extends Controller
             return back()->with('success', 'Dihapus dari wishlist.');
         } else {
             Wishlist::create(['id_user' => $userId, 'id_buku' => $id]);
-            return back()->with('success', 'Berhasil masuk wishlist! (Di Favoritkan)');
+            return back()->with('success', 'Berhasil masuk wishlist!');
         }
     }
     public function show($id)
