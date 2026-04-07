@@ -352,7 +352,7 @@ class AdminController extends Controller
             'updated_at' => now(),
         ]);
 
-        $userIds = DB::table('users')->where('role', 0)->pluck('id');
+        $userIds = DB::table('users')->pluck('id');
 
         $notifications = [];
         foreach ($userIds as $userId) {
