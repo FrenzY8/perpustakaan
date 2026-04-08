@@ -88,6 +88,28 @@ class DashboardController extends Controller
 
         return view('dashboard.pinjaman', compact('pinjaman', 'suggestedBooks'));
     }
+    public function pinjaman_delete($id)
+    {
+        if (!session()->has('user')) {
+            return redirect('/login');
+        }
+
+        $userId = session('user.id');
+
+        $pinjaman = DB::table('peminjaman')
+            ->where('id', $id)
+            ->where('id_user', $userId)
+            ->where('status', 'ditolak')
+            ->first();
+
+        if (!$pinjaman) {
+            return back()->withErrors(['error' => 'Data tidak ditemukan atau tidak dapat dihapus.']);
+        }
+
+        DB::table('peminjaman')->where('id', $id)->delete();
+
+        return back()->with('success', 'Riwayat pinjaman berhasil dihapus.');
+    }
     public function kembalikan($id)
     {
         if (!session()->has('user')) {

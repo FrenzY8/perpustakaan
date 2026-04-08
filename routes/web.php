@@ -34,6 +34,7 @@ Route::post('/pinjam/{id}', [BookController::class, 'pinjam']);
 // DASHBOARD
 Route::get('/dashboard', [DashboardController::class,'index']);
 Route::get('/dashboard/pinjaman', [DashboardController::class, 'pinjaman']);
+Route::delete('/dashboard/pinjaman/delete/{id}', [DashboardController::class, 'pinjaman_delete']);
 Route::post('/dashboard/kembalikan/{id}', [DashboardController::class, 'kembalikan']);
 Route::get('/dashboard/history', [DashboardController::class, 'history']);
 Route::get('/dashboard/wishlist', [DashboardController::class, 'wishlist']);
@@ -73,6 +74,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout']);
 Route::get('/daftar', [AuthController::class, 'daftar_page']);
 Route::get('/otp', [AuthController::class, 'otp']);
+Route::get('/reset_password', [AuthController::class, 'reset_page']);
+Route::post('/reset_password_process', [AuthController::class, 'reset_password_process']);
+Route::post('/update_password', [AuthController::class, 'update_password']);
+Route::get('/reset-password-form', [AuthController::class, 'reset_form_page']);
 Route::post('/users/store', [AuthController::class, 'users_store']);
 
 // GOOGLE AUTH

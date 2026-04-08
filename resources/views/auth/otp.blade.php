@@ -30,14 +30,6 @@
     </script>
 
     <style>
-        .bg-fullscreen {
-            background-image: linear-gradient(rgba(16, 25, 34, 0.8), rgba(16, 25, 34, 0.8)),
-                url('https://media.istockphoto.com/id/1339845062/photo/reading-room-or-library-interior-with-leather-armchair-bookshelf-and-floor-lamp.jpg?s=612x612&w=0&k=20&c=2ghOW2DCvb49Up3D0eFeVzv1kbSMjUq-_psohUYeZB0=');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-
         .glass-card {
             background: rgba(25, 38, 51, 0.6);
             backdrop-filter: blur(16px);
@@ -51,6 +43,14 @@
     class="bg-background-dark bg-fullscreen font-display text-white min-h-screen flex items-center justify-center p-4">
 
     <main class="w-full max-w-[420px] z-10">
+        <div class="fixed inset-0 -z-10 overflow-hidden">
+            <div class="absolute inset-0 bg-background-dark/85 z-10"></div>
+
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                <source src="{{ asset('video/library_5.mp4') }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
         <div class="glass-card rounded-[2rem] p-8 md:p-10 relative overflow-hidden">
 
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-3xl rounded-full"></div>
@@ -71,7 +71,8 @@
 
                 <p class="text-sm text-slate-300 leading-relaxed">
                     Kami telah mengirimkan kode OTP ke <br>
-                    <span class="text-white text-md font-semibold underline decoration-primary/40">{{ $maskedEmail }}</span>
+                    <span
+                        class="text-white text-md font-semibold underline decoration-primary/40">{{ $maskedEmail }}</span>
                 </p>
             </div>
 

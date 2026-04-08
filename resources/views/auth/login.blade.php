@@ -36,11 +36,6 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 50px rgba(0, 0, 0, 0.3);
         }
-
-        .bg-image {
-            background-image: linear-gradient(rgba(16, 25, 34, 0.85), rgba(16, 25, 34, 0.85)),
-                url('https://media.istockphoto.com/id/1339845062/photo/reading-room-or-library-interior-with-leather-armchair-bookshelf-and-floor-lamp.jpg?s=612x612&w=0&k=20&c=2ghOW2DCvb49Up3D0eFeVzv1kbSMjUq-_psohUYeZB0=');
-        }
     </style>
 </head>
 
@@ -48,6 +43,14 @@
     class="bg-background-dark font-display text-white min-h-screen flex items-center justify-center px-4 bg-image bg-cover bg-center bg-no-repeat">
 
     <main class="w-full max-w-[420px] z-10">
+        <div class="fixed inset-0 -z-10 overflow-hidden">
+            <div class="absolute inset-0 bg-background-dark/85 z-10"></div>
+
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                <source src="{{ asset('video/library_5.mp4') }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
         <div class="glass-card rounded-2xl p-8 shadow-2xl">
 
             <div class="mb-8 text-center">
@@ -84,6 +87,10 @@
                         class="w-full h-11 rounded-xl bg-slate-900/50 border border-slate-700 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none"
                         placeholder="••••••••">
                 </div>
+
+                <a href="/reset_password" class="block text-sm text-slate-400 hover:text-white transition">
+                    Lupa password? <span class="text-primary font-semibold">Reset</span>
+                </a>
 
                 <button type="submit"
                     class="w-full h-11 mt-2 rounded-xl bg-primary font-bold text-white hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-primary/20">

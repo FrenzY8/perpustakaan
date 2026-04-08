@@ -230,6 +230,16 @@
                                             </p>
                                             <p class="text-[12px] text-red-500/70 mt-1">Silahkan hubungi atau datangi admin</p>
                                         </div>
+                                        <form action="/dashboard/pinjaman/delete/{{ $item->id }}" method="POST" class="mt-4"
+                                            onsubmit="return confirm('Hapus riwayat pinjaman ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="w-full py-3 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2">
+                                                <span class="material-symbols-outlined text-xl">delete</span>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
                             </div>

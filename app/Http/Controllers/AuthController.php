@@ -87,6 +87,81 @@ class AuthController extends Controller
         $dbStatus = 'Database berhasil terhubung';
         return view('auth/daftar', compact('dbStatus'));
     }
+    public function reset_page()
+    {
+        return view('auth/reset_password');
+    }
+    public function reset_form_page(Request $request)
+    {
+        if (!$request->has('token') || !$request->has('email')) {
+            return redirect('/reset_password')->withErrors(['email' => 'Akses tidak sah.']);
+        }
+
+        $resetData = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$resetData) {
+            return redirect('/reset_password')->withErrors(['email' => 'Token tidak valid atau sudah digunakan.']);
+        }
+
+        $isExpired = now()->diffInMinutes($resetData->created_at) > 15;
+        if ($isExpired) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return redirect('/reset_password')->withErrors(['email' => 'Link reset sudah kedaluwarsa.']);
+        }
+
+        return view('auth/reset_password_form');
+    }
+    public function reset_password_process(Request $request)
+    {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => $token,
+                'created_at' => now()
+            ]
+        );
+
+        $user = DB::table('users')->where('email', $request->email)->first();
+        $resetLink = url("/reset-password-form?token=" . $token . "&email=" . urlencode($request->email));
+
+        Mail::to($user->email)->send(new \App\Mail\SendPassReset($user->name, $resetLink));
+
+        return back()->with('success', 'Link reset password telah dikirim ke email kamu.');
+    }
+    public function update_password(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'password.confirmed' => 'Konfirmasi password tidak cocok.'
+        ]);
+
+        $check = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$check) {
+            return back()->withErrors(['email' => 'Token tidak valid atau sudah kadaluarsa.']);
+        }
+
+        DB::table('users')->where('email', $request->email)->update([
+            'password' => $request->password,
+            'updated_at' => now()
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect('/login')->with('success', 'Password berhasil diperbarui. Silakan login.');
+    }
     public function users_store(Request $request)
     {
         $request->validate([

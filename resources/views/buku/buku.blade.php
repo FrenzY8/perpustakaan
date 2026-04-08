@@ -152,7 +152,7 @@
 
                         <div class="z-10 flex max-w-[800px] flex-col gap-4">
                             <h1 class="text-4xl font-black tracking-tight leading-tight text-white @[480px]:text-7xl">
-                                Tempat Semua Buku
+                                Menampilkan: {{ request('search') ?? 'Tempat Semua Buku' }}
                             </h1>
                             <p class="text-base font-normal text-white/80 md:text-lg leading-relaxed">
                                 Temukan koleksi bacaan terbaik kami yang dikurasi khusus untukmu.
@@ -232,7 +232,7 @@
                                         @foreach($categories as $cat)
                                             <a href="{{ request()->fullUrlWithQuery(['category' => $cat->nama, 'page' => 1]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                                        {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                                                {{ request('category') == $cat->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $cat->nama }}
                                             </a>
                                         @endforeach
@@ -268,7 +268,7 @@
                                         @foreach($penulis as $p)
                                             <a href="{{ request()->fullUrlWithQuery(['penulis' => $p->nama, 'page' => 1]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                    {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                            {{ request('penulis') == $p->nama ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $p->nama }}
                                             </a>
                                         @endforeach
@@ -320,7 +320,7 @@
                                         @foreach($sortOptions as $value => $label)
                                             <a href="{{ request()->fullUrlWithQuery(['sort' => $value]) }}"
                                                 class="px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all
-                                                                {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                                                        {{ request('sort', 'latest') == $value ? 'bg-primary text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
                                                 {{ $label }}
                                             </a>
                                         @endforeach
@@ -382,7 +382,8 @@
                                 {{ $item->judul }}
                             </h3>
 
-                            <p class="text-slate-400 text-base font-semibold mt-3 flex items-center gap-2">
+                            <p onclick="window.location.href='{{ url('buku?search=' . $item->penulis->nama) }}'"
+                                class="text-slate-400 text-base font-semibold mt-3 flex items-center gap-2 cursor-pointer">
                                 <span class="w-6 h-[1px] bg-slate-600"></span>
                                 {{ $item->penulis->nama ?? 'Unknown Author' }}
                             </p>

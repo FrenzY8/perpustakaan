@@ -305,6 +305,16 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    @if(count($dendaUser) == 0)
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-10 text-center">
+                                                <span
+                                                    class="material-symbols-outlined text-slate-600 text-4xl mb-2">assignment_turned_in</span>
+                                                <p class="text-slate-500 text-xs italic">Tidak ada user yang kena
+                                                    denda.</p>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>

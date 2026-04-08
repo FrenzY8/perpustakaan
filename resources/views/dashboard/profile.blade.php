@@ -49,17 +49,6 @@
         .material-symbols-outlined {
             font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
         }
-
-        .glass {
-            background: rgba(25, 38, 51, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-        }
     </style>
 </head>
 
@@ -71,10 +60,17 @@
                 <form action="/profile/update" method="POST" enctype="multipart/form-data"
                     class="w-full max-w-[960px] px-6 md:px-10 py-8">
                     @csrf
-                    <div class="flex flex-wrap justify-between gap-3 mb-8">
-                        <div class="flex min-w-72 flex-col gap-2">
-                            <h1 class="text-slate-900 dark:text-white text-4xl font-black">Settings</h1>
-                            <p class="text-slate-500">Manage your profile and account settings.</p>
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-8">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center gap-4">
+                                <a href="/dashboard"
+                                    class="flex items-center justify-center size-10 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-lg">
+                                    <span class="material-symbols-outlined">arrow_back</span>
+                                </a>
+
+                                <h1 class="dark:text-white text-4xl font-black">Pengaturan Akun</h1>
+                            </div>
+                            <p class="text-slate-500 ml-14">Atur akun perpustakaan mu.</p>
                         </div>
                     </div>
 

@@ -237,9 +237,10 @@
                   <h3 class="text-xl line-clamp-2 text-lg font-bold text-white">
                     {{ $book->judul }}
                   </h3>
-                  <p class="text-xl text-sm text-[#92adc9]">
+                  <a href="{{ url('buku?search=' . urlencode($book->penulis->nama ?? '')) }}"
+                    class="text-xl text-sm text-[#92adc9]">
                     {{ $book->penulis->nama ?? 'Penulis tidak diketahui' }}
-                  </p>
+                  </a>
                 </div>
               </div>
             @empty
