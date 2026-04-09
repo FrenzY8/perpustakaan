@@ -88,11 +88,12 @@
 - Sistem chatting fixed
 - etc
 
-### Selasa. 7 April 2026
-- Membuat AI Chat Jokobot lebih pintar mengelola data
+### Selasa, 7 April 2026
+- Membuat AI Chat Jokobot lebih pintar dalam mengelola data
 - Sistem rating (berdaasarkan bintang)
 - Sistem notifikasi
 - Sistem admin approaval saat mau pinjam
 - Rapihin UI Admin Panel
+- Sistem Lupa Password (butuh konfirmasi email, token expire, dll)
 - etc
 ---
