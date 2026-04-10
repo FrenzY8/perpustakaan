@@ -83,37 +83,33 @@ class AdminController extends Controller
 
         return view('admin.panel', compact('user', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
     }
-    public function index_pinjaman()
+    public function index_pinjaman(Request $request)
     {
         if (!session()->has('user') || session('user.role') != 1) {
             return redirect('/')->with('error', 'Akses ditolak!');
         }
 
+        $search = $request->input('search');
         $user = DB::table('users')->where('id', session('user.id'))->first();
 
-        $searchBook = request('search_book');
-        $books = Buku::with('penulis', 'kategori')
-            ->when($searchBook, function ($query, $search) {
-                return $query->where('judul', 'like', "%{$search}%")
-                    ->orWhereHas('penulis', function ($q) use ($search) {
-                        $q->where('nama', 'like', "%{$search}%");
-                    });
-            })
-            ->latest()->paginate(10);
-
-        $searchUser = request('search_user');
-        $users = User::when($searchUser, function ($query, $search) {
-            return $query->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
-        })
-            ->latest()->get();
+        $books = DB::table('buku')->get();
 
         $peminjaman = DB::table('peminjaman')
             ->join('users', 'peminjaman.id_user', '=', 'users.id')
             ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
             ->select('peminjaman.*', 'users.name as nama_user', 'buku.judul as judul_buku')
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('users.name', 'like', "%{$search}%")
+                        ->orWhere('buku.judul', 'like', "%{$search}%")
+                        ->orWhere('peminjaman.status', 'like', "%{$search}%");
+                });
+            })
             ->latest('peminjaman.dibuat_pada')
-            ->get();
+            ->paginate(10);
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $peminjaman */
+        $peminjaman->withQueryString();
 
         $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
         $stats = [
@@ -161,7 +157,7 @@ class AdminController extends Controller
             )
             ->get();
 
-        return view('admin.peminjaman', compact('user', 'pendingLoans', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+        return view('admin.peminjaman', compact('user', 'books', 'pendingLoans', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories'));
     }
     public function terima_pinjaman($id)
     {

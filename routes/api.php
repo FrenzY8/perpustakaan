@@ -17,3 +17,16 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/users-search', function (Request $request) {
+    $q = $request->query('q');
+    $currentUserId = session('user.id');
+
+    $users = DB::table('users')
+        ->where('name', 'LIKE', "%{$q}%")
+        ->where('id', '!=', $currentUserId)
+        ->limit(5)
+        ->get(['id', 'name', 'profile_photo']);
+        
+    return response()->json($users);
+});

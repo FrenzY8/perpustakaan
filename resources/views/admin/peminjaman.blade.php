@@ -67,38 +67,6 @@
                     </span>
                     <span>Kelola Pinjaman</span>
                 </a>
-
-                <p
-                    class="pt-4 px-4 text-white text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-6">
-                    Resources</p>
-                <form action="/admin/panel#table-buku" method="GET" class="mb-4 flex gap-2 px-2">
-                    <div class="relative flex-1 max-w-sm">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
-                        <input type="text" name="search_book" value="{{ request('search_book') }}"
-                            placeholder="Cari judul buku atau penulis..."
-                            class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all">
-                    </div>
-                    <button type="submit"
-                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">Cari</button>
-                    @if(request('search_book'))
-                        <a href="/admin/panel#table-buku" class="px-4 py-2 text-xs text-red-400 hover:underline">Reset</a>
-                    @endif
-                </form>
-                <form action="/admin/panel#table-user" method="GET" class="mb-4 flex gap-2 px-2">
-                    <div class="relative flex-1 max-w-sm">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
-                        <input type="text" name="search_user" value="{{ request('search_user') }}"
-                            placeholder="Cari nama atau email user..."
-                            class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all">
-                    </div>
-                    <button type="submit"
-                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">Cari</button>
-                    @if(request('search_user'))
-                        <a href="/admin/panel#table-user" class="px-4 py-2 text-xs text-red-400 hover:underline">Reset</a>
-                    @endif
-                </form>
             </nav>
 
             <div class="p-4 border-t border-white/5">
@@ -131,7 +99,7 @@
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
                             <p class="text-[10px] text-slate-500 text-white font-bold uppercase tracking-wider">Users
                             </p>
-                            <p class="text-xl font-black text-white">{{ count($users) }}</p>
+                            <p class="text-xl font-black text-white">{{ count($peminjaman) }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
                             <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Books
@@ -322,9 +290,28 @@
                 </section>
 
                 <section id="table-peminjaman" class="space-y-4">
-                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
-                        <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
-                    </h3>
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
+                        </h3>
+
+                        <form action="/admin/peminjaman" method="GET" class="relative w-full md:w-80">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Cari nama peminjam atau buku..."
+                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-primary focus:border-primary text-white placeholder-slate-500">
+                            <button type="submit"
+                                class="absolute right-3 top-2.5 text-slate-500 hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-sm">search</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    @if(request('search'))
+                        <p class="px-2 text-xs text-slate-400">
+                            Hasil pencarian untuk: <span class="text-primary font-bold">"{{ request('search') }}"</span>
+                            <a href="/admin/peminjaman" class="ml-2 text-red-400 hover:underline">Hapus Filter</a>
+                        </p>
+                    @endif
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
                         <div class="overflow-x-auto">
@@ -332,79 +319,56 @@
                                 <thead>
                                     <tr
                                         class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
-                                        <th class="px-6 py-5">Peminjam & Buku</th>
+                                        <th class="px-6 py-5">User & Buku</th>
+                                        <th class="px-6 py-5">Status</th>
                                         <th class="px-6 py-5">Tgl Pinjam</th>
                                         <th class="px-6 py-5">Jatuh Tempo</th>
-                                        <th class="px-6 py-5">Status</th>
-                                        <th class="px-6 py-5 text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-white/5">
-                                    @foreach($peminjaman as $p)
+                                    @forelse($peminjaman as $p)
                                         <tr class="hover:bg-white/[0.02] transition-colors">
                                             <td class="px-6 py-4">
                                                 <p class="font-bold text-sm text-white">{{ $p->nama_user }}</p>
-                                                <p class="text-[11px] text-[#92adc9] mt-1">{{ $p->judul_buku }}</p>
-                                            </td>
-                                            <td class="px-6 py-4 text-xs text-slate-400">
-                                                {{ date('d M Y', strtotime($p->tanggal_pinjam)) }}
-                                            </td>
-                                            <td
-                                                class="px-6 py-4 text-xs {{ strtotime($p->tanggal_jatuh_tempo) < time() && $p->status == 'dipinjam' ? 'text-red-400 font-bold' : 'text-slate-400' }}">
-                                                {{ date('d M Y', strtotime($p->tanggal_jatuh_tempo)) }}
-
-                                                @if($p->status !== 'dikembalikan')
-                                                    @php
-                                                        $deadline = \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
-                                                        $now = \Carbon\Carbon::now()->startOfDay();
-                                                        $diff = $now->diffInDays($deadline, false); 
-                                                    @endphp
-
-                                                    <div class="mt-1 text-[10px] uppercase tracking-wider">
-                                                        @if($diff > 0)
-                                                            <span class="text-blue-400">{{ $diff }} Hari lagi</span>
-                                                        @elseif($diff == 0)
-                                                            <span class="text-amber-500 font-bold">Hari ini!</span>
-                                                        @else
-                                                            <span class="text-red-500">Telat {{ abs($diff) }} Hari</span>
-                                                        @endif
-                                                    </div>
-                                                @endif
+                                                <p class="text-[11px] text-primary italic">"{{ $p->judul_buku }}"</p>
                                             </td>
                                             <td class="px-6 py-4">
                                                 @php
                                                     $statusColor = [
-                                                        'menunggu' => 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-                                                        'dipinjam' => 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                                                        'dipinjam' => 'bg-blue-500/10 text-blue-500 border-blue-500/20',
                                                         'dikembalikan' => 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
                                                         'terlambat' => 'bg-red-500/10 text-red-500 border-red-500/20',
-                                                        'ditolak' => 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-                                                    ][$p->status] ?? 'bg-gray-500/10 text-gray-500 border-gray-500/20'; 
+                                                        'menunggu' => 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                                                    ][$p->status] ?? 'bg-slate-500/10 text-slate-500 border-slate-500/20';
                                                 @endphp
                                                 <span
-                                                    class="px-3 py-1 rounded-full text-[9px] font-black border {{ $statusColor }} uppercase">
+                                                    class="px-2 py-0.5 rounded-full text-[9px] font-black border {{ $statusColor }} uppercase">
                                                     {{ $p->status }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 text-center">
-                                                @if($p->status == 'dipinjam')
-                                                    <form action="/admin/peminjaman/kembali/{{ $p->id }}" method="POST">
-                                                        @csrf
-                                                        <button type="submit"
-                                                            class="text-[10px] font-bold bg-primary/20 text-primary px-3 py-1.5 rounded-lg hover:bg-primary text-white hover:text-red transition-all">
-                                                            SELESAIKAN PINJAMAN
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <span class="text-[10px] text-slate-600 text-white">Selesai pada
-                                                        {{ date('d/m/y', strtotime($p->tanggal_kembali)) }}</span>
-                                                @endif
+                                            <td class="px-6 py-4 text-xs text-slate-300">
+                                                {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 text-xs {{ $p->status == 'terlambat' ? 'text-red-400 font-bold' : 'text-slate-300' }}">
+                                                {{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('d/m/Y') }}
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-10 text-center">
+                                                <p class="text-slate-500 text-xs italic">Data peminjaman tidak ditemukan.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    <div class="mt-4 px-2">
+                        {{ $peminjaman->links() }}
                     </div>
                 </section>
             </main>

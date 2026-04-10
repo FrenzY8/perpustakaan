@@ -91,6 +91,11 @@ class AuthController extends Controller
     {
         return view('auth/reset_password');
     }
+    public function reset_form_notice(Request $request)
+    {
+        $pesan = $request->Message ?? 'Instruksi reset telah dikirim ke email Anda.';
+        return view('auth.reset_password_notice', ['Message' => $pesan]);
+    }
     public function reset_form_page(Request $request)
     {
         if (!$request->has('token') || !$request->has('email')) {
@@ -132,7 +137,9 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new \App\Mail\SendPassReset($user->name, $resetLink));
 
-        return back()->with('success', 'Link reset password telah dikirim ke email kamu.');
+        return redirect()->route('password.notice', [
+            'Message' => 'Link reset password telah dikirim, Silakan cek kotak masuk atau folder spam kamu.'
+        ]);
     }
     public function update_password(Request $request)
     {
@@ -160,7 +167,9 @@ class AuthController extends Controller
 
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect('/login')->with('success', 'Password berhasil diperbarui. Silakan login.');
+        return redirect()->route('password.notice', [
+            'Message' => 'Password berhasil di perbarui, silahkan login ulang.'
+        ]);
     }
     public function users_store(Request $request)
     {

@@ -67,38 +67,6 @@
                     </span>
                     <span>Kelola Pinjaman</span>
                 </a>
-
-                <p
-                    class="pt-4 px-4 text-white text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 mt-6">
-                    Resources</p>
-                <form action="/admin/panel#table-buku" method="GET" class="mb-4 flex gap-2 px-2">
-                    <div class="relative flex-1 max-w-sm">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
-                        <input type="text" name="search_book" value="{{ request('search_book') }}"
-                            placeholder="Cari judul buku atau penulis..."
-                            class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all">
-                    </div>
-                    <button type="submit"
-                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">Cari</button>
-                    @if(request('search_book'))
-                        <a href="/admin/panel#table-buku" class="px-4 py-2 text-xs text-red-400 hover:underline">Reset</a>
-                    @endif
-                </form>
-                <form action="/admin/panel#table-user" method="GET" class="mb-4 flex gap-2 px-2">
-                    <div class="relative flex-1 max-w-sm">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
-                        <input type="text" name="search_user" value="{{ request('search_user') }}"
-                            placeholder="Cari nama atau email user..."
-                            class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:border-primary outline-none transition-all">
-                    </div>
-                    <button type="submit"
-                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all">Cari</button>
-                    @if(request('search_user'))
-                        <a href="/admin/panel#table-user" class="px-4 py-2 text-xs text-red-400 hover:underline">Reset</a>
-                    @endif
-                </form>
             </nav>
 
             <div class="p-4 border-t border-white/5">
@@ -122,10 +90,10 @@
 
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
-                        <h2 class="text-4xl font-black text-white tracking-tighter uppercase">
+                        <h2 class="text-6xl font-black text-white tracking-tighter uppercase">
                             Admin <span class="text-primary">Panel</span>
                         </h2>
-                        <p class="text-[#92adc9] mt-1 italic text-sm">Welcome back, {{ $user->name }}!</p>
+                        <p class="text-[#92adc9] mt-1 italic text-xl">Welcome back, {{ $user->name }}!</p>
                     </div>
                     <div class="flex gap-3">
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">

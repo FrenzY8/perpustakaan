@@ -78,22 +78,9 @@ Route::get('/reset_password', [AuthController::class, 'reset_page']);
 Route::post('/reset_password_process', [AuthController::class, 'reset_password_process']);
 Route::post('/update_password', [AuthController::class, 'update_password']);
 Route::get('/reset-password-form', [AuthController::class, 'reset_form_page']);
+Route::get('/reset-notice', [AuthController::class, 'reset_form_notice'])->name('password.notice');
 Route::post('/users/store', [AuthController::class, 'users_store']);
 
 // GOOGLE AUTH
 Route::get('/auth/google', [AuthController::class, 'google_redirect']);
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback']);
-
-// UTILS
-Route::get('/api/users-search', function (Request $request) {
-    $q = $request->query('q');
-    $currentUserId = session('user.id');
-
-    $users = DB::table('users')
-        ->where('name', 'LIKE', "%{$q}%")
-        ->where('id', '!=', $currentUserId)
-        ->limit(5)
-        ->get(['id', 'name', 'profile_photo']);
-        
-    return response()->json($users);
-});

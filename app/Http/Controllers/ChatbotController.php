@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class ChatbotController extends Controller
 {
-    protected $whitelistTables = ['buku', 'buku_favorit_user', 'tag', 'peminjaman', 'kategori', 'penulis', 'komentar_buku'];
+    protected $whitelistTables = ['buku', 'buku_favorit_user', 'tag', 'peminjaman', 'kategori', 'penulis', 'ratings', 'komentar_buku'];
     protected $debugMode;
 
     public function __construct()
