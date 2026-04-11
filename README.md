@@ -67,6 +67,7 @@
   1. Memungkinkan AI untuk bekerja di sisi data
   2. Menggunakan NVIDIA Builds
   3. Dengan model ```deepseek-ai/deepseek-v3.1-terminus```
+- <img src="documentation/jokobot.png" alt="Chart" width="500">
 - Menambah Chat System antar pengguna (works)
 - Menambah Beberapa Detail Buku
 - Menambah Login & Sign Up with Google
@@ -90,6 +91,7 @@
 
 ### Selasa, 7 April 2026
 - Membuat AI Chat Jokobot lebih pintar dalam mengelola data
+- <img src="documentation/jokobot_chat.png" alt="Chart" width="500">
 - Sistem rating (berdaasarkan bintang)
 - Sistem notifikasi
 - Sistem admin approaval saat mau pinjam
