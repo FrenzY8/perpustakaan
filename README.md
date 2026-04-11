@@ -95,5 +95,7 @@
 - Sistem admin approaval saat mau pinjam
 - Rapihin UI Admin Panel
 - Sistem Lupa Password (butuh konfirmasi email, token expire, dll)
+- Menambah Admin Chart
+- <img src="documentation/chart.png" alt="Chart" width="500">
 - etc
 ---
