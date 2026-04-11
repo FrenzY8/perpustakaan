@@ -23,6 +23,59 @@ class AdminController extends Controller
 
         $user = DB::table('users')->where('id', session('user.id'))->first();
 
+        $trendLabels = [];
+        $dataPinjam = [];
+        $dataKembali = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $trendLabels[] = Carbon::now()->subDays($i)->isoFormat('D MMM');
+
+            $dataPinjam[] = DB::table('peminjaman')
+                ->whereDate('dibuat_pada', $date)
+                ->count();
+
+            $dataKembali[] = DB::table('peminjaman')
+                ->whereDate('tanggal_kembali', $date)
+                ->count();
+        }
+
+        $categoryData = DB::table('kategori')
+            ->join('buku', 'kategori.id', '=', 'buku.id_kategori')
+            ->select('kategori.nama', DB::raw('count(buku.id) as total'))
+            ->groupBy('kategori.id', 'kategori.nama')
+            ->orderBy('total', 'desc')
+            ->take(5)
+            ->get();
+
+        $stats = [
+            'total_users' => DB::table('users')->count(),
+            'total_books' => DB::table('buku')->count(),
+            'dipinjam' => DB::table('peminjaman')->where('status', 'dipinjam')->count(),
+            'terlambat' => DB::table('peminjaman')->where('status', 'terlambat')->count(),
+            'kembali' => DB::table('peminjaman')->where('status', 'dikembalikan')->count(),
+        ];
+
+        $books = DB::table('buku')->get();
+        $users = DB::table('users')->get();
+
+        return view('admin.charts', compact('user', 'stats', 'books', 'users'))
+            ->with([
+                'trendLabels' => json_encode($trendLabels),
+                'trendPinjam' => json_encode($dataPinjam),
+                'trendKembali' => json_encode($dataKembali),
+                'catLabels' => json_encode($categoryData->pluck('nama')),
+                'catSeries' => json_encode($categoryData->pluck('total')),
+            ]);
+    }
+    public function index_panel()
+    {
+        if (!session()->has('user') || session('user.role') != 1) {
+            return redirect('/')->with('error', 'Akses ditolak!');
+        }
+
+        $user = DB::table('users')->where('id', session('user.id'))->first();
+
         $searchBook = request('search_book');
         $books = Buku::with('penulis', 'kategori')
             ->when($searchBook, function ($query, $search) {

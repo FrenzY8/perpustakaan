@@ -67,6 +67,15 @@
                     </span>
                     <span>Kelola Pinjaman</span>
                 </a>
+
+                <a href="/admin/chart"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->is('admin/chart') ? 'bg-primary/20 text-primary font-bold shadow-lg shadow-primary/10' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span
+                        class="material-symbols-outlined {{ request()->is('admin/charts') ? 'fill-1 text-primary' : '' }}">
+                        monitoring
+                    </span>
+                    <span>Chart</span>
+                </a>
             </nav>
 
             <div class="p-4 border-t border-white/5">

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Panel - Jokopus</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -66,6 +67,15 @@
                         book
                     </span>
                     <span>Kelola Pinjaman</span>
+                </a>
+
+                <a href="/admin/chart"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->is('admin/chart') ? 'bg-primary/20 text-primary font-bold shadow-lg shadow-primary/10' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span
+                        class="material-symbols-outlined {{ request()->is('admin/charts') ? 'fill-1 text-primary' : '' }}">
+                        monitoring
+                    </span>
+                    <span>Chart</span>
                 </a>
             </nav>
 
