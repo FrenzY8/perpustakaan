@@ -111,7 +111,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <h2 class="text-6xl font-black text-white tracking-tighter uppercase">
-                            Admin <span class="text-primary">Panel</span>
+                            Admin <span class="text-primary">Chart</span>
                         </h2>
                         <p class="text-[#92adc9] mt-1 italic text-xl">Welcome back, {{ $user->name }}!</p>
                     </div>
