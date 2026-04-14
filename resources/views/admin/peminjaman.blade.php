@@ -104,33 +104,6 @@
                         </h2>
                         <p class="text-[#92adc9] mt-1 italic text-sm">Welcome back, {{ $user->name }}!</p>
                     </div>
-                    <div class="flex gap-3">
-                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 text-white font-bold uppercase tracking-wider">Users
-                            </p>
-                            <p class="text-xl font-black text-white">{{ count($peminjaman) }}</p>
-                        </div>
-                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Books
-                            </p>
-                            <p class="text-xl font-black text-white">{{ count($books) }}</p>
-                        </div>
-                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Dipinjam
-                            </p>
-                            <p class="text-xl font-black text-white">{{ $stats['dipinjam'] }}</p>
-                        </div>
-                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Tenggak
-                            </p>
-                            <p class="text-xl font-black text-white">{{ $stats['terlambat'] }}</p>
-                        </div>
-                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Kembali
-                            </p>
-                            <p class="text-xl font-black text-white">{{ $stats['kembali'] }}</p>
-                        </div>
-                    </div>
                 </div>
 
                 <section id="table-persetujuan" class="space-y-4">
@@ -294,6 +267,67 @@
                                     @endif
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                    <div id="paymentModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                        <div
+                            class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                            <div class="fixed inset-0 transition-opacity bg-background-dark/80 backdrop-blur-sm"></div>
+
+                            <div
+                                class="inline-block overflow-hidden text-left align-bottom transition-all transform glass-card rounded-3xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-white/10">
+                                <div class="p-8">
+                                    <div class="flex items-center justify-between mb-6">
+                                        <h3 class="text-2xl font-black text-white uppercase tracking-tight">Kelola Denda
+                                        </h3>
+                                        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white">
+                                            <span class="material-symbols-outlined">close</span>
+                                        </button>
+                                    </div>
+
+                                    <form id="paymentForm" method="POST">
+                                        @csrf
+                                        <div class="space-y-4">
+                                            <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                                                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Informasi
+                                                    Pinjaman</p>
+                                                <p id="modalMemberName" class="text-white font-bold text-sm"></p>
+                                                <p id="modalBookTitle" class="text-primary text-xs italic"></p>
+                                            </div>
+
+                                            <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                                                <p class="text-[10px] text-amber-500 uppercase font-bold mb-1">Denda
+                                                    Berjalan</p>
+                                                <p id="modalCurrentDenda" class="text-2xl font-black text-amber-500">
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <label
+                                                    class="text-[10px] text-slate-500 uppercase font-bold ml-1">Nominal
+                                                    Potongan (Rp)</label>
+                                                <input type="number" name="nominal_potongan" id="inputPotongan"
+                                                    class="w-full mt-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                                                    placeholder="Masukkan angka (contoh: 5000)">
+                                                <p class="text-[10px] text-slate-400 mt-2 px-1">
+                                                    *Angka ini akan mengurangi total denda asli user.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-8 flex gap-3">
+                                            <button type="button" onclick="closePaymentModal()"
+                                                class="flex-1 py-3 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all">
+                                                Batal
+                                            </button>
+                                            <button type="submit"
+                                                class="flex-1 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">
+                                                Simpan Perubahan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -523,3 +557,31 @@
 </body>
 
 </html>
+<script>
+    function openPaymentModal(data) {
+        const modal = document.getElementById('paymentModal');
+        const form = document.getElementById('paymentForm');
+
+        document.getElementById('modalMemberName').innerText = data.name;
+        document.getElementById('modalBookTitle').innerText = `"${data.buku}"`;
+        document.getElementById('modalCurrentDenda').innerText = `Rp ${data.denda.toLocaleString('id-ID')}`;
+
+        form.action = `/admin/denda/potong/${data.id}`;
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Stop scroll
+    }
+
+    function closePaymentModal() {
+        const modal = document.getElementById('paymentModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Enable scroll
+    }
+
+    window.onclick = function (event) {
+        const modal = document.getElementById('paymentModal');
+        if (event.target == modal.querySelector('.fixed.inset-0')) {
+            closePaymentModal();
+        }
+    }
+</script>

@@ -56,11 +56,37 @@ class AdminController extends Controller
             'kembali' => DB::table('peminjaman')->where('status', 'dikembalikan')->count(),
         ];
 
+        $topAuthors = DB::table('penulis')
+            ->join('buku', 'penulis.id', '=', 'buku.id_penulis')
+            ->join('peminjaman', 'buku.id', '=', 'peminjaman.id_buku')
+            ->select('penulis.nama', DB::raw('count(peminjaman.id) as total_pinjam'))
+            ->groupBy('penulis.id', 'penulis.nama')
+            ->orderBy('total_pinjam', 'desc')
+            ->take(5)
+            ->get();
+
+        $ratingStats = DB::table('ratings')
+            ->select('skor', DB::raw('count(*) as jumlah'))
+            ->groupBy('skor')
+            ->orderBy('skor', 'asc')
+            ->get();
+
+        $dataRating = [0, 0, 0, 0, 0];
+
+        foreach ($ratingStats as $r) {
+            if ($r->skor >= 1 && $r->skor <= 5) {
+                $dataRating[$r->skor - 1] = $r->jumlah;
+            }
+        }
+
         $books = DB::table('buku')->get();
         $users = DB::table('users')->get();
 
         return view('admin.charts', compact('user', 'stats', 'books', 'users'))
             ->with([
+                'ratingSeries' => json_encode($dataRating),
+                'authorLabels' => json_encode($topAuthors->pluck('nama')),
+                'authorSeries' => json_encode($topAuthors->pluck('total_pinjam')),
                 'trendLabels' => json_encode($trendLabels),
                 'trendPinjam' => json_encode($dataPinjam),
                 'trendKembali' => json_encode($dataKembali),

@@ -298,9 +298,6 @@
                               <div class="flex-1 min-w-0">
                                  <h4 class="font-bold truncate text-sm">{{ $item->buku->judul }}</h4>
                                  <p class="text-[10px] text-[#92adc9]">{{ $item->buku->penulis->nama ?? 'Unknown' }}</p>
-                                 <p class="text-[9px] text-primary mt-1">Added
-                                    {{ \Carbon\Carbon::parse($item->dibuat_pada)->diffForHumans() }}
-                                 </p>
                               </div>
                               <a href="/detail/{{ $item->id_buku }}"
                                  class="bg-primary/20 hover:bg-primary text-primary hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all">

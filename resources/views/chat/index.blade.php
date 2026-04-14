@@ -337,55 +337,72 @@
                     if (msg.message.includes('[INVOICE_PDF]')) {
                         const parts = msg.message.split(': ');
                         const url = parts[1];
-                        const textPart = msg.message.split('] ')[1]?.split('. Silahkan')[0] || "Invoice Baru";
+
+                        const messageText = msg.message.split('[INVOICE_PDF]')[0].trim();
+                        const fileName = msg.message.split('] ')[1]?.split('. Silahkan')[0] || "Invoice Baru";
 
                         displayMessage = `
-                        <div class="flex flex-col gap-2 bg-primary/10 rounded-xl p-3 border border-primary/20 mt-2">
-                            <div class="flex items-center gap-3 text-left">
-                                <div class="size-10 bg-primary rounded-lg flex items-center justify-center shadow-lg">
-                                    <span class="material-symbols-outlined text-white">description</span>
+                        <div class="flex flex-col gap-3">
+                            ${messageText ? `<p class="text-sm leading-relaxed text-slate-200">${messageText}</p>` : ''}
+                            
+                            <div class="group relative flex flex-col bg-gradient-to-br from-white/[0.08] to-transparent backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden max-w-[280px] shadow-2xl transition-all duration-300 hover:border-primary/40 hover:shadow-primary/10">
+                                <div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                
+                                <div class="p-4 flex items-center gap-4 relative z-10">
+                                    <div class="relative size-12 flex-none">
+                                        <div class="absolute inset-0 bg-primary blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                                        <div class="relative size-12 bg-slate-900/80 rounded-xl flex items-center justify-center text-primary border border-white/10 shadow-inner">
+                                            <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform duration-300">description</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-1.5 mb-1">
+                                            <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
+                                            <p class="text-[9px] font-black text-primary uppercase tracking-[0.1em]">Official Invoice</p>
+                                        </div>
+                                        <p class="text-xs font-bold text-slate-100 truncate leading-tight tracking-wide">${fileName}</p>
+                                        <p class="text-[9px] text-slate-500 font-medium mt-0.5 uppercase">PDF Document</p>
+                                    </div>
                                 </div>
-                                <div class="overflow-hidden">
-                                    <p class="text-[10px] text-primary font-black uppercase tracking-tighter">Official Invoice</p>
-                                    <p class="text-xs font-bold text-white truncate">${textPart}</p>
-                                </div>
+
+                                <a href="${url}" target="_blank" 
+                                class="relative z-10 flex items-center justify-center gap-2 py-3 bg-white/[0.03] hover:bg-primary text-white text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border-t border-white/5 hover:border-primary group/btn">
+                                    <span class="material-symbols-outlined text-sm group-hover/btn:-translate-y-0.5 transition-transform">download_for_offline</span>
+                                    Unduh Dokumen
+                                </a>
                             </div>
-                            <a href="${url}" target="_blank" class="w-full mt-2 py-2 bg-primary/20 hover:bg-primary text-primary hover:text-white text-[10px] font-bold uppercase rounded-lg transition-all text-center border border-primary/30">
-                                Download Invoice
-                            </a>
-                        </div>`;
+                        </div>
+                    `;
                     }
                     if (msg.message.includes('[SHARE_BOOK]')) {
                         const bookId = msg.message.split(': ')[1].split(']')[0];
                         const sisaPesan = msg.message.split(']&&')[1] || "";
                         const dataBuku = sisaPesan.split('&&');
 
-                        const bookTitle = dataBuku[0] || "Lihat Buku";
+                        const bookTitle = dataBuku[0] || "Detail Buku";
                         const bookCover = dataBuku[1] || "";
 
                         displayMessage = `
-                        <div class="flex flex-col gap-4 bg-white/5 rounded-2xl p-4 border border-white/10 mt-2 hover:border-primary/40 transition-all group overflow-hidden w-full max-w-[260px]">
-                            <div class="flex items-center gap-2 px-1">
-                                <span class="material-symbols-outlined text-sm text-primary fill">auto_stories</span>
-                                <p class="text-[9px] text-primary font-black uppercase tracking-widest leading-none">SAYA MEMBAGIKAN BUKU</p>
+                        <div class="flex flex-col bg-slate-900/60 rounded-2xl border border-white/5 overflow-hidden mt-2 group w-full max-w-[240px] shadow-2xl transition-all hover:border-primary/50">
+                            <div class="px-4 py-2 flex items-center gap-2 bg-white/5 border-b border-white/5">
+                                <span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1">auto_stories</span>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Rekomendasi Buku</p>
                             </div>
 
-                            <div class="relative aspect-[3/4] w-full rounded-xl overflow-hidden shadow-2xl border border-white/10">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                                    style="background-image:url('${bookCover}');">
-                                </div>
+                            <div class="relative aspect-[2/3] overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
+                                <img src="${bookCover}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://placehold.co/400x600/101922/FFF?text=No+Cover'">
+                                
+                                <a href="/detail/${bookId}" class="absolute bottom-4 left-4 right-4 z-20 py-2.5 bg-white text-black hover:bg-primary hover:text-white text-[10px] font-black uppercase rounded-lg text-center transition-all shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
+                                    Lihat Detail
+                                </a>
                             </div>
-                            
-                            <div class="text-center px-1">
-                                <p class="text-sm font-bold text-white leading-tight break-words line-clamp-2">${bookTitle}</p>
+
+                            <div class="p-3 bg-white/5">
+                                <p class="text-xs font-bold text-white line-clamp-1 group-hover:text-primary transition-colors">${bookTitle}</p>
                             </div>
-                            
-                            <a href="/detail/${bookId}" class="w-full py-2.5 bg-primary text-white text-[10px] font-bold uppercase rounded-xl text-center transition-all shadow-lg shadow-primary/10 hover:shadow-primary/30 active:scale-95">
-                                Lihat Detail Buku
-                            </a>
-                        </div>
-                        `;
+                        </div>`;
                     }
                     htmlContent += `
                     <div class="flex gap-3 max-w-[85%] ${isMe ? 'ml-auto flex-row-reverse' : ''} mb-4 animate-fade-in">

@@ -178,6 +178,11 @@
                             </div>
                         </div>
                     </div>
+                    <div class="glass-card rounded-3xl p-6 border border-white/5">
+                        <h3 class="text-2xl font-bold mb-1">Kepuasan User</h3>
+                        <p class="text-xl text-slate-400 mb-6">Distribusi Rating (1-5 Bintang)</p>
+                        <div id="rating-radar-chart"></div>
+                    </div>
                 </section>
             </main>
 
@@ -346,6 +351,36 @@
         };
 
         new ApexCharts(document.querySelector("#category-chart"), catOptions).render();
+
+        const ratingOptions = {
+            series: [{
+                name: 'Jumlah Rating',
+                data: {!! $ratingSeries !!} // Data: [10, 20, 45, 80, 100]
+            }],
+            chart: {
+                height: 350,
+                type: 'radar',
+                toolbar: { show: false },
+                foreColor: '#94a3b8',
+            },
+            colors: ['#137fec'],
+            xaxis: {
+                categories: ['1 ⭐', '2 ⭐', '3 ⭐', '4 ⭐', '5 ⭐']
+            },
+            plotOptions: {
+                radar: {
+                    polygons: {
+                        strokeColors: 'rgba(255,255,255,0.05)',
+                        connectorColors: 'rgba(255,255,255,0.05)',
+                        fill: { colors: ['transparent'] }
+                    }
+                }
+            },
+            markers: { size: 4, colors: ['#137fec'] },
+            tooltip: { theme: 'dark' }
+        };
+
+        new ApexCharts(document.querySelector("#rating-radar-chart"), ratingOptions).render();
     </script>
 
 </html>
