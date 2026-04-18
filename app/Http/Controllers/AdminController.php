@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buku;
+use App\Models\Kategori;
 use App\Models\User;
 use App\Models\Peminjaman;
 use App\Models\Message;
@@ -112,6 +113,12 @@ class AdminController extends Controller
             })
             ->latest()->paginate(10);
 
+        $categories = Kategori::when($searchBook, function ($query, $search) {
+            return $query->where('nama', 'like', "%{$search}%");
+        })
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
         $searchUser = request('search_user');
         $users = User::when($searchUser, function ($query, $search) {
             return $query->where('name', 'like', "%{$search}%")
@@ -157,8 +164,6 @@ class AdminController extends Controller
 
                 return $p;
             });
-
-        $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
 
         return view('admin.panel', compact('user', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
     }
@@ -237,6 +242,57 @@ class AdminController extends Controller
             ->get();
 
         return view('admin.peminjaman', compact('user', 'books', 'pendingLoans', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories'));
+    }
+    public function addCategory(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|unique:kategori,nama|max:255',
+        ], [
+            'nama.unique' => 'Nama kategori sudah ada!',
+            'nama.required' => 'Nama kategori wajib diisi.'
+        ]);
+
+        try {
+            Kategori::create([
+                'nama' => $request->nama
+            ]);
+
+            return redirect()->back()->with('success', 'Kategori berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menambah kategori: ' . $e->getMessage());
+        }
+    }
+    public function editCategory(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|max:255|unique:kategori,nama,' . $id,
+        ], [
+            'nama.unique' => 'Nama kategori ini sudah ada!',
+            'nama.required' => 'Nama kategori tidak boleh kosong.'
+        ]);
+
+        try {
+            $category = Kategori::findOrFail($id);
+            $category->update([
+                'nama' => $request->nama
+            ]);
+
+            return redirect()->back()->with('success', 'Kategori berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui kategori.');
+        }
+    }
+    public function deleteCategory($id)
+    {
+        try {
+            $category = Kategori::findOrFail($id);
+            \DB::table('buku')->where('id_kategori', $id)->update(['id_kategori' => null]);
+            $category->delete();
+
+            return redirect()->back()->with('success', 'Kategori dihapus dan buku terkait telah dilepas.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
+        }
     }
     public function terima_pinjaman($id)
     {
@@ -346,6 +402,12 @@ class AdminController extends Controller
             'message' => $pesanInvoice
         ]);
 
+        Message::create([
+            'sender_id' => session('user.id'),
+            'receiver_id' => $peminjaman->id_user,
+            'message' => "Halo, {$peminjaman->user->name}, Invoice denda '{$peminjaman->buku->judul}' telah di rilis."
+        ]);
+
         DB::table('notifications')->insert([
             'user_id' => $peminjaman->id_user,
             'title' => $nominalDenda > 0 ? 'Buku Dikembalikan & Denda Lunas' : 'Buku Berhasil Dikembalikan',
@@ -411,16 +473,27 @@ class AdminController extends Controller
             'gambar_sampul' => 'nullable|url',
         ]);
 
+        $finalPath = '';
+
+        if ($request->hasFile('gambar_sampul_file')) {
+            $path = $request->file('gambar_sampul_file')->store('sampul', 'public');
+            $finalPath = "http://127.0.0.1:8000/storage/" . $path;
+        } elseif ($request->filled('gambar_sampul_link')) {
+            $finalPath = $request->gambar_sampul_link;
+        }
+
+        $cleanPrice = preg_replace('/[^0-9]/', '', $request->price);
+
         DB::table('buku')->insert([
             'judul' => $request->judul,
             'id_penulis' => $request->id_penulis,
             'id_kategori' => $request->id_kategori,
             'isbn' => $request->isbn ?? rand(1000, 9999),
-            'price' => $request->price,
+            'price' => $cleanPrice,
             'size' => $request->size,
             'jumlah_halaman' => $request->halaman,
             'ringkasan' => $request->ringkasan,
-            'gambar_sampul' => $request->gambar_sampul ?? 'https://pngimg.com/uploads/book/book_PNG51090.png',
+            'gambar_sampul' => $finalPath,
             'penerbit' => 'Jokopus Publishing',
             'tanggal_terbit' => now(),
             'created_at' => now(),
@@ -450,19 +523,28 @@ class AdminController extends Controller
     }
     public function update_book(Request $request)
     {
+        $cleanPrice = preg_replace('/[^0-9]/', '', $request->price);
         try {
-            DB::table('buku')->where('id', $request->id)->update([
+            $updateData = [
                 'judul' => $request->judul,
                 'id_penulis' => $request->id_penulis,
                 'id_kategori' => $request->id_kategori,
-                'gambar_sampul' => $request->gambar_sampul,
-                'isbn' => $request->isbn,
+                'price' => $cleanPrice,
                 'updated_at' => now(),
-            ]);
+            ];
+
+            if ($request->hasFile('gambar_sampul_file')) {
+                $path = $request->file('gambar_sampul_file')->store('sampul', 'public');
+                $updateData['gambar_sampul'] = "http://127.0.0.1:8000/storage/" . $path;
+            } else {
+                $updateData['gambar_sampul'] = $request->gambar_sampul_link;
+            }
+
+            DB::table('buku')->where('id', $request->id)->update($updateData);
 
             return redirect('/admin/panel')->with('success', 'Buku berhasil diupdate!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
     public function update_role(Request $request)

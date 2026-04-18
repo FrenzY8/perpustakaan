@@ -307,6 +307,110 @@
                         </div>
                     </div>
                 </section>
+
+                <section id="table-kategori" class="space-y-4 mt-10">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Kategori
+                        </h3>
+                        <button onclick="toggleModal('modal-add-kategori')"
+                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                            + Add Category
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
+                                        <th class="px-6 py-5">ID</th>
+                                        <th class="px-6 py-5">Nama Kategori</th>
+                                        <th class="px-6 py-5 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @foreach($categories as $cat)
+                                        <tr class="hover:bg-white/[0.02] transition-colors group">
+                                            <td class="px-6 py-4 text-sm text-[#92adc9]">#{{ $cat->id }}</td>
+                                            <td class="px-6 py-4">
+                                                <span
+                                                    class="font-bold text-sm text-white group-hover:text-primary transition-colors">
+                                                    {{ $cat->nama }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex justify-center gap-2">
+                                                    <button onclick="openEditKategoriModal({{ json_encode($cat) }})"
+                                                        class="p-2 hover:bg-primary/20 text-primary rounded-lg transition-colors">
+                                                        <span class="material-symbols-outlined text-base">edit</span>
+                                                    </button>
+
+                                                    <button
+                                                        onclick="if(confirm('Hapus kategori ini?')) { document.getElementById('delete-cat-{{ $cat->id }}').submit(); }"
+                                                        class="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all">
+                                                        <span class="material-symbols-outlined text-base">delete</span>
+                                                    </button>
+
+                                                    <form id="delete-cat-{{ $cat->id }}"
+                                                        action="/admin/categories/delete/{{ $cat->id }}" method="POST"
+                                                        style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            {{-- Bagian Pagination & Info --}}
+                            <div class="px-6 py-4 bg-white/5 border-t border-white/5">
+                                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <p class="text-[11px] text-[#92adc9]">
+                                        Menampilkan <span
+                                            class="font-bold text-white">{{ $categories->firstItem() }}</span>
+                                        sampai <span class="font-bold text-white">{{ $categories->lastItem() }}</span>
+                                        dari <span class="font-bold text-white">{{ $categories->total() }}</span>
+                                        kategori
+                                    </p>
+
+                                    <div class="flex items-center gap-2">
+                                        @if ($categories->onFirstPage())
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </span>
+                                        @else
+                                            <a href="{{ $categories->appends(['search' => request('search')])->url($categories->currentPage() - 1) }}"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </a>
+                                        @endif
+
+                                        <span class="text-[11px] font-bold px-3 text-white">
+                                            Hal {{ $categories->currentPage() }} / {{ $categories->lastPage() }}
+                                        </span>
+
+                                        @if ($categories->hasMorePages())
+                                            <a href="{{ $categories->appends(['search' => request('search')])->nextPageUrl() }}"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </a>
+                                        @else
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </main>
 
             <div id="modal-edit-book" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
@@ -314,11 +418,12 @@
                     <div class="glass-card w-full max-w-2xl rounded-3xl p-8 shadow-2xl border border-white/10 relative">
                         <h3 class="text-4xl font-bold italic mb-6">EDIT <span class="text-primary">BUKU</span></h3>
 
-                        <form action="/admin/books/update" method="POST">
+                        <form action="/admin/books/update" method="POST" enctype="multipart/form-data">
                             @csrf
+                            @method('PUT')
                             <input type="hidden" name="id" id="edit-id">
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div class="space-y-2">
                                     <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Judul
                                         Buku</label>
@@ -345,22 +450,43 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black uppercase text-slate-500 ml-1">HARGA</label>
+                                    <input type="text" name="price" id="edit-harga" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
+                                </div>
                             </div>
 
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Link
-                                    Gambar Sampul</label>
-                                <input type="text" id="edit-sampul" name="gambar_sampul"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                    placeholder="https://image-url.com/book.jpg">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black uppercase text-slate-500">Link Gambar
+                                        (URL)</label>
+                                    <input type="text" name="gambar_sampul_link" id="edit-sampul"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none"
+                                        placeholder="https://example.com/image.jpg">
+                                </div>
+
+                                <div class="relative py-2">
+                                    <div class="absolute inset-0 flex items-center"><span
+                                            class="w-full border-t border-white/5"></span></div>
+                                    <div class="relative flex justify-center text-[9px] uppercase font-bold">
+                                        <span class="bg-[#1a2530] px-2 text-slate-500">Atau Upload</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <input type="file" name="gambar_sampul_file" accept="image/*"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-primary file:text-white">
+                                </div>
                             </div>
 
                             <div class="mt-8 flex justify-end gap-3">
                                 <button type="button" onclick="toggleModal('modal-edit-book')"
                                     class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
                                 <button type="submit"
-                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">SIMPAN
-                                    PERUBAHAN</button>
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
+                                    SIMPAN PERUBAHAN
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -384,20 +510,21 @@
                         <form action="/admin/books/store" method="POST" enctype="multipart/form-data" class="space-y-5">
                             @csrf
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Judul
-                                        Buku</label>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        Judul Buku
+                                    </label>
                                     <input type="text" name="judul" required
                                         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
                                         placeholder="Masukkan judul...">
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Penulis</label>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        Penulis
+                                    </label>
                                     <select name="id_penulis"
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 appearance-none transition-all">
+                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 appearance-none transition-all text-white">
                                         <option value="">Pilih Penulis</option>
                                         @foreach($authors as $author)
                                             <option value="{{ $author->id }}">{{ $author->nama }}</option>
@@ -406,10 +533,11 @@
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kategori</label>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        Kategori
+                                    </label>
                                     <select name="id_kategori"
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all">
+                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
                                         @foreach($categories as $cat)
                                             <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
                                         @endforeach
@@ -417,39 +545,23 @@
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">JUMLAH
-                                        HALAMAN</label>
-                                    <input type="text" name="halaman"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                        placeholder="Contoh: 100">
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">FORMAT</label>
-                                    <input type="text" name="pormat"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                        placeholder="Contoh: Soft Cover">
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">HARGA</label>
-                                    <input type="text" name="price"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        HARGA
+                                    </label>
+                                    <input type="text" name="price" id="input-price"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
                                         placeholder="Contoh: Rp. 100.000">
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">UKURAN
-                                        FISIK</label>
-                                    <input type="text" name="size"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                        value="22,9 cm x 15,2 cm" placeholder="Contoh: 22,9 cm x 15,2 cm">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        JUMLAH HALAMAN
+                                    </label>
+                                    <input type="text" name="halaman"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
+                                        placeholder="Contoh: 100">
                                 </div>
-                            </div>
+                            </div>  
 
                             <div class="space-y-2">
                                 <label
@@ -459,13 +571,27 @@
                                     placeholder="Ceritakan sedikit tentang buku ini..."></textarea>
                             </div>
 
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Link
-                                    Gambar Sampul</label>
-                                <input type="text" name="gambar_sampul"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                    value="https://pngimg.com/uploads/book/book_PNG51090.png"
-                                    placeholder="https://pngimg.com/uploads/book/book_PNG51090.png">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black uppercase text-slate-500">Link Gambar
+                                        (URL)</label>
+                                    <input type="text" name="gambar_sampul_link" id="edit-sampul"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none"
+                                        placeholder="https://example.com/image.jpg">
+                                </div>
+
+                                <div class="relative py-2">
+                                    <div class="absolute inset-0 flex items-center"><span
+                                            class="w-full border-t border-white/5"></span></div>
+                                    <div class="relative flex justify-center text-[9px] uppercase font-bold">
+                                        <span class="bg-[#1a2530] px-2 text-slate-500">Atau Upload</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <input type="file" name="gambar_sampul_file" accept="image/*"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-primary file:text-white">
+                                </div>
                             </div>
 
                             <div class="mt-8 flex justify-end gap-3">
@@ -479,6 +605,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="modal-add-user" class="fixed inset-0 z-50 hidden overflow-y-auto">
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
@@ -545,6 +672,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="modal-edit-user" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
                 <div class="min-h-screen flex items-center justify-center p-4">
                     <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
@@ -580,6 +708,88 @@
                                 <button type="submit"
                                     class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-all">UPDATE
                                     ROLE</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-add-kategori" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-3xl font-bold italic tracking-tight">TAMBAH <span
+                                    class="text-primary">KATEGORI</span></h3>
+                            <button onclick="toggleModal('modal-add-kategori')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="/admin/categories/store" method="POST" class="space-y-6">
+                            @csrf
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                    Nama Kategori
+                                </label>
+                                <input type="text" name="nama" required
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                    placeholder="Contoh: Fiksi, Sains, Teknologi...">
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-add-kategori')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                                    BATAL
+                                </button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
+                                    SIMPAN KATEGORI
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-edit-kategori" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-3xl font-bold italic tracking-tight">EDIT <span
+                                    class="text-primary">KATEGORI</span></h3>
+                            <button onclick="toggleModal('modal-edit-kategori')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="" id="form-edit-kategori" method="POST" class="space-y-6">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                    Nama Kategori
+                                </label>
+                                <input type="text" name="nama" id="edit-nama-kategori" required
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary focus:ring-0 transition-all"
+                                    placeholder="Nama kategori...">
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-edit-kategori')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                                    BATAL
+                                </button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
+                                    UPDATE KATEGORI
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -741,6 +951,25 @@
             }
         }
 
+        function openEditKategoriModal(category) {
+            const modal = document.getElementById('modal-edit-kategori');
+            const form = modal.querySelector('form');
+
+            form.action = `/admin/categories/update/${category.id}`;
+            form.querySelector('input[name="nama"]').value = category.nama;
+
+            toggleModal('modal-edit-kategori');
+        }
+
+        function openEditKategoriModal(category) {
+            const modal = document.getElementById('modal-edit-kategori');
+            const form = document.getElementById('form-edit-kategori');
+            const inputNama = document.getElementById('edit-nama-kategori');
+            form.action = `/admin/categories/update/${category.id}`;
+            inputNama.value = category.nama;
+            modal.classList.remove('hidden');
+        }
+
         window.onclick = function (event) {
             const modal = document.getElementById('modal-add-book');
             if (event.target == modal) {
@@ -822,7 +1051,7 @@
             document.getElementById('edit-judul').value = book.judul;
             document.getElementById('edit-penulis').value = book.id_penulis;
             document.getElementById('edit-kategori').value = book.id_kategori;
-            document.getElementById('edit-isbn').value = book.isbn;
+            document.getElementById('edit-harga').value = book.price;
             document.getElementById('edit-sampul').value = book.gambar_sampul;
             toggleModal('modal-edit-book');
         }

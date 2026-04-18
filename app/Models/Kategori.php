@@ -17,4 +17,10 @@ class Kategori extends Model
     {
         return $this->hasMany(Buku::class, 'id_kategori');
     }
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class, 'id_kategori')->withDefault([
+            'nama' => 'Kategori Dihapus'
+        ]);
+    }
 }

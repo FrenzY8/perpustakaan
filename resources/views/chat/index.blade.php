@@ -335,15 +335,19 @@
                     let displayMessage = msg.message;
 
                     if (msg.message.includes('[INVOICE_PDF]')) {
-                        const parts = msg.message.split(': ');
-                        const url = parts[1];
+                        // Ambil URL dengan mencari string yang diawali 'http' sampai akhir
+                        const urlMatch = msg.message.match(/https?:\/\/[^\s]+/);
+                        const url = urlMatch ? urlMatch[0] : '#';
 
-                        const messageText = msg.message.split('[INVOICE_PDF]')[0].trim();
-                        const fileName = msg.message.split('] ')[1]?.split('. Silahkan')[0] || "Invoice Baru";
+                        // Ambil teks pesan murni (sebelum kata "Invoice denda")
+                        // Kita hapus tag [INVOICE_PDF] dan ambil kalimat sapaannya
+                        const cleanMessage = msg.message.replace('[INVOICE_PDF]', '').split('Invoice denda')[0].trim();
+
+                        // Ambil nama file untuk display (opsional, bisa hardcode atau ambil dari URL)
+                        const fileName = url.split('/').pop() || "Invoice_Denda.pdf";
 
                         displayMessage = `
                         <div class="flex flex-col gap-3">
-                            ${messageText ? `<p class="text-sm leading-relaxed text-slate-200">${messageText}</p>` : ''}
                             
                             <div class="group relative flex flex-col bg-gradient-to-br from-white/[0.08] to-transparent backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden max-w-[280px] shadow-2xl transition-all duration-300 hover:border-primary/40 hover:shadow-primary/10">
                                 <div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -369,11 +373,10 @@
                                 <a href="${url}" target="_blank" 
                                 class="relative z-10 flex items-center justify-center gap-2 py-3 bg-white/[0.03] hover:bg-primary text-white text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border-t border-white/5 hover:border-primary group/btn">
                                     <span class="material-symbols-outlined text-sm group-hover/btn:-translate-y-0.5 transition-transform">download_for_offline</span>
-                                    Unduh Dokumen
+                                    Lihat & Unduh PDF
                                 </a>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                     }
                     if (msg.message.includes('[SHARE_BOOK]')) {
                         const bookId = msg.message.split(': ')[1].split(']')[0];
