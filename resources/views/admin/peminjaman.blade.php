@@ -338,14 +338,46 @@
                             <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
                         </h3>
 
-                        <form action="/admin/peminjaman" method="GET" class="relative w-full md:w-80">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari nama peminjam atau buku..."
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-primary focus:border-primary text-white placeholder-slate-500">
-                            <button type="submit"
-                                class="absolute right-3 top-2.5 text-slate-500 hover:text-primary transition-colors">
-                                <span class="material-symbols-outlined text-sm">search</span>
-                            </button>
+                        <form action="/admin/peminjaman" method="GET"
+                            class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                            <select name="month" onchange="this.form.submit()"
+                                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
+                                <option value="" class="bg-[#101922]">Bulan</option>
+                                @foreach(range(1, 12) as $m)
+                                    <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}
+                                        class="bg-[#101922]">
+                                        {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <select name="year" onchange="this.form.submit()"
+                                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
+                                <option value="" class="bg-[#101922]">Tahun</option>
+                                @for($y = date('Y'); $y >= 2020; $y--)
+                                    <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}
+                                        class="bg-[#101922]">
+                                        {{ $y }}
+                                    </option>
+                                @endfor
+                            </select>
+
+                            <div class="relative group">
+                                <input type="text" name="search" value="{{ request('search') }}"
+                                    placeholder="Cari nama atau buku..."
+                                    class="w-full md:w-64 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-primary focus:border-primary text-white placeholder-slate-500">
+                                <button type="submit"
+                                    class="absolute right-3 top-2.5 text-slate-500 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-sm">search</span>
+                                </button>
+                            </div>
+
+                            @if(request('month') || request('year') || request('search'))
+                                <a href="/admin/peminjaman"
+                                    class="flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl text-xs transition-all font-bold">
+                                    RESET
+                                </a>
+                            @endif
                         </form>
                     </div>
 

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My History - Jokopus</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -196,9 +197,9 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <a href="/detail/{{ $item->id_buku }}"
-                                                class="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-all inline-block shadow-sm">
-                                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                            <a href="/dashboard/history/delete/{{ $item->id }}"
+                                                class="btn-delete p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-all inline-block shadow-sm">
+                                                <span class="material-symbols-outlined text-sm">delete</span>
                                             </a>
                                         </td>
                                     </tr>
@@ -332,4 +333,53 @@
         </div>
     </div>
 </body>
+<script>
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+
+            Swal.fire({
+                title: "Hapus Riwayat?",
+                text: "Data akan disembunyikan dari daftar kamu.",
+                icon: "warning",
+                iconColor: "#137fec",
+                showCancelButton: true,
+                confirmButtonText: "Ya",
+                cancelButtonText: "Tidak",
+                reverseButtons: true,
+                background: '#192633',
+                color: '#ffffff',
+                backdrop: `rgba(16, 25, 34, 0.8)`,
+
+                customClass: {
+                    popup: 'rounded-2xl border border-white/10 backdrop-blur-xl',
+                    title: 'text-2xl font-black uppercase tracking-tight',
+                    confirmButton: 'bg-primary hover:bg-primary/90 px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg shadow-primary/20 ml-3',
+                    cancelButton: 'bg-white/5 hover:bg-white/10 text-slate-300 px-6 py-2.5 rounded-lg font-medium transition-all mr-3',
+                    actions: 'flex gap-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Terhapus!",
+                        icon: "success",
+                        background: '#192633',
+                        color: '#ffffff',
+                        showConfirmButton: false,
+                        timer: 1000,
+                        customClass: {
+                            popup: 'rounded-2xl border border-white/10'
+                        }
+                    });
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 1000);
+                }
+            });
+        });
+    });
+</script>
+
 </html>

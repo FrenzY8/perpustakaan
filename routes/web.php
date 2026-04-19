@@ -39,6 +39,7 @@ Route::post('/dashboard/kembalikan/{id}', [DashboardController::class, 'kembalik
 Route::get('/dashboard/history', [DashboardController::class, 'history']);
 Route::get('/dashboard/wishlist', [DashboardController::class, 'wishlist']);
 Route::get('/dashboard/uang', [DashboardController::class, 'uang']);
+Route::get('/dashboard/history/delete/{id}', [DashboardController::class, 'history_delete']);
 
 // PROFILE
 Route::get('/profile', [ProfileController::class, 'index']);

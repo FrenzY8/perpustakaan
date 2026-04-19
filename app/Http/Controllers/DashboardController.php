@@ -88,6 +88,19 @@ class DashboardController extends Controller
 
         return view('dashboard.pinjaman', compact('pinjaman', 'suggestedBooks'));
     }
+    public function history_delete($id)
+    {
+        $updated = DB::table('peminjaman')
+            ->where('id', $id)
+            ->where('id_user', session('user.id'))
+            ->update(['hide' => 1]);
+
+        if ($updated) {
+            return back()->with('success', 'Riwayat berhasil dihapus dari tampilan.');
+        }
+
+        return back()->with('error', 'Gagal menghapus riwayat.');
+    }
     public function pinjaman_delete($id)
     {
         if (!session()->has('user')) {
@@ -137,6 +150,7 @@ class DashboardController extends Controller
         $history = Peminjaman::with('buku.penulis')
             ->where('id_user', session('user.id'))
             ->where('status', 'dikembalikan')
+            ->where('peminjaman.hide', 0)
             ->orderBy('tanggal_kembali', 'desc')
             ->get();
 
