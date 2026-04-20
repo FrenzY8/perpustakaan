@@ -1,43 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html class="dark" lang="en">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jokopus</title>
-
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>List Buku - Jokopus</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
-
-    <script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        primary: "#137fec",
+                        "primary": "#137fec",
                         "background-light": "#f6f7f8",
                         "background-dark": "#101922",
                     },
                     fontFamily: {
-                        display: ["Inter", "sans-serif"],
+                        "display": ["Inter"]
                     },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                        lg: "1rem",
-                        xl: "1.5rem",
-                        full: "9999px",
-                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
                 },
             },
-        };
+        }
     </script>
-
     <style>
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
         .glass {
-            background: rgba(16, 25, 34, 0.7);
+            background: rgba(25, 38, 51, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -46,12 +45,15 @@
         .material-symbols-outlined {
             font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
         }
+
+        .fill-1 {
+            font-variation-settings: "FILL" 1;
+        }
     </style>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display text-white">
-    <div class="relative flex min-h-screen flex-col overflow-x-hidden">
-
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <header class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1200px]">
             <div class="glass border border-white/10 rounded-2xl px-6 py-3 shadow-2xl shadow-black/20">
                 <div class="flex items-center justify-between">
@@ -86,7 +88,7 @@
 
                         <a href="/chat"
                             class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
-       {{ request()->is('dashboard*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+       {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
                             Chat
                         </a>
                     </nav>
@@ -131,85 +133,93 @@
             </div>
         </header>
 
-        <main class="flex-1 pt-28 pb-12 px-4 relative">
-            <div class="mx-auto max-w-[850px]">
-
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-                    <div>
-                        <h1 class="text-4xl font-black tracking text-white mb-2">Notifikasi</h1>
-                        <p class="text-slate-400 text-sm">Kamu punya {{ $notifications->where('is_read', 0)->count() }}
-                            pesan yang belum dibaca.</p>
-                    </div>
+        <main class="flex-1 px-4 lg:px-40 py-8 max-w-[1200px] mx-auto w-full">
+            <div class="flex pt-28 flex-col md:flex-row items-center justify-between gap-6 mb-12 px-2">
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-4xl font-black tracking-tight text-white @[480px]:text-6xl">
+                        Community <span class="text-primary">Members</span>
+                    </h1>
+                    <p class="text-base text-slate-400">
+                        Menampilkan semua pembaca yang terdaftar di Jokopus.
+                    </p>
                 </div>
 
-                <div class="grid gap-4">
-                    @forelse($notifications as $notif)
-                        <div class="{{ $notif->is_read == 0 ? 'bg-primary/5' : 'opacity-60' }}">
-                            @if($notif->is_read == 0)
-                                <span class="size-2 rounded-full bg-primary animate-pulse"></span>
+                <form action="{{ url()->current() }}" method="GET" class="w-full md:w-auto">
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors z-10 pointer-events-none"
+                            style="font-family: 'Material Symbols Outlined';">
+                            search
+                        </span>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari member..."
+                            class="w-full md:w-80 bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all glass">
+                    </div>
+                </form>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+                @foreach ($users as $u)
+                    @php
+                        $photo = $u->profile_photo ?? null;
+                        if ($photo && (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://'))) {
+                            $displayPhoto = $photo;
+                        } elseif ($photo && file_exists(storage_path('app/public/avatars/' . $photo))) {
+                            $displayPhoto = asset('storage/avatars/' . $photo);
+                        } else {
+                            $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode($u->name) . "&background=137fec&color=fff";
+                        }
+                    @endphp
+
+                    <div onclick="window.location.href='/profile/{{ $u->id }}'"
+                        class="glass-card p-6 rounded-[2rem] flex flex-col items-center text-center group hover:translate-y-[-8px] transition-all duration-500 cursor-pointer border border-white/5 hover:border-primary/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+
+                        <div class="relative mb-4">
+                            <div
+                                class="size-20 rounded-2xl border-2 border-white/10 p-1 group-hover:border-primary transition-all duration-500 overflow-hidden">
+                                <div class="w-full h-full rounded-xl bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                                    style="background-image: url('{{ $displayPhoto }}')"></div>
+                            </div>
+                            @if($u->role == 1)
+                                <div
+                                    class="absolute -top-2 -right-2 bg-primary text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-tighter shadow-lg">
+                                    Admin
+                                </div>
                             @endif
                         </div>
-                        @php
-                            $isUnread = !$notif->is_read;
-                            $isWarning = str_contains(strtolower($notif->title), 'terlambat') || str_contains(strtolower($notif->title), 'tempo');
-                        @endphp
 
-                        <div onclick="window.location.href='{{ $notif->link }}'"
-                            class="group relative glass rounded-2xl p-1 transition-all duration-300 hover:scale-[1.01] cursor-pointer {{ $isUnread ? 'opacity-100' : 'opacity-60 hover:opacity-100' }}">
+                        <div class="flex flex-col gap-1 w-full">
+                            <h3 class="text-lg font-bold text-white group-hover:text-primary transition-colors truncate">
+                                {{ $u->name }}
+                            </h3>
+                            <p class="text-[10px] text-slate-500 font-medium truncate">
+                                Joined {{ $u->created_at ? $u->created_at->format('M Y') : 'Unknown' }}
+                            </p>
+                        </div>
 
+                        <div class="mt-5 w-full pt-4 border-t border-white/5 flex items-center justify-between">
+                            <div class="flex flex-col items-start">
+                                <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest">ID</span>
+                                <span
+                                    class="text-xs text-white/70 font-mono">#{{ str_pad($u->id, 4, '0', STR_PAD_LEFT) }}</span>
+                            </div>
                             <div
-                                class="bg-background-dark/40 rounded-[14px] p-5 flex gap-5 {{ $isWarning && $isUnread ? 'border-l-4 border-l-amber-500' : ($isUnread ? 'border-l-4 border-l-primary' : '') }}">
-
-                                <div class="relative shrink-0">
-                                    <div
-                                        class="size-14 rounded-2xl flex items-center justify-center border 
-                                            {{ $isWarning ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-primary/10 text-primary border-primary/20' }}">
-                                        <span
-                                            class="material-symbols-outlined text-3xl">{{ $notif->icon ?? 'notifications' }}</span>
-                                    </div>
-                                    @if($isUnread)
-                                        <div
-                                            class="absolute -top-1 -right-1 size-4 bg-primary rounded-full border-4 border-[#101922] animate-pulse">
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-4 mb-1">
-                                        <h3
-                                            class="font-bold {{ $isUnread ? 'text-white' : 'text-slate-400' }} truncate group-hover:text-primary transition-colors">
-                                            {{ $notif->title }}
-                                        </h3>
-                                        <span
-                                            class="shrink-0 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                            {{ \Carbon\Carbon::parse($notif->created_at)->diffForHumans() }}
-                                        </span>
-                                    </div>
-                                    <p
-                                        class="text-sm {{ $isUnread ? 'text-slate-400' : 'text-slate-500' }} leading-relaxed line-clamp-2">
-                                        {!! $notif->message !!}
-                                    </p>
-                                </div>
-
-                                <div class="flex flex-col justify-center">
-                                    <span
-                                        class="material-symbols-outlined text-slate-600 group-hover:text-white transition-colors">chevron_right</span>
-                                </div>
+                                class="size-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
                             </div>
                         </div>
+                    </div>
+                @endforeach
+            </div>
 
-                    @empty
-                        <div class="glass rounded-3xl p-20 text-center">
-                            <div class="size-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <span class="material-symbols-outlined text-5xl text-slate-600">notifications_off</span>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-2">No notifications yet</h3>
-                            <p class="text-slate-500 max-w-xs mx-auto">When you receive updates about your books, they will
-                                appear here.</p>
-                        </div>
-                    @endforelse
+            @if($users->isEmpty())
+                <div class="flex flex-col items-center justify-center py-20 text-center">
+                    <span class="material-symbols-outlined text-6xl text-white/10 mb-4">person_search</span>
+                    <p class="text-white/40 font-bold uppercase tracking-widest text-xs">User tidak ditemukan.</p>
                 </div>
+            @endif
 
+            <div class="flex flex-col items-center justify-center p-12 gap-4">
+                {{ $users->appends(request()->query())->links() }}
             </div>
         </main>
 
@@ -249,9 +259,6 @@
                             <li><a href="/dashboard"
                                     class="text-slate-400 hover:text-primary text-sm transition-colors">Dashboard</a>
                             </li>
-                            <li><a href="/chat"
-                                    class="text-slate-400 hover:text-primary text-sm transition-colors">Chat</a>
-                            </li>
                         </ul>
                     </div>
 
@@ -286,7 +293,6 @@
                 </div>
             </div>
         </footer>
-
     </div>
 </body>
 

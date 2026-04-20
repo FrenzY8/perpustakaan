@@ -83,12 +83,6 @@
               Book
             </a>
 
-            <a href="/dashboard"
-              class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
-       {{ request()->is('dashboard*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
-              Dashboard
-            </a>
-
             <a href="/chat"
               class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
        {{ request()->is('dashboard*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
@@ -250,6 +244,57 @@
             @endforelse
           </div>
 
+        </div>
+      </section>
+
+      <!-- Featured Users -->
+      <section class="px-4 md:px-20 py-10">
+        <div class="max-w-[1200px] mx-auto">
+          <div class="flex items-center justify-between px-4 pb-6">
+            <h2 class="text-2xl font-bold tracking-tight md:text-3xl text-white">
+              Featured Users
+            </h2>
+            <button onclick="window.location.href='/user'" class="text-xl font-semibold text-primary hover:underline">
+              View All
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-6 px-4 pb-8 md:grid-cols-4">
+            @forelse ($featuredUsers as $u)
+              <div onclick="window.location.href='/profile/{{ $u->id }}'"
+                class="glass flex cursor-pointer snap-start flex-col gap-4 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+
+                <div class="aspect-square w-full flex items-center justify-center rounded-lg bg-white/5 overflow-hidden">
+                  <div
+                    class="size-24 md:size-32 rounded-full border-4 border-primary/20 p-1 transition-transform duration-500 hover:rotate-6">
+                    <img
+                      src="{{ $u->profile_photo ? (str_starts_with($u->profile_photo, 'http') ? $u->profile_photo : asset('storage/avatars/' . $u->profile_photo)) : 'https://ui-avatars.com/api/?name=' . urlencode($u->name) . '&background=137fec&color=fff' }}"
+                      class="w-full h-full rounded-full object-cover shadow-lg" alt="{{ $u->name }}">
+                  </div>
+                </div>
+
+                <div class="space-y-1 text-center md:text-left">
+                  <h3 class="text-xl font-bold text-white line-clamp-1">
+                    {{ $u->name }}
+                    <span
+                      class="text-xs font-medium px-2 py-0.5 rounded-full {{ $u->role == 1 ? 'bg-amber-500/10 text-amber-500' : 'bg-primary/10 text-primary' }}">
+                      {{ $u->role == 1 ? 'Admin' : 'Member' }}
+                    </span>
+                  </h3>
+                  <div class="flex items-center justify-center md:justify-start gap-2">
+                    <span class="text-xm text-slate-500 flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[18px]">trending_up</span>
+                      {{ $u->peminjaman_count + $u->komentar_count + $u->buku_favorit_count }} Aktivitas
+                    </span>
+                  </div>
+                </div>
+              </div>
+            @empty
+              <div class="col-span-full py-10 text-center text-gray-400">
+                Belum ada user yang aktif.
+              </div>
+            @endforelse
+          </div>
         </div>
       </section>
     </main>

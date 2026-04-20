@@ -71,7 +71,22 @@
                      </div>
                   </div>
                   <div class="text-center md:text-left">
-                     <h1 class="text-3xl font-bold">{{ $user->name }}</h1>
+                     <div class="flex items-center gap-3">
+                        <h1 class="text-3xl md:text-4xl font-black tracking-tighter text-white">
+                           {{ $user->name }}
+                        </h1>
+
+                        @if(session('user.id') == $user->id)
+                           <div
+                              class="px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-xm font-black uppercase tracking-widest shadow-[0_0_15px_rgba(19,127,236,0.1)]">
+                              (KAMU)
+                           </div>
+                        @endif
+                     </div>
+                     <div class="text-xm mt-2 text-slate-500 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">calendar_month</span>
+                        Bergabung {{ $user->created_at->format('M Y') }}
+                     </div>
                      <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
                         <div
                            class="flex items-center gap-2 text-sm {{ $user->role == 1 ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-primary/10 text-primary border-primary/20' }} px-3 py-1 rounded-full border">
@@ -80,10 +95,14 @@
                            </span>
                            {{ $user->role == 1 ? 'Admin' : 'Member' }}
                         </div>
-                        <div class="text-xs text-slate-500 flex items-center gap-1">
-                           <span class="material-symbols-outlined text-xs">calendar_month</span>
-                           Bergabung {{ $user->created_at->format('M Y') }}
-                        </div>
+                        @if(session('user.id') != $user->id)
+                           <a href="/chat?target_id={{ $user->id }}"
+                              class="flex items-center gap-2 text-sm bg-white/5 hover:bg-primary hover:text-white text-slate-300 border border-white/10 px-4 py-1 rounded-full transition-all group">
+                              <span
+                                 class="material-symbols-outlined text-xs group-hover:scale-110 transition-transform">chat</span>
+                              Chat
+                           </a>
+                        @endif
                      </div>
                   </div>
                </div>
@@ -154,7 +173,7 @@
                                  <div class="flex-1 bg-[#111a22] rounded-full h-1.5 overflow-hidden">
                                     <div
                                        class="h-full rounded-full transition-all duration-700 
-                                                {{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }}"
+                                                               {{ $isOverdue ? 'bg-red-500' : ($percent > 80 ? 'bg-amber-500' : 'bg-primary') }}"
                                        style="width: {{ $percent }}%">
                                     </div>
                                  </div>

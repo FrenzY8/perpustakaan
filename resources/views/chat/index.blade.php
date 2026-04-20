@@ -128,8 +128,6 @@
                             class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('/') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Home</a>
                         <a href="/buku"
                             class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('buku') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Book</a>
-                        <a href="/dashboard"
-                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('dashboard*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Dashboard</a>
                         <a href="/chat/jokobot"
                             class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Chat</a>
                     </nav>
@@ -335,15 +333,9 @@
                     let displayMessage = msg.message;
 
                     if (msg.message.includes('[INVOICE_PDF]')) {
-                        // Ambil URL dengan mencari string yang diawali 'http' sampai akhir
                         const urlMatch = msg.message.match(/https?:\/\/[^\s]+/);
                         const url = urlMatch ? urlMatch[0] : '#';
-
-                        // Ambil teks pesan murni (sebelum kata "Invoice denda")
-                        // Kita hapus tag [INVOICE_PDF] dan ambil kalimat sapaannya
                         const cleanMessage = msg.message.replace('[INVOICE_PDF]', '').split('Invoice denda')[0].trim();
-
-                        // Ambil nama file untuk display (opsional, bisa hardcode atau ambil dari URL)
                         const fileName = url.split('/').pop() || "Invoice_Denda.pdf";
 
                         displayMessage = `
@@ -453,6 +445,20 @@
                 fetchMessages()
             } catch (e) { console.error(e) }
         })
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetUserId = urlParams.get('target_id');
+
+            if (targetUserId) {
+                const userCard = document.querySelector(`.user-card[data-user-id="${targetUserId}"]`);
+
+                if (userCard) {
+                    userCard.click();
+                } else {
+                    console.log("User target tidak ditemukan di daftar sidebar.");
+                }
+            }
+        });
     </script>
 </body>
 

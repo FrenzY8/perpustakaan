@@ -85,12 +85,6 @@
                             Book
                         </a>
 
-                        <a href="/dashboard"
-                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
-       {{ request()->is('dashboard*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
-                            Dashboard
-                        </a>
-
                         <a href="/chat"
                             class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
        {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">

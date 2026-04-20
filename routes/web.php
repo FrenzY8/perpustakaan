@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
-// LANDING
+// PAGE
 Route::get('/', [PageController::class, 'home']);
+Route::get('/user-list', [PageController::class, 'user_list']);
 
 // NOTIF
 Route::get('/notifications', [NotificationController::class, 'index']);

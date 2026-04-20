@@ -59,4 +59,18 @@ class User extends Authenticatable
             $q->where('sender_id', $userId)->where('receiver_id', $this->id);
         })->latest()->first();
     }
+    public function peminjaman()
+    {
+        return $this->hasMany(\App\Models\Peminjaman::class, 'id_user');
+    }
+
+    public function komentar()
+    {
+        return $this->hasMany(\App\Models\Komentar::class, 'id_user');
+    }
+
+    public function bukuFavorit()
+    {
+        return $this->hasMany(\App\Models\Wishlist::class, 'id_user');
+    }
 }
