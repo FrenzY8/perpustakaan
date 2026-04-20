@@ -61,8 +61,11 @@ class ChatbotController extends Controller
             Table peminjaman(id, id_user, id_buku, status, tanggal_pinjam);
         ";
 
+        $today = now()->toDateString();
+
         $promptSql = "
             Generate MySQL SELECT. 
+            Current Date: $today.
             Tables: $schemaContext. 
             Rules:
             - JOIN buku with penulis and kategori.
@@ -103,8 +106,8 @@ class ChatbotController extends Controller
     private function askNvidia($prompt, $apiKey, $isSqlMode = false, $history = [])
     {
         $messages = [];
-        $systemContent = $isSqlMode 
-            ? "You are a precise SQL generator. Output only raw SQL." 
+        $systemContent = $isSqlMode
+            ? "You are a precise SQL generator. Output only raw SQL."
             : "Anda adalah Jokopus, asisten perpustakaan cerdas. Gunakan Bahasa Indonesia.";
 
         $messages[] = ['role' => 'system', 'content' => $systemContent];
@@ -143,7 +146,8 @@ class ChatbotController extends Controller
         $history = session()->get('chat_history', []);
         $history[] = ['role' => 'user', 'content' => $query];
         $history[] = ['role' => 'assistant', 'content' => $answer];
-        if (count($history) > 10) $history = array_slice($history, -10);
+        if (count($history) > 10)
+            $history = array_slice($history, -10);
         session(['chat_history' => $history]);
     }
 
