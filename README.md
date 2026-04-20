@@ -105,6 +105,8 @@
 - Nambahin profile viewer sesama user, (bisa check admin juga)
 - Filter di panel peminjaman, Date Month Status
 - Chart: Most denda user, Most denda book.
+- <img src="documentation/chart_denda.png" alt="Chart" width="500">
+- <img src="documentation/chart_denda2.png" alt="Chart" width="500">
 - AI improve
 - etc
 ---
