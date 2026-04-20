@@ -58,6 +58,7 @@ class ChatbotController extends Controller
             Table buku(id, judul, ringkasan, id_penulis, id_kategori, rating, price);
             Table penulis(id, nama);
             Table kategori(id, nama);
+            Table peminjaman(id, id_user, id_buku, status, tanggal_pinjam);
         ";
 
         $promptSql = "
@@ -125,7 +126,7 @@ class ChatbotController extends Controller
                 ->post('https://integrate.api.nvidia.com/v1/chat/completions', [
                     'model' => 'nvidia/nemotron-3-super-120b-a12b',
                     'messages' => $messages,
-                    'temperature' => $isSqlMode ? 0.0 : 0.7,
+                    'temperature' => 1,
                     'top_p' => 0.95,
                     'max_tokens' => 2048,
                 ]);

@@ -906,7 +906,6 @@
 
                         <div class="flex-1 overflow-hidden text-left">
                             <p class="text-sm font-bold text-white truncate">${user.name}</p>
-                            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Member</p>
                         </div>
                         <span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity">send</span>
                     </div>`;

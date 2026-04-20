@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\Kategori;
+use App\Models\Tag;
 use App\Models\User;
 use App\Models\Peminjaman;
 use App\Models\Message;
@@ -197,6 +198,12 @@ class AdminController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(10);
 
+        $tags = Tag::when($searchBook, function ($query, $search) {
+            return $query->where('nama', 'like', "%{$search}%");
+        })
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
         $searchUser = request('search_user');
         $users = User::when($searchUser, function ($query, $search) {
             return $query->where('name', 'like', "%{$search}%")
@@ -221,7 +228,7 @@ class AdminController extends Controller
             'ditolak' => DB::table('peminjaman')->where('status', 'ditolak')->count(),
         ];
 
-        return view('admin.panel', compact('user', 'books', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+        return view('admin.panel', compact('user', 'books', 'tags', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
     }
     public function index_pinjaman(Request $request)
     {
@@ -559,7 +566,7 @@ class AdminController extends Controller
             'id_kategori' => $request->id_kategori,
             'isbn' => $request->isbn ?? rand(1000, 9999),
             'price' => $cleanPrice,
-            'size' => $request->size,
+            'size' => "13,5 x 20 cm",
             'jumlah_halaman' => $request->halaman,
             'ringkasan' => $request->ringkasan,
             'gambar_sampul' => $finalPath,

@@ -418,6 +418,109 @@
                         </div>
                     </div>
                 </section>
+
+                <section id="table-kategori" class="space-y-4 mt-10">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Tag (Belum Work)
+                        </h3>
+                        <button onclick="toggleModal('modal-add-TAG-SOON')"
+                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                            + Add Tag
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
+                                        <th class="px-6 py-5">ID</th>
+                                        <th class="px-6 py-5">Nama Tag</th>
+                                        <th class="px-6 py-5 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @foreach($tags as $tag)
+                                        <tr class="hover:bg-white/[0.02] transition-colors group">
+                                            <td class="px-6 py-4 text-sm text-[#92adc9]">#{{ $tag->id }}</td>
+                                            <td class="px-6 py-4">
+                                                <span
+                                                    class="font-bold text-sm text-white group-hover:text-primary transition-colors">
+                                                    {{ $tag->nama }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex justify-center gap-2">
+                                                    <button onclick="openEditTagModal({{ json_encode($tag) }})"
+                                                        class="p-2 hover:bg-primary/20 text-primary rounded-lg transition-colors">
+                                                        <span class="material-symbols-outlined text-base">edit</span>
+                                                    </button>
+
+                                                    <button
+                                                        onclick="if(confirm('Hapus tag ini?')) { document.getElementById('delete-tag-{{ $tag->id }}').submit(); }"
+                                                        class="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all">
+                                                        <span class="material-symbols-outlined text-base">delete</span>
+                                                    </button>
+
+                                                    <form id="delete-tag-{{ $tag->id }}"
+                                                        action="/admin/tags/delete/{{ $tag->id }}" method="POST"
+                                                        style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            {{-- Bagian Pagination & Info --}}
+                            <div class="px-6 py-4 bg-white/5 border-t border-white/5">
+                                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <p class="text-[11px] text-[#92adc9]">
+                                        Menampilkan <span class="font-bold text-white">{{ $tags->firstItem() }}</span>
+                                        sampai <span class="font-bold text-white">{{ $tags->lastItem() }}</span>
+                                        dari <span class="font-bold text-white">{{ $tags->total() }}</span>
+                                        tag
+                                    </p>
+
+                                    <div class="flex items-center gap-2">
+                                        @if ($tags->onFirstPage())
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </span>
+                                        @else
+                                            <a href="{{ $tags->appends(['search' => request('search')])->url($tags->currentPage() - 1) }}"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </a>
+                                        @endif
+
+                                        <span class="text-[11px] font-bold px-3 text-white">
+                                            Hal {{ $tags->currentPage() }} / {{ $tags->lastPage() }}
+                                        </span>
+
+                                        @if ($tags->hasMorePages())
+                                            <a href="{{ $tags->appends(['search' => request('search')])->nextPageUrl() }}"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </a>
+                                        @else
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </main>
 
             <div id="modal-edit-book" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
@@ -803,6 +906,48 @@
                 </div>
             </div>
 
+            <div id="modal-edit-tag" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-3xl font-bold italic tracking-tight">EDIT <span
+                                    class="text-primary">TAG</span></h3>
+                            <button onclick="toggleModal('modal-edit-tag')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="" id="form-edit-tag" method="POST" class="space-y-6">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                    Nama Tag
+                                </label>
+                                <input type="text" name="nama" id="edit-nama-tag" required
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary focus:ring-0 transition-all"
+                                    placeholder="Nama tag...">
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-edit-tag')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                                    BATAL
+                                </button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
+                                    UPDATE TAG
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             @php
                 $type = 'success';
                 $icon = 'check_circle';
@@ -968,13 +1113,11 @@
             toggleModal('modal-edit-kategori');
         }
 
-        function openEditKategoriModal(category) {
-            const modal = document.getElementById('modal-edit-kategori');
-            const form = document.getElementById('form-edit-kategori');
-            const inputNama = document.getElementById('edit-nama-kategori');
-            form.action = `/admin/categories/update/${category.id}`;
-            inputNama.value = category.nama;
-            modal.classList.remove('hidden');
+        function openEditTagModal(tag) {
+            const form = document.getElementById('form-edit-tag');
+            form.action = `/admin/tags/update/${tag.id}`;
+            document.getElementById('edit-nama-tag').value = tag.nama;
+            toggleModal('modal-edit-tag');
         }
 
         window.onclick = function (event) {
