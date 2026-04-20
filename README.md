@@ -100,4 +100,11 @@
 - Menambah Admin Chart
 - <img src="documentation/chart.png" alt="Chart" width="500">
 - etc
+
+### Senin, 20 April 2026
+- Nambahin profile viewer sesama user, (bisa check admin juga)
+- Filter di panel peminjaman, Date Month Status
+- Chart: Most denda user, Most denda book.
+- AI improve
+- etc
 ---
