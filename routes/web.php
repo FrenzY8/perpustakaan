@@ -33,6 +33,9 @@ Route::post('/pinjam/{id}', [BookController::class, 'pinjam']);
 
 // DASHBOARD
 Route::get('/dashboard', [DashboardController::class,'index']);
+Route::get('/profiles', function () {
+    return view('dashboard/dashboard2');
+});
 Route::get('/dashboard/pinjaman', [DashboardController::class, 'pinjaman']);
 Route::delete('/dashboard/pinjaman/delete/{id}', [DashboardController::class, 'pinjaman_delete']);
 Route::post('/dashboard/kembalikan/{id}', [DashboardController::class, 'kembalikan']);
@@ -44,6 +47,7 @@ Route::get('/dashboard/history/delete/{id}', [DashboardController::class, 'histo
 // PROFILE
 Route::get('/profile', [ProfileController::class, 'index']);
 Route::post('/profile/update', [ProfileController::class, 'update']);
+Route::get('/profile/{id}', [ProfileController::class, 'show_profile']);
 
 // CHAT
 Route::get('/chat/jokobot', [ChatbotController::class, 'index']);

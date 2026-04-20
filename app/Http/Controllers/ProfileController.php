@@ -63,4 +63,43 @@ class ProfileController extends Controller
 
         return back()->with('success_update', true);
     }
+    public function show_profile($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $totalPinjam = \DB::table('peminjaman')->where('id_user', $id)->count();
+        $totalFavorit = \DB::table('buku_favorit_user')->where('id_user', $id)->count();
+
+        $favGenre = \DB::table('peminjaman')
+            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
+            ->join('kategori', 'buku.id_kategori', '=', 'kategori.id')
+            ->where('peminjaman.id_user', $id)
+            ->select('kategori.nama', \DB::raw('count(*) as total'))
+            ->groupBy('kategori.nama')
+            ->orderByDesc('total')
+            ->first() ?: (object) ['nama' => 'Belum Ada', 'total' => 0];
+
+        $currentlyBorrowed = \App\Models\Peminjaman::with('buku.penulis')
+            ->where('id_user', $id)
+            ->whereNull('tanggal_kembali')
+            ->get();
+
+        $wishlist = \App\Models\Wishlist::with('buku.penulis')
+            ->where('id_user', $id)
+            ->orderByDesc('dibuat_pada')
+            ->take(4)
+            ->get();
+
+        $suggestedBooks = \App\Models\Buku::with('penulis')->inRandomOrder()->take(5)->get();
+
+        return view('check_profile', compact(
+            'user',
+            'totalPinjam',
+            'totalFavorit',
+            'favGenre',
+            'currentlyBorrowed',
+            'wishlist',
+            'suggestedBooks'
+        ));
+    }
 }

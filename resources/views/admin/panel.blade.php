@@ -137,19 +137,26 @@
                                             </td>
                                             <td class="px-6 py-4">
                                                 <span
-                                                    class="px-3 py-1 rounded-full text-[9px] font-black {{ $u->role == 1 ? 'bg-primary/20 text-primary border border-primary/20' : 'bg-slate-500/10 text-slate-400 border border-white/5' }}">
+                                                    class="px-3 py-1 rounded-full text-[9px] font-white {{ $u->role == 1 ? 'bg-primary/20 text-primary border border-primary/20' : 'bg-slate-500/10 text-slate-400 border border-white/5' }}">
                                                     {{ $u->role == 1 ? 'ADMIN' : 'MEMBER' }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <button onclick="openEditUserModal({{ json_encode($u) }})"
-                                                    class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
-                                                    <span class="material-symbols-outlined text-sm">edit</span>
-                                                </button>
-                                                <button onclick="openDeleteModal({{ json_encode($u) }})"
-                                                    class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
-                                                    <span class="material-symbols-outlined text-sm">delete</span>
-                                                </button>
+                                                @if(isset($u->email) && $u->email !== session('user.email'))
+                                                    <button onclick="openEditUserModal({{ json_encode($u) }})"
+                                                        class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
+                                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                                    </button>
+                                                    <button onclick="openDeleteModal({{ json_encode($u) }})"
+                                                        class="p-2 hover:bg-yellow-500/20 text-yellow-500 rounded-lg transition-colors">
+                                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                                    </button>
+                                                @else
+                                                    <span
+                                                        class="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                                                        DIRI SENDIRI
+                                                    </span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -561,7 +568,7 @@
                                         class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
                                         placeholder="Contoh: 100">
                                 </div>
-                            </div>  
+                            </div>
 
                             <div class="space-y-2">
                                 <label

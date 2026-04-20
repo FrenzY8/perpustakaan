@@ -83,6 +83,80 @@ class AdminController extends Controller
         $books = DB::table('buku')->get();
         $users = DB::table('users')->get();
 
+        $semuaPinjaman = Peminjaman::whereNull('tanggal_kembali')->get();
+
+        $dataDendaGrouped = $semuaPinjaman->map(function ($p) {
+            $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+            $hariIni = Carbon::now()->startOfDay();
+            $selisih = $jatuhTempo->diffInDays($hariIni, false);
+            $hariTelat = ($selisih > 0) ? (int) $selisih : 0;
+
+            $denda = 0;
+            if ($hariTelat > 0) {
+                $denda = 5000 + (($hariTelat - 1) * 2000);
+            }
+
+            return [
+                'tanggal' => $jatuhTempo->format('d M'),
+                'denda' => $denda
+            ];
+        })->where('denda', '>', 0)
+            ->groupBy('tanggal')
+            ->map(fn($group) => $group->sum('denda'))
+            ->take(7);
+
+        $userDendaUnik = $semuaPinjaman->map(function ($p) {
+            $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+            $hariIni = Carbon::now()->startOfDay();
+            $selisih = $jatuhTempo->diffInDays($hariIni, false);
+            $hariTelat = ($selisih > 0) ? (int) $selisih : 0;
+
+            $dendaKotor = ($hariTelat > 0) ? 5000 + (($hariTelat - 1) * 2000) : 0;
+            $dendaBersih = max(0, $dendaKotor - ($p->potongan_denda ?? 0));
+
+            return [
+                'nama' => $p->user->name ?? 'Anonim',
+                'foto_user' => $p->user->profile_photo,
+                'denda' => $dendaBersih
+            ];
+        })
+            ->groupBy('nama')
+            ->map(function ($group) {
+                $first = $group->first();
+
+                return [
+                    'nama' => $first['nama'],
+                    'foto_user' => $first['foto_user'],
+                    'total_denda' => $group->sum('denda')
+                ];
+            })
+            ->filter(fn($user) => $user['total_denda'] > 0)
+            ->sortByDesc('total_denda')
+            ->take(3);
+
+        $topThreeBooks = $semuaPinjaman->map(function ($p) {
+            $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+            $hariIni = Carbon::now()->startOfDay();
+            $selisih = $jatuhTempo->diffInDays($hariIni, false);
+            $hariTelat = ($selisih > 0) ? (int) $selisih : 0;
+
+            $dendaKotor = ($hariTelat > 0) ? 5000 + (($hariTelat - 1) * 2000) : 0;
+            $dendaBersih = max(0, $dendaKotor - ($p->potongan_denda ?? 0));
+
+            return [
+                'nama_peminjam' => $p->user->name ?? 'Anonim',
+                'foto_user' => $p->user->profile_photo,
+                'id_buku' => $p->buku->id,
+                'judul_buku' => $p->buku->judul ?? 'Buku Terhapus',
+                'gambar_sampul' => $p->buku->gambar_sampul,
+                'total_denda' => $dendaBersih,
+                'hari_telat' => $hariTelat
+            ];
+        })
+            ->filter(fn($item) => $item['total_denda'] > 0)
+            ->sortByDesc('total_denda')
+            ->take(5);
+
         return view('admin.charts', compact('user', 'stats', 'books', 'users'))
             ->with([
                 'ratingSeries' => json_encode($dataRating),
@@ -93,6 +167,10 @@ class AdminController extends Controller
                 'trendKembali' => json_encode($dataKembali),
                 'catLabels' => json_encode($categoryData->pluck('nama')),
                 'catSeries' => json_encode($categoryData->pluck('total')),
+                'dendaLabels' => json_encode($dataDendaGrouped->keys()),
+                'dendaSeries' => json_encode($dataDendaGrouped->values()),
+                'topThreeUsers' => $userDendaUnik,
+                'topThreeBooks' => $topThreeBooks,
             ]);
     }
     public function index_panel()
@@ -143,29 +221,7 @@ class AdminController extends Controller
             'ditolak' => DB::table('peminjaman')->where('status', 'ditolak')->count(),
         ];
 
-        $dendaUser = DB::table('peminjaman')
-            ->join('users', 'peminjaman.id_user', '=', 'users.id')
-            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id')
-            ->select(
-                'peminjaman.*',
-                'users.name as nama_member',
-                'users.email as email_member',
-                'buku.judul as judul_buku'
-            )
-            ->whereNull('peminjaman.tanggal_kembali')
-            ->where('peminjaman.tanggal_jatuh_tempo', '<', now())
-            ->get()
-            ->map(function ($p) {
-                $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
-                $hariIni = Carbon::now()->startOfDay();
-                $p->hari_telat = $jatuhTempo->diffInDays($hariIni, false);
-                $dendaAsli = 5000 + (($p->hari_telat - 1) * 2000);
-                $p->total_tagihan = max(0, $dendaAsli - ($p->potongan_denda ?? 0));
-
-                return $p;
-            });
-
-        return view('admin.panel', compact('user', 'books', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+        return view('admin.panel', compact('user', 'books', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
     }
     public function index_pinjaman(Request $request)
     {

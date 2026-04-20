@@ -40,6 +40,34 @@
             scrollbar-color: #233648 #101922;
         }
 
+        @keyframes marquee-auto {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .marquee-content {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: marquee-auto 10s linear infinite;
+        }
+
+        .marquee-container {
+            overflow: hidden;
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .group:hover .animate-marquee {
+            display: inline-block;
+            padding-left: 20px;
+            animation: marquee 10s linear infinite;
+        }
+
         .apexcharts-menu {
             color: #000000 !important;
             background: #ffffff !important;
@@ -176,6 +204,134 @@
                                 </span>
                                 <span class="font-bold text-blue-400">{{ $stats['dipinjam'] ?? 0 }} Buku</span>
                             </div>
+                        </div>
+                    </div>
+                    <div
+                        class="lg:col-span-3 glass-card rounded-3xl p-8 border border-white/5 relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-64 h-64 bg-red-500/5 blur-[100px] rounded-full -mr-20 -mt-20">
+                        </div>
+
+                        <div class="relative z-10 mb-8">
+                            <h3 class="text-3xl font-black tracking-tight text-white uppercase">
+                                CHART <span class="text-red-500">DENDA</span>
+                            </h3>
+                            <p class="text-slate-400">Akumulasi denda dari buku yang melewati jatuh tempo</p>
+                        </div>
+
+                        <div id="denda-chart" class="w-full"></div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 border border-white/5">
+                        <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">USER DENDA
+                            TERBANYAK
+                        </h3>
+
+                        <div class="space-y-4">
+                            @php $rank = 1; @endphp
+                            @forelse($topThreeUsers as $item)
+                                <div
+                                    class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 transition-all relative overflow-hidden group">
+
+                                    <div class="flex items-center gap-4 relative z-10">
+                                        <div class="relative shrink-0">
+                                            <img src="{{ $item['foto_user'] ? asset('storage/avatars/' . $item['foto_user']) : asset('images/default-avatar.png') }}"
+                                                class="size-12 rounded-full object-cover border-2 border-white/10 group-hover:border-red-500/50 transition-colors">
+                                            <div
+                                                class="absolute -top-1 -right-1 size-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] text-white font-black border-2 border-[#121212]">
+                                                {{ "#" . $rank++ }}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <p class="text-white font-bold">{{ $item['nama'] }}</p>
+                                            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-medium">
+                                                Total Penalty</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-right relative z-10">
+                                        <p class="text-red-500 font-black text-sm">
+                                            Rp {{ number_format($item['total_denda'], 0, ',', '.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-8 text-slate-500 italic text-sm">
+                                    Semua aman, tidak ada tunggakan.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 border border-white/5">
+                        <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">
+                            BUKU PALING BANYAK TELAT
+                        </h3>
+
+                        <div class="space-y-4">
+                            @php $rank = 1; @endphp
+                            @forelse($topThreeBooks as $item)
+                                <div
+                                    class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 transition-all relative overflow-hidden">
+                                    <div class="absolute -right-4 -top-4 size-16 bg-red-500/5 blur-2xl rounded-full"></div>
+
+                                    <div
+                                        class="flex items-center gap-4 relative z-10 w-full max-w-[200px] md:max-w-xs overflow-hidden">
+                                        <div class="relative shrink-0">
+                                            <img src="{{ $item['gambar_sampul'] }}" alt="Sampul"
+                                                class="size-12 rounded-lg object-cover border border-white/10 shadow-lg">
+
+                                            <div
+                                                class="absolute -top-1 -right-1 size-5 bg-amber-500 rounded-full flex items-center justify-center text-[10px] text-black font-black border-2 border-[#121212] z-20">
+                                                {{ "#" . $rank++ }}
+                                            </div>
+
+                                            <div
+                                                class="absolute -bottom-1 -right-1 size-6 rounded-full border-2 border-[#121212] overflow-hidden z-20">
+                                                <img src="{{ $item['foto_user'] ? asset('storage/avatars/' . $item['foto_user']) : asset('images/default-avatar.png') }}"
+                                                    class="w-full h-full object-cover">
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full overflow-hidden">
+                                            <div class="marquee-container w-full">
+                                                <div class="marquee-content">
+                                                    <a href="{{ url('/detail/' . ($item['id_buku'] ?? '#')) }}"
+                                                        class="hover:text-amber-500 transition-colors flex">
+                                                        <span
+                                                            class="text-white font-bold pr-10 hover:text-amber-500 transition-colors cursor-pointer">
+                                                            {{ $item['judul_buku'] }}
+                                                        </span>
+                                                        <span
+                                                            class="text-white font-bold pr-10 hover:text-amber-500 transition-colors cursor-pointer">
+                                                            {{ $item['judul_buku'] }}
+                                                        </span>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <p class="text-[10px] text-slate-400 mt-0.5">Peminjam:
+                                                <span
+                                                    class="text-amber-500 font-semibold">{{ $item['nama_peminjam'] }}</span>
+                                            </p>
+                                            <p class="text-[9px] text-red-400 mt-1 uppercase tracking-tighter">Terlambat
+                                                {{ $item['hari_telat'] }} Hari
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="text-right relative z-10 shrink-0 ml-4 pl-4 border-l border-white/5 bg-[#121212]/50">
+                                        <p class="text-red-500 font-black text-sm whitespace-nowrap">
+                                            Rp {{ number_format($item['total_denda'], 0, ',', '.') }}
+                                        </p>
+                                        <p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Penalty</p>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-8 text-slate-500 italic text-sm">
+                                    Semua aman, tidak ada buku yang nunggak.
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                     <div class="glass-card rounded-3xl p-6 border border-white/5">
@@ -381,6 +537,74 @@
         };
 
         new ApexCharts(document.querySelector("#rating-radar-chart"), ratingOptions).render();
+
+        const dendaOptions = {
+            series: [{
+                name: 'Estimasi Denda',
+                data: {!! $dendaSeries !!}
+            }],
+            chart: {
+                height: 380,
+                type: 'area',
+                toolbar: { show: false },
+                foreColor: '#94a3b8',
+                fontFamily: 'Inter, sans-serif',
+                dropShadow: {
+                    enabled: true,
+                    top: 10,
+                    left: 0,
+                    blur: 10,
+                    color: '#ef4444',
+                    opacity: 0.15
+                }
+            },
+            colors: ['#ef4444'],
+            dataLabels: { enabled: false },
+            stroke: {
+                curve: 'smooth',
+                width: 4
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.6,
+                    opacityTo: 0.05,
+                    stops: [0, 90, 100]
+                }
+            },
+            grid: {
+                borderColor: 'rgba(255,255,255,0.05)',
+                strokeDashArray: 4,
+                padding: { left: 20, right: 20 }
+            },
+            xaxis: {
+                categories: {!! $dendaLabels !!},
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: {
+                labels: {
+                    formatter: (val) => "Rp " + val.toLocaleString()
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                x: { show: true },
+                y: {
+                    formatter: (val) => "Rp " + val.toLocaleString()
+                }
+            },
+            markers: {
+                size: 5,
+                colors: ['#ef4444'],
+                strokeColors: '#101922',
+                strokeWidth: 3,
+                hover: { size: 7 }
+            }
+        };
+
+        new ApexCharts(document.querySelector("#denda-chart"), dendaOptions).render();
     </script>
 
 </html>
