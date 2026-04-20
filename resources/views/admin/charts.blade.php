@@ -160,11 +160,6 @@
                             <p class="text-xl font-black text-white">{{ $stats['dipinjam'] }}</p>
                         </div>
                         <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Tenggak
-                            </p>
-                            <p class="text-xl font-black text-white">{{ $stats['terlambat'] }}</p>
-                        </div>
-                        <div class="glass-card px-6 py-3 rounded-2xl text-center min-w-[100px]">
                             <p class="text-[10px] text-slate-500 font-bold uppercase text-white tracking-wider">Kembali
                             </p>
                             <p class="text-xl font-black text-white">{{ $stats['kembali'] }}</p>

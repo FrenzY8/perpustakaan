@@ -234,9 +234,9 @@ class AdminController extends Controller
 
         $books = DB::table('buku')->get();
 
-        $search = $request->input('search');
         $month = $request->input('month');
         $year = $request->input('year');
+        $status = $request->input('status');
 
         $peminjaman = DB::table('peminjaman')
             ->join('users', 'peminjaman.id_user', '=', 'users.id')
@@ -249,11 +249,12 @@ class AdminController extends Controller
                         ->orWhere('peminjaman.status', 'like', "%{$search}%");
                 });
             })
-            // Filter Bulan
+            ->when($status, function ($query, $status) {
+                return $query->where('peminjaman.status', $status);
+            })
             ->when($month, function ($query, $month) {
                 return $query->whereMonth('peminjaman.tanggal_pinjam', $month);
             })
-            // Filter Tahun
             ->when($year, function ($query, $year) {
                 return $query->whereYear('peminjaman.tanggal_pinjam', $year);
             })

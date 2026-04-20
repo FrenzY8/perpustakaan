@@ -352,14 +352,31 @@
                             </select>
 
                             <select name="year" onchange="this.form.submit()"
-                                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
+                                class="w-44 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
                                 <option value="" class="bg-[#101922]">Tahun</option>
-                                @for($y = date('Y'); $y >= 2020; $y--)
+                                @for($y = date('Y'); $y >= 2025; $y--)
                                     <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}
                                         class="bg-[#101922]">
                                         {{ $y }}
                                     </option>
                                 @endfor
+                            </select>
+
+                            <select name="status" onchange="this.form.submit()"
+                                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
+                                <option value="" class="bg-[#101922]">Status</option>
+                                <option value="dipinjam" class="bg-[#101922]" {{ request('status') == 'dipinjam' ? 'selected' : '' }}>
+                                    Dipinjam
+                                </option>
+                                <option value="dikembalikan" class="bg-[#101922]" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>
+                                    Dikembalikan
+                                </option>
+                                <option value="terlambat" class="bg-[#101922]" {{ request('status') == 'terlambat' ? 'selected' : '' }}>
+                                    Terlambat
+                                </option>
+                                <option value="menunggu" class="bg-[#101922]" {{ request('status') == 'menunggu' ? 'selected' : '' }}>
+                                    Menunggu
+                                </option>
                             </select>
 
                             <div class="relative group">
