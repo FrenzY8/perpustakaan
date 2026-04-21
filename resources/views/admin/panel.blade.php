@@ -419,12 +419,12 @@
                     </div>
                 </section>
 
-                <section id="table-kategori" class="space-y-4 mt-10">
+                <section id="table-tag" class="space-y-4 mt-10">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
-                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Tag (Belum Work)
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Tag
                         </h3>
-                        <button onclick="toggleModal('modal-add-TAG-SOON')"
+                        <button onclick="toggleModal('modal-add-tag')"
                             class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
                             + Add Tag
                         </button>
@@ -477,7 +477,6 @@
                                 </tbody>
                             </table>
 
-                            {{-- Bagian Pagination & Info --}}
                             <div class="px-6 py-4 bg-white/5 border-t border-white/5">
                                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                                     <p class="text-[11px] text-[#92adc9]">
@@ -906,6 +905,47 @@
                 </div>
             </div>
 
+
+            <div id="modal-add-tag" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-3xl font-bold italic tracking-tight">TAMBAH <span
+                                    class="text-primary">TAGAR</span></h3>
+                            <button onclick="toggleModal('modal-add-tag')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="/admin/tag/store" method="POST" class="space-y-6">
+                            @csrf
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                    Nama Tag
+                                </label>
+                                <input type="text" name="nama" required
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                    placeholder="Contoh: Fiksi, Sains, Teknologi...">
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-add-kategori')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                                    BATAL
+                                </button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
+                                    SIMPAN TAGAR
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div id="modal-edit-tag" class="fixed inset-0 z-50 hidden overflow-y-auto">
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
@@ -913,14 +953,14 @@
                     <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-3xl font-bold italic tracking-tight">EDIT <span
-                                    class="text-primary">TAG</span></h3>
+                                    class="text-primary">TAGAR</span></h3>
                             <button onclick="toggleModal('modal-edit-tag')"
                                 class="text-slate-400 hover:text-white transition-colors">
                                 <span class="material-symbols-outlined">close</span>
                             </button>
                         </div>
 
-                        <form action="" id="form-edit-tag" method="POST" class="space-y-6">
+                        <form action="a" id="form-edit-tag" method="POST" class="space-y-6">
                             @csrf
                             @method('PUT')
 
@@ -940,7 +980,7 @@
                                 </button>
                                 <button type="submit"
                                     class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
-                                    UPDATE TAG
+                                    UPDATE TAGAR
                                 </button>
                             </div>
                         </form>

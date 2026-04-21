@@ -341,7 +341,7 @@
                         <form action="/admin/peminjaman" method="GET"
                             class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                             <select name="month" onchange="this.form.submit()"
-                                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
+                                class="w-44 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
                                 <option value="" class="bg-[#101922]">Bulan</option>
                                 @foreach(range(1, 12) as $m)
                                     <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}
@@ -363,19 +363,13 @@
                             </select>
 
                             <select name="status" onchange="this.form.submit()"
-                                class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
+                                class="w-44 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
                                 <option value="" class="bg-[#101922]">Status</option>
                                 <option value="dipinjam" class="bg-[#101922]" {{ request('status') == 'dipinjam' ? 'selected' : '' }}>
                                     Dipinjam
                                 </option>
                                 <option value="dikembalikan" class="bg-[#101922]" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>
                                     Dikembalikan
-                                </option>
-                                <option value="terlambat" class="bg-[#101922]" {{ request('status') == 'terlambat' ? 'selected' : '' }}>
-                                    Terlambat
-                                </option>
-                                <option value="menunggu" class="bg-[#101922]" {{ request('status') == 'menunggu' ? 'selected' : '' }}>
-                                    Menunggu
                                 </option>
                             </select>
 

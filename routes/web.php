@@ -69,6 +69,8 @@ Route::post('/admin/peminjaman/kembali/{id}', [AdminController::class, 'kembali'
 Route::post('/admin/books/store', [AdminController::class, 'store_book']);
 Route::put('/admin/books/update', [AdminController::class, 'update_book']);
 Route::post('/admin/users/update-role', [AdminController::class, 'update_role']);
+Route::post('/admin/tag/store', [AdminController::class, 'addTag']);
+Route::put('/admin/tags/update/{id}', [AdminController::class, 'editTag']);
 Route::post('/admin/categories/store', [AdminController::class, 'addCategory']);
 Route::put('/admin/categories/update/{id}', [AdminController::class, 'editCategory']);
 Route::delete('/admin/categories/delete/{id}', [AdminController::class, 'deleteCategory']);

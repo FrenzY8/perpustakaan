@@ -319,6 +319,31 @@ class AdminController extends Controller
 
         return view('admin.peminjaman', compact('user', 'books', 'pendingLoans', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories'));
     }
+    public function addTag(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|unique:tag,nama|max:255',
+        ]);
+
+        Tag::create([
+            'nama' => $request->nama
+        ]);
+
+        return back()->with('success', 'Tagar berhasil ditambahkan!');
+    }
+    public function editTag(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|max:255|unique:tag,nama,' . $id,
+        ]);
+
+        $tag = Tag::findOrFail($id);
+        $tag->update([
+            'nama' => $request->nama
+        ]);
+
+        return back()->with('success', 'Tagar berhasil diperbarui!');
+    }
     public function addCategory(Request $request)
     {
         $request->validate([
