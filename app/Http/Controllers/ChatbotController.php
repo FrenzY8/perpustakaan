@@ -17,13 +17,33 @@ class ChatbotController extends Controller
         $this->debugMode = env('CHATBOT_DEBUG', true);
     }
 
+    public function getHistory()
+    {
+        $userId = session('user.id');
+        $messages = DB::table('ai_messages')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json($messages);
+    }
+
     public function index()
     {
         if (!session()->has('user')) {
             return redirect('/login');
         }
-        $user = DB::table('users')->where('id', session('user.id'))->first();
-        return view('chat.jokobot', compact('user'));
+
+        $userId = session('user.id');
+
+        $history = DB::table('ai_messages')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $user = DB::table('users')->where('id', $userId)->first();
+
+        return view('chat.jokobot', compact('user', 'history'));
     }
 
     public function chat(Request $request)
@@ -32,6 +52,17 @@ class ChatbotController extends Controller
         $userQuery = trim($request->input('message'));
         $apiKey = env('NVIDIA_API_KEY');
         $history = session()->get('chat_history', []);
+        $userId = session('user.id');
+
+        $historyForAi = DB::table('ai_messages')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->reverse()
+            ->map(function ($msg) {
+                return ['role' => $msg->role, 'content' => $msg->content];
+            })->toArray();
 
         $debugInfo = [
             'enabled' => $this->debugMode,
@@ -50,6 +81,7 @@ class ChatbotController extends Controller
 
         if ($intent === 'CASUAL') {
             $answer = $this->askNvidia($userQuery, $apiKey, false, $history);
+            $this->saveHistoryToDb($userQuery, $answer);
             $this->saveHistory($userQuery, $answer);
             return $this->formatResponse($answer, null, $debugInfo);
         }
@@ -70,7 +102,7 @@ class ChatbotController extends Controller
             Rules:
             - JOIN buku with penulis and kategori.
             - EXTRACT keyword from: '$userQuery'. 
-            - If user asks for general advice/recommendation without specific title, ORDER BY rating DESC LIMIT 5.
+            - If user asks for general advice/recommendation without specific title, ORDER BY rating DESC LIMIT 10.
             - If user mentions title/author/topic, use WHERE b.judul LIKE '%keyword%' OR p.nama LIKE '%keyword%'.
             - SELECT: b.id, b.judul, b.ringkasan, p.nama as penulis, k.nama as kategori.
             - Return ONLY raw SQL code.
@@ -94,6 +126,7 @@ class ChatbotController extends Controller
             ";
 
             $answer = $this->askNvidia($promptFinal, $apiKey, false, $history);
+            $this->saveHistoryToDb($userQuery, $answer);
             $this->saveHistory($userQuery, $answer);
 
             return $this->formatResponse($answer, $sql, $debugInfo);
@@ -149,6 +182,29 @@ class ChatbotController extends Controller
         if (count($history) > 10)
             $history = array_slice($history, -10);
         session(['chat_history' => $history]);
+    }
+
+    private function saveHistoryToDb($query, $answer)
+    {
+        $userId = session('user.id');
+
+        // Simpan pesan user
+        DB::table('ai_messages')->insert([
+            'user_id' => $userId,
+            'role' => 'user',
+            'content' => $query,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Simpan jawaban bot
+        DB::table('ai_messages')->insert([
+            'user_id' => $userId,
+            'role' => 'assistant',
+            'content' => $answer,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 
     private function getWhitelistedSchema()

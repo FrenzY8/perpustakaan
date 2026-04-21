@@ -137,21 +137,19 @@
 
                 <div id="chat-container"
                     class="flex-1 overflow-y-auto space-y-6 pb-6 pr-2 transition-all duration-500 scrollbar-hide">
-                    <div id="welcome-text" class="text-center my-10">
-                        <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4">
-                            Tanya <span class="text-primary">Jokobot AI</span>
-                        </h1>
-                        <p class="pb-4 text-slate-400 text-sm md:text-base">Eksplorasi koleksi buku dan data perpustakaan
-                            lewat percakapan.</p>
 
-                        <button onclick="window.location.href='/chat'"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold uppercase tracking-widest hover:bg-primary hover:border-primary transition-all">
+                    {{-- 1. Kondisi Welcome Text: Hanya muncul jika history kosong --}}
+                    @if($history->isEmpty())
+                        <div id="welcome-text" class="text-center my-10">
+                            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4">
+                                Tanya <span class="text-primary">Jokobot AI</span>
+                            </h1>
+                            <p class="pb-4 text-slate-400 text-sm md:text-base">Eksplorasi koleksi buku lewat percakapan.
+                            </p>
+                        </div>
+                    @endif
 
-                            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-                            Kembali ke Chat
-                        </button>
-                    </div>      
-
+                    {{-- 2. Pesan Sambutan Default (Selalu muncul di paling atas jika mau) --}}
                     <div class="flex gap-4 items-start animate-fade-in">
                         <div
                             class="size-10 rounded-xl bg-primary/20 flex-none flex items-center justify-center text-primary border border-primary/20">
@@ -164,6 +162,28 @@
                             </p>
                         </div>
                     </div>
+
+                    @foreach($history as $msg)
+                        @php $isBot = ($msg->role === 'assistant'); @endphp
+                        <div class="flex gap-4 items-start animate-fade-in {{ !$isBot ? 'flex-row-reverse' : '' }} mb-4">
+                            <div
+                                class="size-10 rounded-xl {{ $isBot ? 'bg-primary/20 text-primary' : 'border border-white/10' }} flex-none flex items-center justify-center overflow-hidden">
+                                @if($isBot)
+                                    <span class="material-symbols-outlined">smart_toy</span>
+                                @else
+                                    <img src="{{ $displayPhoto }}" class="size-full object-cover rounded-xl" alt="Profile">
+                                @endif
+                            </div>
+                            <div
+                                class="glass p-4 rounded-2xl {{ $isBot ? 'rounded-tl-none' : 'rounded-tr-none bg-primary/10' }} max-w-[80%] border-white/5 shadow-xl">
+                                {{-- Tambahkan class 'markdown-content' agar bisa ditangkap JS --}}
+                                <div
+                                    class="prose prose-sm prose-invert max-w-none text-slate-200 {{ $isBot ? 'markdown-content' : '' }}">
+                                    {{ $msg->content }}
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
                 <div class="w-full bg-background-dark/50 pt-4 pb-6">
@@ -180,7 +200,7 @@
                     </form>
                     <p
                         class="text-[10px] text-center text-slate-500 mt-3 uppercase tracking-widest font-bold opacity-50">
-                        Powered by Gemini AI • Jokopus Database Engine
+                        AI ASSISTEN JOKOPUS
                     </p>
                 </div>
             </div>
@@ -202,15 +222,9 @@
             sendBtn.disabled = true;
             sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
             userInput.placeholder = "Sabar ya, Jokopus sedang berpikir...";
-
-            // Sembunyikan welcome text saat chat dimulai
             if (welcomeText) welcomeText.classList.add('hidden');
-
-            // Append pesan user
             appendMessage('user', message);
             userInput.value = '';
-
-            // Tampilkan loading state (opsional)
             const loadingId = 'loading-' + Date.now();
             appendMessage('bot', 'Thinking...', loadingId);
 
@@ -226,7 +240,6 @@
 
                 const data = await response.json();
 
-                // Hapus loading dan ganti dengan jawaban asli
                 document.getElementById(loadingId).parentElement.parentElement.remove();
                 appendMessage('bot', data.answer);
 
@@ -251,30 +264,35 @@
                 : `<img src="${userProfilePhoto}" class="size-full object-cover rounded-xl" alt="Profile">`;
 
             const msgHtml = `
-    <div class="flex gap-4 items-start animate-fade-in ${!isBot ? 'flex-row-reverse' : ''} mb-4">
-        <div class="size-10 rounded-xl ${isBot ? 'bg-primary/20 text-primary' : 'border border-white/10'} flex-none flex items-center justify-center overflow-hidden">
-            ${avatarHtml}
-        </div>
-        <div class="glass p-4 rounded-2xl ${isBot ? 'rounded-tl-none' : 'rounded-tr-none bg-primary/10'} max-w-[80%] border-white/5 shadow-xl">
-            <div class="prose prose-sm prose-invert max-w-none text-slate-200" ${id ? `id="${id}"` : ''}>
-                ${formattedText}
-            </div>
-        </div>
-    </div>
-    `;
+            <div class="flex gap-4 items-start animate-fade-in ${!isBot ? 'flex-row-reverse' : ''} mb-4">
+                <div class="size-10 rounded-xl ${isBot ? 'bg-primary/20 text-primary' : 'border border-white/10'} flex-none flex items-center justify-center overflow-hidden">
+                    ${avatarHtml}
+                </div>
+                <div class="glass p-4 rounded-2xl ${isBot ? 'rounded-tl-none' : 'rounded-tr-none bg-primary/10'} max-w-[80%] border-white/5 shadow-xl">
+                    <div class="prose prose-sm prose-invert max-w-none text-slate-200" ${id ? `id="${id}"` : ''}>
+                        ${formattedText}
+                    </div>
+                </div>
+            </div>`;
 
             chatContainer.insertAdjacentHTML('beforeend', msgHtml);
-
-            // Scroll otomatis ke paling bawah pada container chat
             setTimeout(() => {
                 chatContainer.scrollTo({
                     top: chatContainer.scrollHeight,
                     behavior: 'smooth'
                 });
-            }, 100); // Delay kecil untuk memastikan DOM sudah selesai merender konten
+            }, 100);
         }
-    </script>
-    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.markdown-content').forEach(el => {
+                el.innerHTML = marked.parse(el.textContent.trim());
+            });
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'instant'
+            });
+        });
+
         window.userProfilePhoto = "{{ $displayPhoto }}";
     </script>
     <style>
@@ -303,10 +321,8 @@
             animation: fadeIn 0.4s ease forwards;
         }
 
-        /* Styling untuk hasil render Markdown */
         .prose strong {
             color: #137fec;
-            /* Warna primary untuk teks tebal */
             font-weight: 700;
         }
 

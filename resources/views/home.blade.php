@@ -254,7 +254,7 @@
             <h2 class="text-2xl font-bold tracking-tight md:text-3xl text-white">
               Featured Users
             </h2>
-            <button onclick="window.location.href='/user'" class="text-xl font-semibold text-primary hover:underline">
+            <button onclick="window.location.href='/user-list'" class="text-xl font-semibold text-primary hover:underline">
               View All
             </button>
           </div>

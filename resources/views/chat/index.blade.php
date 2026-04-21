@@ -227,6 +227,14 @@
                                         {{ $u->role == 1 ? 'Admin' : 'Member' }}
                                     </p>
                                 </div>
+                                @if($u->unread_count > 0)
+                                    <div
+                                        class="notif-badge flex-none min-w-[20px] h-5 px-1.5 bg-primary rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(19,127,236,0.5)] animate-bounce-short border border-white/20">
+                                        <span class="text-[9px] font-black text-white whitespace-nowrap">
+                                            {{ $u->unread_count > 99 ? '99+' : $u->unread_count }} PESAN
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -459,6 +467,34 @@
                 }
             }
         });
+        async function updateSidebarNotif() {
+            try {
+                const response = await fetch('/chat/users/json');
+                const users = await response.json();
+
+                users.forEach(u => {
+                    const userCard = document.querySelector(`.user-card[data-user-id="${u.id}"]`);
+                    if (userCard) {
+                        let badge = userCard.querySelector('.notif-badge');
+
+                        if (u.unread_count > 0) {
+                            if (!badge) {
+                                badge = document.createElement('div');
+                                badge.className = "notif-badge flex-none size-5 bg-primary rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(19,127,236,0.4)] animate-bounce-short";
+                                userCard.appendChild(badge);
+                            }
+                            badge.innerHTML = `<span class="text-[10px] font-black text-white">${u.unread_count}</span>`;
+                        } else if (badge) {
+                            badge.remove();
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Sidebar update error:", e);
+            }
+        }
+
+        setInterval(updateSidebarNotif, 2000);
     </script>
 </body>
 
