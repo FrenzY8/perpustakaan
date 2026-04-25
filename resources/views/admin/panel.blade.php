@@ -315,6 +315,65 @@
                     </div>
                 </section>
 
+                <section id="table-penulis" class="space-y-4 mt-10">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Penulis
+                        </h3>
+                        <button onclick="toggleModal('modal-add-penulis')"
+                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                            + Add Penulis
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
+                                        <th class="px-6 py-5">ID</th>
+                                        <th class="px-6 py-5">Nama Penulis</th>
+                                        <th class="px-6 py-5 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @foreach($authors as $author)
+                                        <tr class="hover:bg-white/[0.02] transition-colors group">
+                                            <td class="px-6 py-4 text-sm text-[#92adc9]">#{{ $author->id }}</td>
+                                            <td class="px-6 py-4">
+                                                <span
+                                                    class="font-bold text-sm text-white group-hover:text-primary transition-colors">
+                                                    {{ $author->nama }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex justify-center gap-2">
+                                                    <button onclick="openEditAuthorModal({{ json_encode($author) }})"
+                                                        class="p-2 hover:bg-primary/20 text-primary rounded-lg transition-colors">
+                                                        <span class="material-symbols-outlined text-base">edit</span>
+                                                    </button>
+                                                    <button
+                                                        onclick="if(confirm('Hapus penulis ini?')) { document.getElementById('delete-author-{{ $author->id }}').submit(); }"
+                                                        class="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl transition-all">
+                                                        <span class="material-symbols-outlined text-base">delete</span>
+                                                    </button>
+                                                    <form id="delete-author-{{ $author->id }}"
+                                                        action="/admin/authors/delete/{{ $author->id }}" method="POST"
+                                                        style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
                 <section id="table-kategori" class="space-y-4 mt-10">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
@@ -522,86 +581,6 @@
                 </section>
             </main>
 
-            <div id="modal-edit-book" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/60 backdrop-blur-sm">
-                <div class="min-h-screen flex items-center justify-center p-4 py-20">
-                    <div class="glass-card w-full max-w-2xl rounded-3xl p-8 shadow-2xl border border-white/10 relative">
-                        <h3 class="text-4xl font-bold italic mb-6">EDIT <span class="text-primary">BUKU</span></h3>
-
-                        <form action="/admin/books/update" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="id" id="edit-id">
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Judul
-                                        Buku</label>
-                                    <input type="text" name="judul" id="edit-judul" required
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Penulis</label>
-                                    <select name="id_penulis" id="edit-penulis" required
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
-                                        @foreach($authors as $author)
-                                            <option value="{{ $author->id }}">{{ $author->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500 ml-1">Kategori</label>
-                                    <select name="id_kategori" id="edit-kategori" required
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
-                                        @foreach($categories as $t)
-                                            <option value="{{ $t->id }}">{{ strtoupper($t->nama) }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500 ml-1">HARGA</label>
-                                    <input type="text" name="price" id="edit-harga" required
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
-                                </div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500">Link Gambar
-                                        (URL)</label>
-                                    <input type="text" name="gambar_sampul_link" id="edit-sampul"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none"
-                                        placeholder="https://example.com/image.jpg">
-                                </div>
-
-                                <div class="relative py-2">
-                                    <div class="absolute inset-0 flex items-center"><span
-                                            class="w-full border-t border-white/5"></span></div>
-                                    <div class="relative flex justify-center text-[9px] uppercase font-bold">
-                                        <span class="bg-[#1a2530] px-2 text-slate-500">Atau Upload</span>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <input type="file" name="gambar_sampul_file" accept="image/*"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-primary file:text-white">
-                                </div>
-                            </div>
-
-                            <div class="mt-8 flex justify-end gap-3">
-                                <button type="button" onclick="toggleModal('modal-edit-book')"
-                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
-                                <button type="submit"
-                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
-                                    SIMPAN PERUBAHAN
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
             <div id="modal-add-book" class="fixed inset-0 z-50 hidden overflow-y-auto">
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
@@ -703,6 +682,37 @@
                                 </div>
                             </div>
 
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1 flex justify-between items-center">
+                                    <span>Pilih Tag (Min 5, Max 10)</span>
+                                    <span id="tag-count" class="text-primary font-bold text-[12px]">0 Terpilih</span>
+                                </label>
+
+                                <div class="relative mb-2">
+                                    <span
+                                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+                                    <input type="text" id="search-tag-input"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs focus:border-primary focus:ring-0 text-white"
+                                        placeholder="Ketik untuk mencari tag...">
+                                </div>
+
+                                <div id="tag-scroll-box"
+                                    class="grid grid-cols-2 md:grid-cols-3 gap-2 p-4 bg-white/5 border border-white/10 rounded-xl max-h-52 overflow-y-auto custom-scrollbar">
+                                    @foreach($tags1 as $tag)
+                                        <label
+                                            class="tag-search-item flex items-center space-x-2 text-xs text-slate-300 cursor-pointer hover:text-white transition-all p-1 rounded-md hover:bg-white/5">
+                                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                                class="tag-checkbox-input rounded border-white/10 bg-white/5 text-primary focus:ring-primary">
+                                            <span class="tag-display-name">{{ $tag->nama }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+
+                                <p id="tag-error-msg" class="text-[10px] text-red-500 hidden mt-1 italic">*Wajib pilih
+                                    5-10 tag agar data valid.</p>
+                            </div>
+
                             <div class="mt-8 flex justify-end gap-3">
                                 <button type="button" onclick="toggleModal('modal-add-book')"
                                     class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
@@ -715,6 +725,122 @@
                 </div>
             </div>
 
+            <div id="modal-edit-book" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleModal('modal-edit-book')"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div
+                        class="glass-card w-full max-w-2xl rounded-3xl p-8 shadow-2xl border border-white/10 relative z-10">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-4xl font-bold italic tracking-tight uppercase">EDIT <span
+                                    class="text-primary">BUKU</span></h3>
+                            <button type="button" onclick="toggleModal('modal-edit-book')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="/admin/books/update" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            <input type="hidden" name="id">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="space-y-2 md:col-span-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Judul
+                                        Buku</label>
+                                    <input type="text" name="judul" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Penulis</label>
+                                    <select name="id_penulis"
+                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                        @foreach($authors as $author)
+                                            <option value="{{ $author->id }}">{{ $author->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kategori</label>
+                                    <select name="id_kategori"
+                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                        @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Harga</label>
+                                    <input type="text" name="price"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Jumlah
+                                        Halaman</label>
+                                    <input type="text" name="halaman"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 mt-5">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Ringkasan</label>
+                                <textarea name="ringkasan" rows="3"
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"></textarea>
+                            </div>
+
+                            <div class="space-y-4 mt-5">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black uppercase text-slate-500">Link Gambar
+                                        (URL)</label>
+                                    <input type="text" name="gambar_sampul_link"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
+                                </div>
+                                <div class="space-y-2">
+                                    <input type="file" name="gambar_sampul_file" accept="image/*"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-primary file:text-white">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 mt-5">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Pilih
+                                    Tag</label>
+                                <div
+                                    class="grid grid-cols-2 md:grid-cols-3 gap-2 p-4 bg-white/5 border border-white/10 rounded-xl max-h-40 overflow-y-auto custom-scrollbar">
+                                    @foreach($tags1 as $tag)
+                                        <label
+                                            class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer p-1 rounded-md hover:bg-white/5">
+                                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                                class="tag-checkbox-input rounded border-white/10 bg-white/5 text-primary focus:ring-primary">
+                                            <span>{{ $tag->nama }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-edit-book')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all uppercase">UPDATE
+                                    BUKU</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div id="modal-add-user" class="fixed inset-0 z-50 hidden overflow-y-auto">
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
@@ -905,6 +1031,45 @@
                 </div>
             </div>
 
+            <div id="modal-add-penulis" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-4xl font-bold italic tracking-tight uppercase">TAMBAH <span
+                                    class="text-primary">PENULIS</span></h3>
+                            <button onclick="toggleModal('modal-add-penulis')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="/admin/authors/store" method="POST" class="space-y-5">
+                            @csrf
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Nama
+                                        Lengkap Penulis</label>
+                                    <input type="text" name="nama" required
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
+                                        placeholder="Contoh: Tere Liye">
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-add-penulis')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary/80 text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
+                                    SIMPAN PENULIS
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
             <div id="modal-add-tag" class="fixed inset-0 z-50 hidden overflow-y-auto">
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
@@ -932,7 +1097,7 @@
                             </div>
 
                             <div class="mt-8 flex justify-end gap-3">
-                                <button type="button" onclick="toggleModal('modal-add-kategori')"
+                                <button type="button" onclick="toggleModal('modal-add-tag')"
                                     class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">
                                     BATAL
                                 </button>
@@ -1132,79 +1297,6 @@
     </div>
 
     <script>
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        function openEditKategoriModal(category) {
-            const modal = document.getElementById('modal-edit-kategori');
-            const form = modal.querySelector('form');
-
-            form.action = `/admin/categories/update/${category.id}`;
-            form.querySelector('input[name="nama"]').value = category.nama;
-
-            toggleModal('modal-edit-kategori');
-        }
-
-        function openEditTagModal(tag) {
-            const form = document.getElementById('form-edit-tag');
-            form.action = `/admin/tags/update/${tag.id}`;
-            document.getElementById('edit-nama-tag').value = tag.nama;
-            toggleModal('modal-edit-tag');
-        }
-
-        window.onclick = function (event) {
-            const modal = document.getElementById('modal-add-book');
-            if (event.target == modal) {
-                toggleModal('modal-add-book');
-            }
-        }
-
-        function openPaymentModal(data) {
-            const modal = document.getElementById('paymentModal');
-            const form = document.getElementById('paymentForm');
-
-            document.getElementById('modalMemberName').innerText = data.name;
-            document.getElementById('modalBookTitle').innerText = `"${data.buku}"`;
-            document.getElementById('modalCurrentDenda').innerText = `Rp ${data.denda.toLocaleString('id-ID')}`;
-
-            form.action = `/admin/denda/potong/${data.id}`;
-
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Stop scroll
-        }
-
-        function closePaymentModal() {
-            const modal = document.getElementById('paymentModal');
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Enable scroll
-        }
-
-        window.onclick = function (event) {
-            const modal = document.getElementById('paymentModal');
-            if (event.target == modal.querySelector('.fixed.inset-0')) {
-                closePaymentModal();
-            }
-        }
-
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }
-        }
-
         function toggleModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -1212,37 +1304,21 @@
             }
         }
 
-        window.onclick = function (event) {
-            if (event.target.classList.contains('fixed') && event.target.id.includes('modal')) {
-                event.target.classList.add('hidden');
-            }
-        }
-
-        function openDeleteModal(user) {
-            const modal = document.getElementById('deleteUserModal');
-            const form = document.getElementById('deleteUserForm');
-            const nameSpan = document.getElementById('deleteUserName');
-
-            form.action = `/admin/users/${user.id}`;
-            nameSpan.innerText = user.name;
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeDeleteModal() {
-            const modal = document.getElementById('deleteUserModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
         function openEditModal(book) {
-            document.getElementById('edit-id').value = book.id;
-            document.getElementById('edit-judul').value = book.judul;
-            document.getElementById('edit-penulis').value = book.id_penulis;
-            document.getElementById('edit-kategori').value = book.id_kategori;
-            document.getElementById('edit-harga').value = book.price;
-            document.getElementById('edit-sampul').value = book.gambar_sampul;
+            const modal = document.getElementById('modal-edit-book');
+            const form = modal.querySelector('form');
+
+            form.action = '/admin/books/update';
+
+            modal.querySelector('[name="id"]').value = book.id;
+            modal.querySelector('[name="judul"]').value = book.judul || '';
+            modal.querySelector('[name="id_penulis"]').value = book.id_penulis || '';
+            modal.querySelector('[name="id_kategori"]').value = book.id_kategori || '';
+            modal.querySelector('[name="price"]').value = book.price || '';
+            modal.querySelector('[name="halaman"]').value = book.jumlah_halaman || '';
+            modal.querySelector('[name="ringkasan"]').value = book.ringkasan || '';
+            modal.querySelector('[name="gambar_sampul_link"]').value = book.gambar_sampul || '';
+
             toggleModal('modal-edit-book');
         }
 
@@ -1250,9 +1326,35 @@
             document.getElementById('edit-user-id').value = user.id;
             document.getElementById('edit-user-nama').value = user.name;
             document.getElementById('edit-user-role').value = user.role;
-
             toggleModal('modal-edit-user');
         }
+
+        function openDeleteModal(user) {
+            const form = document.getElementById('deleteUserForm');
+            form.action = `/admin/users/${user.id}`;
+            document.getElementById('deleteUserName').innerText = user.name;
+            toggleModal('deleteUserModal');
+        }
+
+        window.onclick = function (event) {
+            if (event.target.classList.contains('fixed') && event.target.id.includes('modal')) {
+                const id = event.target.id;
+                toggleModal(id);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-tag-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const term = this.value.toLowerCase();
+                    document.querySelectorAll('.tag-search-item').forEach(item => {
+                        const name = item.querySelector('.tag-display-name').textContent.toLowerCase();
+                        item.style.display = name.includes(term) ? 'flex' : 'none';
+                    });
+                });
+            }
+        });
     </script>
 </body>
 

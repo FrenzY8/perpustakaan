@@ -207,18 +207,6 @@ class ChatbotController extends Controller
         ]);
     }
 
-    private function getWhitelistedSchema()
-    {
-        $schemaText = "";
-        foreach ($this->whitelistTables as $table) {
-            if (Schema::hasTable($table)) {
-                $columns = Schema::getColumnListing($table);
-                $schemaText .= "$table (" . implode(', ', $columns) . "); ";
-            }
-        }
-        return $schemaText;
-    }
-
     private function formatResponse($answer, $sql = null, $debugInfo = [])
     {
         return response()->json([

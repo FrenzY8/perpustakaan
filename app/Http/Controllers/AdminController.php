@@ -204,6 +204,8 @@ class AdminController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(10);
 
+        $tags1 = Tag::orderBy('nama', 'asc')->get();
+
         $searchUser = request('search_user');
         $users = User::when($searchUser, function ($query, $search) {
             return $query->where('name', 'like', "%{$search}%")
@@ -218,7 +220,7 @@ class AdminController extends Controller
             ->latest('peminjaman.dibuat_pada')
             ->get();
 
-        $authors = DB::table('penulis')->orderBy('nama', 'asc')->get();
+        $authors = DB::table('penulis')->orderBy('id', 'desc')->get();
         $stats = [
             'total' => DB::table('peminjaman')->count(),
             'dipinjam' => DB::table('peminjaman')->where('status', 'dipinjam')->count(),
@@ -228,7 +230,7 @@ class AdminController extends Controller
             'ditolak' => DB::table('peminjaman')->where('status', 'ditolak')->count(),
         ];
 
-        return view('admin.panel', compact('user', 'books', 'tags', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+        return view('admin.panel', compact('user', 'tags1', 'books', 'tags', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
     }
     public function index_pinjaman(Request $request)
     {
@@ -565,27 +567,53 @@ class AdminController extends Controller
 
         return back()->with('success', 'Buku telah berhasil dikembalikan!');
     }
+    public function store_author(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+        ]);
+
+        \App\Models\Penulis::create([
+            'nama' => $request->nama
+        ]);
+
+        return redirect()->back()->with('success', 'Penulis baru berhasil ditambahkan!');
+    }
+
+    public function delete_author($id)
+    {
+        $penulis = \App\Models\Penulis::findOrFail($id);
+
+        if ($penulis->buku()->count() > 0) {
+            return redirect()->back()->with('error', 'Gagal hapus! Penulis masih memiliki buku terdaftar.');
+        }
+
+        $penulis->delete();
+
+        return redirect()->back()->with('success', 'Penulis berhasil dihapus!');
+    }
     public function store_book(Request $request)
     {
         $request->validate([
             'judul' => 'required|string|max:255',
             'id_penulis' => 'required',
             'id_kategori' => 'required',
-            'gambar_sampul' => 'nullable|url',
+            'tags' => 'nullable|array|min:5|max:10',
+            'gambar_sampul_link' => 'nullable|url',
+            'gambar_sampul_file' => 'nullable|image|max:2048',
         ]);
 
         $finalPath = '';
-
         if ($request->hasFile('gambar_sampul_file')) {
             $path = $request->file('gambar_sampul_file')->store('sampul', 'public');
-            $finalPath = "http://127.0.0.1:8000/storage/" . $path;
+            $finalPath = asset('storage/' . $path);
         } elseif ($request->filled('gambar_sampul_link')) {
             $finalPath = $request->gambar_sampul_link;
         }
 
         $cleanPrice = preg_replace('/[^0-9]/', '', $request->price);
 
-        DB::table('buku')->insert([
+        $buku = Buku::create([
             'judul' => $request->judul,
             'id_penulis' => $request->id_penulis,
             'id_kategori' => $request->id_kategori,
@@ -597,54 +625,65 @@ class AdminController extends Controller
             'gambar_sampul' => $finalPath,
             'penerbit' => 'Jokopus Publishing',
             'tanggal_terbit' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        $userIds = DB::table('users')->pluck('id');
+        if ($request->has('tags')) {
+            $buku->tags()->sync($request->tags);
+        }
 
-        $notifications = [];
-        foreach ($userIds as $userId) {
-            $notifications[] = [
+        $userIds = User::pluck('id');
+        $notifications = $userIds->map(function ($userId) use ($request) {
+            return [
                 'user_id' => $userId,
                 'title' => 'Koleksi Buku Baru!',
-                'message' => "Buku baru <b>{$request->judul}</b> sekarang sudah tersedia. Yuk, jadi yang pertama meminjamnya!",
+                'message' => "Buku baru <b>{$request->judul}</b> sekarang tersedia. Yuk, cek sekarang!",
                 'link' => '/buku',
                 'icon' => 'library_add',
                 'is_read' => 0,
                 'created_at' => now(),
             ];
-        }
+        })->toArray();
 
         if (!empty($notifications)) {
             DB::table('notifications')->insert($notifications);
         }
 
-        return redirect('/admin/panel')->with('success', 'Buku baru berhasil dipajang!');
+        return redirect('/admin/panel')->with('success', 'Buku baru dan tag berhasil dipajang!');
     }
     public function update_book(Request $request)
     {
+        $bookId = $request->id;
         $cleanPrice = preg_replace('/[^0-9]/', '', $request->price);
+
+        DB::beginTransaction();
         try {
-            $updateData = [
+            DB::table('buku')->where('id', $bookId)->update([
                 'judul' => $request->judul,
                 'id_penulis' => $request->id_penulis,
                 'id_kategori' => $request->id_kategori,
                 'price' => $cleanPrice,
+                'jumlah_halaman' => $request->halaman,
+                'ringkasan' => $request->ringkasan,
                 'updated_at' => now(),
-            ];
+            ]);
 
-            if ($request->hasFile('gambar_sampul_file')) {
-                $path = $request->file('gambar_sampul_file')->store('sampul', 'public');
-                $updateData['gambar_sampul'] = "http://127.0.0.1:8000/storage/" . $path;
-            } else {
-                $updateData['gambar_sampul'] = $request->gambar_sampul_link;
+            DB::table('buku_tag')->where('id_buku', $bookId)->delete();
+            if ($request->has('tags') && is_array($request->tags)) {
+                $tagsData = [];
+                foreach ($request->tags as $tagId) {
+                    $tagsData[] = [
+                        'id_buku' => $bookId,
+                        'id_tag' => $tagId,
+                    ];
+                }
+                DB::table('buku_tag')->insert($tagsData);
             }
 
-            DB::table('buku')->where('id', $request->id)->update($updateData);
+            DB::commit();
+            return redirect('/admin/panel')->with('success', 'Buku berhasil diperbarui!');
 
-            return redirect('/admin/panel')->with('success', 'Buku berhasil diupdate!');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
