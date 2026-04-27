@@ -171,7 +171,7 @@
                       Jokopus
                     @endif
                   </h1>
-                  <p class="text-base font-normal text-white/80 md:text-lg leading-relaxed">
+                  <p class="text-base font-normal tex t-white/80 md:text-lg leading-relaxed">
                     Mau baca buku apa hari ini? Kita punya
                     <span class="text font-bold">{{ $totalBuku }}</span> Buku,
                     <span class="text font-bold">{{ $totalTag }}</span> Tagar,
