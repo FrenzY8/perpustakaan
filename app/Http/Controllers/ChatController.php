@@ -12,7 +12,8 @@ class ChatController extends Controller
     public function index()
     {
         $myId = session('user.id');
-        if (!$myId) return redirect('/login');
+        if (!$myId)
+            return redirect('/login');
 
         $users = User::where('id', '!=', $myId)
             ->get()
@@ -44,22 +45,30 @@ class ChatController extends Controller
                     ->where('receiver_id', $senderId);
             });
         })
-        ->orderBy('created_at', 'asc')
-        ->get();
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return response()->json($messages);
     }
 
     public function sendMessage(Request $request)
     {
-        $message = Message::create([
-            'sender_id' => session('user.id'),
-            'receiver_id' => $request->receiver_id,
-            'message' => $request->message,
-            'is_read' => 0 // Pastikan default 0
-        ]);
+        $msg = new Message();
+        $msg->sender_id = session('user.id');
+        $msg->receiver_id = $request->receiver_id;
+        $msg->message = $request->message ?? '';
 
-        return response()->json(['status' => 'success', 'data' => $message]);
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/attachments', $filename);
+
+            $msg->attachment = $filename;
+            $msg->attachment_type = $file->getMimeType();
+        }
+
+        $msg->save();
+        return response()->json(['status' => 'success']);
     }
 
     public function getUsersJson()

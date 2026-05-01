@@ -194,7 +194,8 @@
                                         {{ session('user.role') == 1 ? 'Admin' : 'Member' }}
                                     </p>
                                     <p class="text-xs font-bold text-white truncate max-w-[100px]">
-                                        {{ session('user.name') }}</p>
+                                        {{ session('user.name') }}
+                                    </p>
                                 </div>
                                 <div onclick="window.location.href='/dashboard'"
                                     class="h-10 w-10 rounded-xl border-2 border-white/10 bg-center bg-cover hover:border-primary hover:scale-105 transition-all cursor-pointer shadow-lg"
@@ -217,9 +218,20 @@
             <div class="w-full max-w-[1200px] flex gap-4 h-[calc(100vh-120px)] mb-6">
 
                 <aside class="hidden md:flex flex-col w-80 glass rounded-3xl overflow-hidden border-white/5">
-                    <div class="p-6 border-b border-white/10">
-                        <h3 class="text-xl font-black tracking-tighter">CHAT <span class="text-primary">TERSEDIA</span>
+                    <div class="p-5 space-y-4 border-b border-white/10">
+                        <h3 class="text-4xl font-black tracking-tighter uppercase">
+                            Chat <span class="text-primary">Tersedia</span>
                         </h3>
+
+                        <div class="relative group">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-all duration-300 text-lg">
+                                search
+                            </span>
+                            <input type="text" id="user-search" placeholder="Cari teman..."
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-xs focus:ring-1 focus:ring-primary/50 focus:border-primary/50 focus:bg-white/10 outline-none transition-all placeholder:text-slate-600 shadow-inner"
+                                autocomplete="off">
+                        </div>
                     </div>
 
                     <div class="flex-1 overflow-y-auto scrollbar-hide p-2 space-y-1">
@@ -302,12 +314,38 @@
                             <p class="text-xl bold italic">Mulai chat dengan memilih tujuan Chat di sebelah kiri.</p>
                         </div>
                     </div>
-
                     <div class="p-4 bg-white/5 border-t border-white/10">
-                        <form id="chat-form-user" class="flex items-center gap-3">
+                        <form id="chat-form-user" class="flex items-center gap-3" enctype="multipart/form-data">
                             <input type="hidden" id="receiver-id">
-                            <input type="text" id="user-input" placeholder="Tulis pesan..."
-                                class="flex-1 bg-white/5 border-none rounded-2xl px-4 py-3 text-sm focus:ring-1 focus:ring-primary/50 text-white">
+
+                            <!-- Tombol Attachment -->
+                            <button type="button" onclick="document.getElementById('file-input').click()"
+                                class="size-11 flex-none bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center transition-all text-slate-400 hover:text-primary">
+                                <span class="material-symbols-outlined">attach_file</span>
+                            </button>
+                            <input type="file" id="file-input" class="hidden" onchange="previewFile(this)">
+
+                            <div class="relative flex-1">
+                                <div id="file-preview-container"
+                                    class="hidden absolute bottom-full left-0 mb-4 p-3 glass rounded-2xl border border-primary/30 shadow-2xl backdrop-blur-md w-40">
+                                    <div class="relative group">
+                                        <div id="file-preview-content"
+                                            class="rounded-lg overflow-hidden bg-white/5 flex items-center justify-center min-h-[100px]">
+                                        </div>
+
+                                        <button type="button" onclick="cancelFile()"
+                                            class="absolute -top-2 -right-2 size-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg">
+                                            <span class="material-symbols-outlined text-sm">close</span>
+                                        </button>
+                                    </div>
+                                    <div id="file-name-label"
+                                        class="text-[10px] text-slate-300 mt-2 truncate font-medium text-center"></div>
+                                </div>
+
+                                <input type="text" id="user-input" placeholder="Tulis pesan..."
+                                    class="w-full bg-white/5 border-none rounded-2xl px-4 py-3 text-sm focus:ring-1 focus:ring-primary/50 text-white">
+                            </div>
+
                             <button type="submit"
                                 class="size-11 flex-none bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
                                 <span class="material-symbols-outlined text-white">send</span>
@@ -315,47 +353,15 @@
                         </form>
                     </div>
                 </section>
-
             </div>
         </main>
     </div>
 
     <script>
-        let currentReceiverId = null
+        const currentUserId = {{ session('user.id') }}
+            let currentReceiverId = null
         let pollingInterval = null
         let lastMessageCount = 0
-        const currentUserId ={{ session('user.id') }}
-
-            async function loadChat(userId, userName, userAvatar) {
-                lastMessageCount = 0;
-                currentReceiverId = userId;
-
-                const container = document.getElementById('chat-container');
-                container.innerHTML = `
-                <div class="h-full flex flex-col items-center justify-center text-slate-500 animate-pulse">
-                    <span class="material-symbols-outlined text-4xl">sync</span>
-                    <p class="text-sm italic">Memuat pesan...</p>
-                </div>`;
-
-                document.getElementById('main-chat-area').classList.remove('opacity-100', 'pointer-events-none');
-                document.getElementById('active-name').innerText = userName;
-                document.getElementById('active-avatar').src = userAvatar;
-                document.getElementById('active-avatar').classList.remove('hidden');
-                document.getElementById('active-status').innerText = "";
-                document.getElementById('receiver-id').value = userId;
-
-                document.querySelectorAll('.user-card').forEach(el => el.classList.remove('bg-primary/10', 'border', 'border-primary/20'));
-                const activeCard = document.querySelector(`.user-card[data-user-id="${userId}"]`);
-                if (activeCard) activeCard.classList.add('bg-primary/10', 'border', 'border-primary/20');
-                await fetchMessages();
-                const userCard = document.querySelector(`.user-card[data-user-id="${userId}"]`);
-                if (userCard) {
-                    const badge = userCard.querySelector('.notif-badge');
-                    if (badge) badge.remove();
-                }
-                if (pollingInterval) clearInterval(pollingInterval);
-                pollingInterval = setInterval(fetchMessages, 1000);
-            }
 
         async function fetchMessages() {
             if (!currentReceiverId) return;
@@ -387,6 +393,31 @@
                 messages.forEach((msg) => {
                     const isMe = msg.sender_id == currentUserId;
                     let displayMessage = msg.message;
+
+                    let attachmentHtml = '';
+                    if (msg.attachment) {
+                        const fileUrl = `/storage/attachments/${msg.attachment}`;
+                        const type = msg.attachment_type || "";
+
+                        if (type.includes('video')) {
+                            attachmentHtml = `
+                            <video controls class="rounded-lg max-w-full mb-2 border border-white/10 shadow-lg">
+                                <source src="${fileUrl}" type="${type}">
+                                Browser kamu tidak mendukung video.
+                            </video>`;
+                        } else if (type.includes('image')) {
+                            attachmentHtml = `<img src="${fileUrl}" class="rounded-lg max-w-full mb-2 cursor-pointer hover:opacity-90" onclick="window.open('${fileUrl}')">`;
+                        } else if (type.includes('audio')) {
+                            attachmentHtml = `<audio controls class="h-8 mb-2 w-full"><source src="${fileUrl}"></audio>`;
+                        } else {
+                            attachmentHtml = `
+                            <a href="${fileUrl}" target="_blank" class="flex items-center gap-2 p-2 bg-white/5 rounded-lg mb-2 border border-white/10 hover:border-primary/50 transition-all">
+                                <span class="material-symbols-outlined text-primary">description</span>
+                                <span class="text-xs truncate">${msg.attachment}</span>
+                            </a>`;
+                        }
+                    }
+                    displayMessage = attachmentHtml + displayMessage;
 
                     if (msg.message.includes('[INVOICE_PDF]')) {
                         const urlMatch = msg.message.match(/https?:\/\/[^\s]+/);
@@ -501,6 +532,42 @@
             }
         }
 
+        async function loadChat(userId, userName, userAvatar) {
+            lastMessageCount = 0;
+            currentReceiverId = userId;
+
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?target_id=' + userId;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            const container = document.getElementById('chat-container');
+            container.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center text-slate-500 animate-pulse">
+                    <span class="material-symbols-outlined text-4xl">sync</span>
+                    <p class="text-sm italic">Memuat pesan...</p>
+                </div>`;
+
+            document.getElementById('main-chat-area').classList.remove('opacity-100', 'pointer-events-none');
+            document.getElementById('active-name').innerText = userName;
+            document.getElementById('active-avatar').src = userAvatar;
+            document.getElementById('active-avatar').classList.remove('hidden');
+            document.getElementById('active-status').innerText = "";
+            document.getElementById('receiver-id').value = userId;
+
+            document.querySelectorAll('.user-card').forEach(el => el.classList.remove('bg-primary/10', 'border', 'border-primary/20'));
+            const activeCard = document.querySelector(`.user-card[data-user-id="${userId}"]`);
+            if (activeCard) activeCard.classList.add('bg-primary/10', 'border', 'border-primary/20');
+
+            await fetchMessages();
+            if (activeCard) {
+                const badge = activeCard.querySelector('.notif-badge');
+                if (badge) badge.remove();
+            }
+
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(fetchMessages, 1000);
+        }
+
+
         document.getElementById('chat-form-user').addEventListener('submit', async e => {
             e.preventDefault()
 
@@ -541,34 +608,176 @@
                 }
             }
         });
-        async function updateSidebarNotif() {
-            try {
-                const response = await fetch('/chat/users/json');
-                const users = await response.json();
 
-                users.forEach(u => {
-                    const userCard = document.querySelector(`.user-card[data-user-id="${u.id}"]`);
-                    if (userCard) {
-                        let badge = userCard.querySelector('.notif-badge');
-
-                        if (u.unread_count > 0) {
-                            if (!badge) {
-                                badge = document.createElement('div');
-                                badge.className = "notif-badge flex-none size-5 bg-primary rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(19,127,236,0.4)] animate-bounce-short";
-                                userCard.appendChild(badge);
-                            }
-                            badge.innerHTML = `<span class="text-[10px] font-black text-white">${u.unread_count}</span>`;
-                        } else if (badge) {
-                            badge.remove();
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Sidebar update error:", e);
+        function previewFile(input) {
+            const container = document.getElementById('file-preview-container');
+            const content = document.getElementById('file-preview-content');
+            if (input.files && input.files[0]) {
+                container.classList.remove('hidden');
+                content.innerText = `📎 ${input.files[0].name}`;
             }
         }
 
-        setInterval(updateSidebarNotif, 2000);
+        function cancelFile() {
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-preview-container').classList.add('hidden');
+        }
+
+        document.getElementById('chat-form-user').addEventListener('submit', async e => {
+            e.preventDefault();
+
+            const input = document.getElementById('user-input');
+            const fileInput = document.getElementById('file-input');
+            const receiverId = document.getElementById('receiver-id').value;
+
+            if (!receiverId || (!input.value.trim() && !fileInput.files[0])) return;
+
+            const formData = new FormData();
+            formData.append('receiver_id', receiverId);
+            formData.append('message', input.value.trim());
+            if (fileInput.files[0]) {
+                formData.append('attachment', fileInput.files[0]);
+            }
+
+            input.value = '';
+            cancelFile();
+
+            try {
+                await fetch('/chat/send-user', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                });
+                fetchMessages();
+            } catch (e) { console.error(e); }
+        });
+        function previewFile(input) {
+            const container = document.getElementById('file-preview-container');
+            const content = document.getElementById('file-preview-content');
+            const nameLabel = document.getElementById('file-name-label');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                container.classList.remove('hidden');
+                nameLabel.innerText = file.name;
+
+                content.innerHTML = '';
+
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = "w-full h-24 object-cover rounded-md";
+                    content.appendChild(img);
+                }
+                else if (file.type.startsWith('video/')) {
+                    const video = document.createElement('video');
+                    video.src = URL.createObjectURL(file);
+                    video.className = "w-full h-24 object-cover rounded-md";
+                    video.muted = true;
+                    video.play();
+                    content.appendChild(video);
+                }
+                else {
+                    content.innerHTML = `<span class="material-symbols-outlined text-4xl text-slate-400">description</span>`;
+                }
+            }
+        }
+        document.getElementById('chat-form-user').addEventListener('submit', async e => {
+            e.preventDefault();
+
+            const input = document.getElementById('user-input');
+            const fileInput = document.getElementById('file-input');
+            const receiverId = document.getElementById('receiver-id').value;
+
+            if (!receiverId || (!input.value.trim() && !fileInput.files[0])) return;
+
+            const formData = new FormData();
+            formData.append('receiver_id', receiverId);
+            formData.append('message', input.value.trim());
+
+            if (fileInput.files[0]) {
+                formData.append('attachment', fileInput.files[0]);
+            }
+
+            const textTemp = input.value;
+            input.value = '';
+            cancelFile();
+
+            try {
+                await fetch('/chat/send-user', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: formData
+                });
+                fetchMessages();
+            } catch (e) {
+                console.error("Gagal mengirim:", e);
+                input.value = textTemp;
+            }
+        });
+        function cancelFile() {
+            const fileInput = document.getElementById('file-input');
+            const container = document.getElementById('file-preview-container');
+            const content = document.getElementById('file-preview-content');
+
+            fileInput.value = '';
+            container.classList.add('hidden');
+            content.innerHTML = '';
+        }
+
+        document.getElementById('user-search').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const userCards = document.querySelectorAll('.user-card');
+
+            userCards.forEach(card => {
+                const userNameElement = card.querySelector('p.font-bold');
+                if (!userNameElement) return;
+
+                const userName = userNameElement.innerText.toLowerCase();
+                const userId = card.getAttribute('data-user-id');
+
+                if (userId === "0" || userName.includes(searchTerm)) {
+                    card.classList.remove('hidden');
+                    card.classList.add('animate-fade-in');
+                } else {
+                    card.classList.add('hidden');
+                    card.classList.remove('animate-fade-in');
+                }
+            });
+
+            const visibleCards = document.querySelectorAll('.user-card:not(.hidden)');
+            let noResultMsg = document.getElementById('no-search-result');
+
+            if (visibleCards.length === 0) {
+                if (!noResultMsg) {
+                    const msg = document.createElement('div');
+                    msg.id = 'no-search-result';
+                    msg.className = 'p-4 text-center text-[10px] text-slate-500 uppercase tracking-widest';
+                    msg.innerText = 'User tidak ditemukan';
+                    document.querySelector('.flex-1.overflow-y-auto').appendChild(msg);
+                }
+            } else if (noResultMsg) {
+                noResultMsg.remove();
+            }
+        });
+
+        let debounceTimer;
+        document.getElementById('user-search').addEventListener('keyup', function () {
+            clearTimeout(debounceTimer);
+            const q = this.value;
+
+            if (q.length < 2) return;
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/api/users-search?q=${q}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Hasil pencarian database:", data);
+                    });
+            }, 500);
+        });
     </script>
 </body>
 
