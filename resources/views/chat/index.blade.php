@@ -119,21 +119,63 @@
                         </div>
                         <h2
                             class="text-xl font-black tracking-tighter bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                            JOKOPUS</h2>
+                            JOKOPUS
+                        </h2>
                     </div>
 
                     <nav
                         class="hidden md:flex items-center bg-white/5 rounded-full px-2 py-1 border border-white/5 shadow-inner">
                         <a href="/"
-                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('/') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Home</a>
+                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
+       {{ request()->is('/') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+                            Home
+                        </a>
+
                         <a href="/buku"
-                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('buku') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Book</a>
-                        <a href="/chat/jokobot"
-                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">Chat</a>
+                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
+       {{ request()->is('buku') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+                            Book
+                        </a>
+
+                        <a href="/chat"
+                            class="relative px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
+   {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+
+                            Chat
+
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span
+                                    class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-lg">
+                                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                </span>
+                            @endif
+                        </a>
                     </nav>
 
                     <div class="flex items-center gap-4">
-                        @if(session()->has('user'))
+                        @if (session()->has('user'))
+                            @php
+                                $unreadCount = DB::table('notifications')
+                                    ->where('user_id', session('user.id'))
+                                    ->where('is_read', 0)
+                                    ->count();
+                              @endphp
+
+                            <button onclick="window.location.href='/notifications'"
+                                class="relative p-2 text-slate-400 hover:text-white transition-all duration-300 group hover:scale-110 active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                @if($unreadCount > 0)
+                                    <span class="absolute top-2 right-2 flex h-2 w-2">
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                    </span>
+                                @endif
+                            </button>
                             @php
                                 $userData = DB::table('users')->where('id', session('user.id'))->first();
                                 $photo = $userData->profile_photo ?? null;
@@ -144,7 +186,7 @@
                                 } else {
                                     $displayPhoto = "https://ui-avatars.com/api/?name=" . urlencode(session('user.name')) . "&background=137fec&color=fff";
                                 }
-                            @endphp
+                              @endphp
 
                             <div class="flex items-center gap-3 pl-4 border-l border-white/10">
                                 <div class="hidden sm:block text-right">
@@ -152,17 +194,18 @@
                                         {{ session('user.role') == 1 ? 'Admin' : 'Member' }}
                                     </p>
                                     <p class="text-xs font-bold text-white truncate max-w-[100px]">
-                                        {{ session('user.name') }}
-                                    </p>
+                                        {{ session('user.name') }}</p>
                                 </div>
                                 <div onclick="window.location.href='/dashboard'"
                                     class="h-10 w-10 rounded-xl border-2 border-white/10 bg-center bg-cover hover:border-primary hover:scale-105 transition-all cursor-pointer shadow-lg"
-                                    style="background-image:url('{{ $displayPhoto }}')"></div>
+                                    style="background-image: url('{{ $displayPhoto }}');">
+                                </div>
                             </div>
                         @else
                             <a href="/daftar"
-                                class="h-10 px-6 rounded-xl bg-primary text-white text-xs font-black uppercase tracking-widest flex items-center justify-center hover:shadow-[0_0_20px_rgba(19,127,236,0.4)] hover:scale-105 active:scale-95 transition-all">Sign
-                                In</a>
+                                class="h-10 px-6 rounded-xl bg-primary text-white text-xs font-black uppercase tracking-widest flex items-center justify-center hover:shadow-[0_0_20px_rgba(19,127,236,0.4)] hover:scale-105 active:scale-95 transition-all">
+                                Sign In
+                            </a>
                         @endif
                     </div>
 
@@ -244,7 +287,7 @@
                     class="flex-1 flex flex-col glass rounded-3xl border-white/5 overflow-hidden opacity-100 pointer-events-none">
                     <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/5">
                         <div class="flex items-center gap-3">
-                            <img id="active-avatar" src="" class="size-9 rounded-lg hidden">
+                            <img id="active-avatar" src="" class="size-9 rounded-lg hidden aspect-square object-cover">
                             <div>
                                 <h4 id="active-name" class="text-sm font-bold">Pilih teman untuk chat</h4>
                                 <p id="active-status"
@@ -305,6 +348,11 @@
                 const activeCard = document.querySelector(`.user-card[data-user-id="${userId}"]`);
                 if (activeCard) activeCard.classList.add('bg-primary/10', 'border', 'border-primary/20');
                 await fetchMessages();
+                const userCard = document.querySelector(`.user-card[data-user-id="${userId}"]`);
+                if (userCard) {
+                    const badge = userCard.querySelector('.notif-badge');
+                    if (badge) badge.remove();
+                }
                 if (pollingInterval) clearInterval(pollingInterval);
                 pollingInterval = setInterval(fetchMessages, 1000);
             }
@@ -385,25 +433,51 @@
 
                         const bookTitle = dataBuku[0] || "Detail Buku";
                         const bookCover = dataBuku[1] || "";
+                        const userCaption = msg.message.split('[SHARE_BOOK]')[0].trim();
 
                         displayMessage = `
-                        <div class="flex flex-col bg-slate-900/60 rounded-2xl border border-white/5 overflow-hidden mt-2 group w-full max-w-[240px] shadow-2xl transition-all hover:border-primary/50">
-                            <div class="px-4 py-2 flex items-center gap-2 bg-white/5 border-b border-white/5">
-                                <span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1">auto_stories</span>
-                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Rekomendasi Buku</p>
-                            </div>
+                        <div class="flex flex-col gap-2 w-full max-w-[260px] animate-fade-in">
+                            ${userCaption ? `<p class="text-xs text-slate-300 leading-relaxed px-1">${userCaption}</p>` : ''}
+                            
+                            <div class="group relative bg-gradient-to-b from-slate-800/40 to-slate-900/90 rounded-3xl border border-white/10 overflow-hidden shadow-2xl transition-all duration-500 hover:border-primary/50 hover:shadow-primary/20">
+                                <!-- Glassy Header -->
+                                <div class="px-4 py-2.5 flex items-center justify-between bg-white/5 border-b border-white/5 backdrop-blur-md">
+                                    <div class="flex items-center gap-2">
+                                        <div class="size-6 bg-primary/20 rounded-lg flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1">auto_stories</span>
+                                        </div>
+                                        <p class="text-[10px] font-black text-slate-200 uppercase tracking-widest">Membagikan Buku</p>
+                                    </div>
+                                    <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
+                                </div>
 
-                            <div class="relative aspect-[2/3] overflow-hidden">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
-                                <img src="${bookCover}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://placehold.co/400x600/101922/FFF?text=No+Cover'">
-                                
-                                <a href="/detail/${bookId}" class="absolute bottom-4 left-4 right-4 z-20 py-2.5 bg-white text-black hover:bg-primary hover:text-white text-[10px] font-black uppercase rounded-lg text-center transition-all shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
-                                    Lihat Detail
-                                </a>
-                            </div>
+                                <!-- Cover Image Container -->
+                                <div class="relative aspect-[3/4] overflow-hidden">
+                                    <img src="${bookCover}" 
+                                        class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-1" 
+                                        onerror="this.src='https://placehold.co/400x600/101922/FFF?text=No+Cover'">
+                                    
+                                    <!-- Overlay Gradient -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                                    
+                                    <!-- Floating Action Button (Hover) -->
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 z-20">
+                                        <a href="/detail/${bookId}" class="px-6 py-2.5 bg-primary text-white text-[11px] font-black uppercase rounded-full shadow-[0_10px_20px_rgba(19,127,236,0.4)] hover:scale-105 active:scale-95 transition-all">
+                                            Lihat Detail
+                                        </a>
+                                    </div>
+                                </div>
 
-                            <div class="p-3 bg-white/5">
-                                <p class="text-xs font-bold text-white line-clamp-1 group-hover:text-primary transition-colors">${bookTitle}</p>
+                                <!-- Info Section -->
+                                <div class="p-4 bg-slate-900/80 backdrop-blur-xl relative">
+                                    <div class="absolute -top-10 left-0 right-0 h-10 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                                    <p class="text-sm font-bold text-white line-clamp-2 leading-snug group-hover:text-primary transition-colors duration-300">
+                                        ${bookTitle}
+                                    </p>
+                                    <div class="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
+                                        <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Jokopus Digital Library</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>`;
                     }

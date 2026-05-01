@@ -217,7 +217,7 @@
                         <div id="denda-chart" class="w-full"></div>
                     </div>
                     <div class="glass-card rounded-3xl p-6 border border-white/5">
-                        <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">USER DENDA
+                        <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">DENDA
                             TERBANYAK
                         </h3>
 
@@ -551,7 +551,28 @@
                     blur: 10,
                     color: '#ef4444',
                     opacity: 0.15
-                }
+                },
+            },
+            states: {
+                normal: {
+                    filter: {
+                        type: 'none',
+                        value: 0,
+                    }
+                },
+                hover: {
+                    filter: {
+                        type: 'lighten', // Tetap memberikan efek terang saat hover
+                        value: 0.15,
+                    }
+                },
+                active: {
+                    allowMultipleDataPointsSelection: false,
+                    filter: {
+                        type: 'none', // Matikan efek visual saat diklik
+                        value: 0,
+                    }
+                },
             },
             colors: ['#ef4444'],
             dataLabels: { enabled: false },

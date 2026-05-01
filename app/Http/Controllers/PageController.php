@@ -22,9 +22,16 @@ class PageController extends Controller
         $totalPenulis = \App\Models\Penulis::count();
         $totalTag = \App\Models\Tag::count();
         $totalKategori = \App\Models\Kategori::count();
-        $totalUser = \App\Models\User::count();
 
-        return view('home', compact('books', 'featuredUsers', 'totalUser', 'totalBuku', 'totalPenulis', 'totalKategori', 'totalTag'));
+        $unreadCount = \DB::table('messages')
+            ->where('receiver_id', session('user.id'))
+            ->where('is_read', 0)
+            ->count();
+
+        $totalUser = \App\Models\User::count();
+        $admins = \App\Models\User::where('role', '1')->get();
+
+        return view('home', compact('books', 'unreadCount', 'admins', 'featuredUsers', 'totalUser', 'totalBuku', 'totalPenulis', 'totalKategori', 'totalTag'));
     }
     public function notification()
     {

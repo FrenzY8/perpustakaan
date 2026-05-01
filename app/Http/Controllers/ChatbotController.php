@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Schema;
 
 class ChatbotController extends Controller
 {
-    protected $whitelistTables = ['buku', 'kategori', 'penulis', 'tag', 'buku_tag', 'peminjaman', 'ratings', 'komentar_buku', 'users'];
     protected $debugMode;
 
     public function __construct()
@@ -50,11 +48,10 @@ class ChatbotController extends Controller
     {
         set_time_limit(0);
         $userQuery = trim($request->input('message'));
-        $apiKey = env('NVIDIA_API_KEY');
-        $history = session()->get('chat_history', []);
+        $apiKey = env('GROQ_API_KEY');
         $userId = session('user.id');
 
-        $historyForAi = DB::table('ai_messages')
+        $history = DB::table('ai_messages')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->limit(3)
@@ -66,84 +63,71 @@ class ChatbotController extends Controller
 
         $debugInfo = [
             'enabled' => $this->debugMode,
-            'steps' => [],
             'sql' => null,
             'error' => null,
-            'timestamp' => now()->toDateTimeString()
         ];
 
         if (!$userQuery) {
             return $this->formatResponse('Halo! Ada yang bisa Jokopus bantu cari?', null, $debugInfo);
         }
 
-        $intentPrompt = "Classify intent: '$userQuery'. Categories: SEARCH (looking for books/info), CASUAL (greetings/chat). Return 1 word ONLY.";
-        $intent = strtoupper(trim($this->askNvidia($intentPrompt, $apiKey, true)));
+        $intent = strtoupper(trim($this->askGroq("Intent: '$userQuery'. SEARCH/CASUAL. 1 word ONLY.", $apiKey, true)));
 
-        if ($intent === 'CASUAL') {
-            $answer = $this->askNvidia($userQuery, $apiKey, false, $history);
+        if (strpos($intent, 'CASUAL') !== false) {
+            $answer = $this->askGroq($userQuery, $apiKey, false, $history);
             $this->saveHistoryToDb($userQuery, $answer);
-            $this->saveHistory($userQuery, $answer);
             return $this->formatResponse($answer, null, $debugInfo);
         }
 
-        $schemaContext = "
-            Table buku(id, judul, ringkasan, id_penulis, id_kategori, rating, price);
-            Table penulis(id, nama);
-            Table kategori(id, nama);
-            Table peminjaman(id, id_user, id_buku, status, tanggal_pinjam);
-        ";
+        $schemaContext = "buku(id,judul,ringkasan,id_penulis,id_kategori,rating); penulis(id,nama); kategori(id,nama);";
+        $promptSql = "Generate ONE MySQL query for: '$userQuery'. 
+        Tables: $schemaContext. 
+        Rules: 
+        - Use JOIN. 
+        - If user asks generally, ORDER BY rating DESC LIMIT 10. 
+        - If specific, use WHERE LIKE. 
+        - Output ONLY the SQL string, NO explanations, NO multiple options.";
+        $sql = $this->askGroq($promptSql, $apiKey, true);
 
-        $today = now()->toDateString();
+        if ($sql === 'ERROR_CONNECTION' || $sql === 'ERROR') {
+            return $this->formatResponse("Maaf, koneksi ke otak AI saya terputus. Coba lagi nanti?", null, $debugInfo);
+        }
 
-        $promptSql = "
-            Generate MySQL SELECT. 
-            Current Date: $today.
-            Tables: $schemaContext. 
-            Rules:
-            - JOIN buku with penulis and kategori.
-            - EXTRACT keyword from: '$userQuery'. 
-            - If user asks for general advice/recommendation without specific title, ORDER BY rating DESC LIMIT 10.
-            - If user mentions title/author/topic, use WHERE b.judul LIKE '%keyword%' OR p.nama LIKE '%keyword%'.
-            - SELECT: b.id, b.judul, b.ringkasan, p.nama as penulis, k.nama as kategori.
-            - Return ONLY raw SQL code.
-        ";
-
-        $sql = $this->askNvidia($promptSql, $apiKey, true);
         $sql = trim(str_replace(['```sql', '```', '`', ';'], '', $sql));
+        if (!str_contains(strtoupper($sql), 'SELECT')) {
+            return $this->formatResponse("Saya kesulitan merangkai pencarian. Bisa perjelas pertanyaannya?", $sql, $debugInfo);
+        }
 
         try {
             $dbResult = DB::select($sql);
             $jsonResult = json_encode($dbResult);
 
             $promptFinal = "
-                You are Jokopus, a librarian.
-                Context Data: $jsonResult.
-                User Query: $userQuery.
-                Rules:
-                1. If Context is [], say you don't have that specific book and offer other categories.
-                2. If Context has data, recommend them warmly in Indonesian.
-                3. Mention the author and category.
-            ";
-
-            $answer = $this->askNvidia($promptFinal, $apiKey, false, $history);
+            Role: Asisten Perpustakaan Jokopus.
+            Strict Rules:
+            1. HANYA rekomendasikan buku yang ada di: $jsonResult.
+            2. Jika $jsonResult kosong [], JANGAN sebut judul buku apapun. Katakan maaf dan sarankan user mencari topik lain.
+            3. DILARANG KERAS mengarang judul buku dari ingatan internalmu.
+            4. Jawab dalam Bahasa Indonesia yang ramah dan singkat.
+            
+            User Query: $userQuery";
+            $answer = $this->askGroq($promptFinal, $apiKey, false, $history);
             $this->saveHistoryToDb($userQuery, $answer);
-            $this->saveHistory($userQuery, $answer);
 
             return $this->formatResponse($answer, $sql, $debugInfo);
         } catch (\Exception $e) {
             $debugInfo['error'] = $e->getMessage();
-            return $this->formatResponse("Aduh, sistem rak saya sedikit macet. Bisa coba ulangi pertanyaannya?", $sql, $debugInfo);
+            return $this->formatResponse("Aduh, sistem rak saya macet. Coba tanya lagi?", $sql, $debugInfo);
         }
     }
 
-    private function askNvidia($prompt, $apiKey, $isSqlMode = false, $history = [])
+    private function askGroq($prompt, $apiKey, $isSqlMode = false, $history = [])
     {
-        $messages = [];
         $systemContent = $isSqlMode
-            ? "You are a precise SQL generator. Output only raw SQL."
-            : "Anda adalah Jokopus, asisten perpustakaan cerdas. Gunakan Bahasa Indonesia.";
+            ? "You are a raw SQL generator. No talk, just code."
+            : "Anda Jokopus, asisten perpustakaan. Jawab singkat & ramah.";
 
-        $messages[] = ['role' => 'system', 'content' => $systemContent];
+        $messages = [['role' => 'system', 'content' => $systemContent]];
 
         if (!$isSqlMode && !empty($history)) {
             foreach ($history as $msg) {
@@ -154,57 +138,37 @@ class ChatbotController extends Controller
         $messages[] = ['role' => 'user', 'content' => $prompt];
 
         try {
-            $response = Http::withoutVerifying()
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . trim($apiKey),
-                    'Accept' => 'application/json',
-                ])
-                ->post('https://integrate.api.nvidia.com/v1/chat/completions', [
-                    'model' => 'nvidia/nemotron-3-super-120b-a12b',
-                    'messages' => $messages,
-                    'temperature' => 1,
-                    'top_p' => 0.95,
-                    'max_tokens' => 2048,
-                ]);
+            $response = Http::withoutVerifying()->withHeaders([
+                'Authorization' => 'Bearer ' . trim($apiKey),
+                'Content-Type' => 'application/json',
+            ])->post('https://api.groq.com/openai/v1/chat/completions', [
+                        'model' => 'llama-3.1-8b-instant',
+                        'messages' => $messages,
+                        'temperature' => 0.1,
+                        'max_tokens' => 512,
+                    ]);
+
+            if ($response->failed()) {
+                \Log::error('Groq API Error: ' . $response->body());
+                return 'ERROR_CONNECTION';
+            }
 
             $result = $response->json();
             return $result['choices'][0]['message']['content'] ?? 'ERROR';
         } catch (\Exception $e) {
+            \Log::error('Groq Connection Exception: ' . $e->getMessage());
             return 'ERROR_CONNECTION';
         }
-    }
-
-    private function saveHistory($query, $answer)
-    {
-        $history = session()->get('chat_history', []);
-        $history[] = ['role' => 'user', 'content' => $query];
-        $history[] = ['role' => 'assistant', 'content' => $answer];
-        if (count($history) > 10)
-            $history = array_slice($history, -10);
-        session(['chat_history' => $history]);
     }
 
     private function saveHistoryToDb($query, $answer)
     {
         $userId = session('user.id');
-
-        // Simpan pesan user
-        DB::table('ai_messages')->insert([
-            'user_id' => $userId,
-            'role' => 'user',
-            'content' => $query,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // Simpan jawaban bot
-        DB::table('ai_messages')->insert([
-            'user_id' => $userId,
-            'role' => 'assistant',
-            'content' => $answer,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        $data = [
+            ['user_id' => $userId, 'role' => 'user', 'content' => $query, 'created_at' => now(), 'updated_at' => now()],
+            ['user_id' => $userId, 'role' => 'assistant', 'content' => $answer, 'created_at' => now(), 'updated_at' => now()]
+        ];
+        DB::table('ai_messages')->insert($data);
     }
 
     private function formatResponse($answer, $sql = null, $debugInfo = [])

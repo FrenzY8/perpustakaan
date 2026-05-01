@@ -159,18 +159,29 @@
                                 <p class="text-xl font-bold text-white">{{ $totalHariTelat }} <span
                                         class="text-sm font-normal text-slate-400">Hari</span></p>
                             </div>
+                            @php
+                                $totalPotongan = $bukuTelat->sum('total_denda_item') - $totalTagihan;
+                            @endphp
                             <div class="bg-white/5 rounded-2xl p-4 flex-1 border border-white/5">
                                 <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Status</p>
-                                @if($totalTagihan > 0)
+
+                                @php
+                                    $totalNilai = $totalPotongan + $totalTagihan;
+                                    $persenBayar = $totalNilai > 0 ? round(($totalPotongan / $totalNilai) * 100) : 0;
+                                @endphp
+
+                                @if($totalTagihan > 0 && $totalPotongan > 0)
+                                    {{-- Kondisi sudah nyicil tapi belum lunas --}}
+                                    <p class="text-xl font-bold text-orange-400">Tercicil {{ $persenBayar }}%</p>
+                                @elseif($totalTagihan > 0)
+                                    {{-- Belum bayar sama sekali --}}
                                     <p class="text-xl font-bold text-red-400">Belum Lunas</p>
                                 @else
+                                    {{-- Lunas total --}}
                                     <p class="text-xl font-bold text-emerald-400">Bersih</p>
                                 @endif
                             </div>
                         </div>
-                        @php
-                            $totalPotongan = $bukuTelat->sum('total_denda_item') - $totalTagihan;
-                        @endphp
 
                         @if($totalPotongan > 0)
                             <div
@@ -346,4 +357,5 @@
         </div>
     </div>
 </body>
+
 </html>

@@ -84,9 +84,17 @@
             </a>
 
             <a href="/chat"
-              class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
-       {{ request()->is('dashboard*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+              class="relative px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
+   {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+
               Chat
+
+              @if(isset($unreadCount) && $unreadCount > 0)
+                <span
+                  class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-lg">
+                  {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                </span>
+              @endif
             </a>
           </nav>
 
@@ -254,7 +262,8 @@
             <h2 class="text-2xl font-bold tracking-tight md:text-3xl text-white">
               Featured Users
             </h2>
-            <button onclick="window.location.href='/user-list'" class="text-xl font-semibold text-primary hover:underline">
+            <button onclick="window.location.href='/user-list'"
+              class="text-xl font-semibold text-primary hover:underline">
               View All
             </button>
           </div>
@@ -295,6 +304,36 @@
               </div>
             @endforelse
           </div>
+          <!-- Admin Team Section -->
+          <section class="px-4 md:px-20 pt-20 pb-6"> <!-- pt ditambah, pb dikurangi -->
+            <div class="max-w-[1200px] mx-auto text-center">
+              <h1 class="text-4xl font-bold tracking-tight text-white mb-10">LIST ADMIN</h1>
+              <div class="flex flex-wrap justify-center gap-8 md:gap-16">
+                @foreach ($admins as $admin)
+                  <div onclick="window.location.href='/profile/{{ $admin->id }}'"
+                    class="group cursor-pointer flex flex-col items-center">
+                    <div class="relative">
+                      <div
+                        class="absolute -inset-1 bg-gradient-to-b from-primary to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 blur-sm">
+                      </div>
+                      <div
+                        class="relative size-20 md:size-24 rounded-full border-2 border-white/10 p-1 group-hover:border-primary transition-all duration-300">
+                        <img
+                          src="{{ $admin->profile_photo ? (str_starts_with($admin->profile_photo, 'http') ? $admin->profile_photo : asset('storage/avatars/' . $admin->profile_photo)) : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) . '&background=137fec&color=fff' }}"
+                          class="w-full h-full rounded-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                          alt="{{ $admin->name }}">
+                      </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                      <h4 class="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">
+                        {{ $admin->name }}
+                      </h4>
+                    </div>
+                  </div>
+                @endforeach
+              </div>
+            </div>
+          </section>
         </div>
       </section>
     </main>

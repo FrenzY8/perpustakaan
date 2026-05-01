@@ -87,14 +87,44 @@
                         </a>
 
                         <a href="/chat"
-                            class="px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
-       {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+                            class="relative px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 
+   {{ request()->is('chat*') ? 'text-white bg-primary shadow-[0_0_15px_rgba(19,127,236,0.3)] rounded-full' : 'text-slate-400 hover:text-white' }}">
+
                             Chat
+
+                            @if(isset($unreadCount) && $unreadCount > 0)
+                                <span
+                                    class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-lg">
+                                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                </span>
+                            @endif
                         </a>
                     </nav>
 
                     <div class="flex items-center gap-4">
                         @if (session()->has('user'))
+                            @php
+                                $unreadCount = DB::table('notifications')
+                                    ->where('user_id', session('user.id'))
+                                    ->where('is_read', 0)
+                                    ->count();
+                              @endphp
+
+                            <button onclick="window.location.href='/notifications'"
+                                class="relative p-2 text-slate-400 hover:text-white transition-all duration-300 group hover:scale-110 active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                @if($unreadCount > 0)
+                                    <span class="absolute top-2 right-2 flex h-2 w-2">
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                    </span>
+                                @endif
+                            </button>
                             @php
                                 $userData = DB::table('users')->where('id', session('user.id'))->first();
                                 $photo = $userData->profile_photo ?? null;
@@ -113,8 +143,7 @@
                                         {{ session('user.role') == 1 ? 'Admin' : 'Member' }}
                                     </p>
                                     <p class="text-xs font-bold text-white truncate max-w-[100px]">
-                                        {{ session('user.name') }}
-                                    </p>
+                                        {{ session('user.name') }}</p>
                                 </div>
                                 <div onclick="window.location.href='/dashboard'"
                                     class="h-10 w-10 rounded-xl border-2 border-white/10 bg-center bg-cover hover:border-primary hover:scale-105 transition-all cursor-pointer shadow-lg"

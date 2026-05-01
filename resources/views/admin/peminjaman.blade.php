@@ -200,6 +200,31 @@
                         <span class="w-1.5 h-6 bg-red-500 rounded-full"></span> Detail Denda Member
                     </h3>
 
+                    <div class="px-2 mb-4">
+                        <form action="" method="GET" class="relative group">
+                            <!-- Mempertahankan filter lain jika ada -->
+                            @if(request('month')) <input type="hidden" name="month" value="{{ request('month') }}">
+                            @endif
+                            @if(request('year')) <input type="hidden" name="year" value="{{ request('year') }}"> @endif
+
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">
+                                search
+                            </span>
+
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Cari nama member atau judul buku yang denda..."
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/50 focus:bg-white/[0.08] transition-all">
+
+                            @if(request('search'))
+                                <a href="{{ url()->current() }}"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] bg-white/10 hover:bg-white/20 px-2 py-1 rounded-lg text-slate-300 transition-all">
+                                    RESET
+                                </a>
+                            @endif
+                        </form>
+                    </div>
+
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">

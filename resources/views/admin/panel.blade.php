@@ -370,6 +370,48 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            {{-- Bagian Pagination & Info --}}
+                            <div class="px-6 py-4 bg-white/5 border-t border-white/5">
+                                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <p class="text-[11px] text-[#92adc9]">
+                                        Menampilkan <span
+                                            class="font-bold text-white">{{ $authors->firstItem() }}</span>
+                                        sampai <span class="font-bold text-white">{{ $authors->lastItem() }}</span>
+                                        dari <span class="font-bold text-white">{{ $authors->total() }}</span>
+                                        penulis
+                                    </p>
+
+                                    <div class="flex items-center gap-2">
+                                        @if ($authors->onFirstPage())
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </span>
+                                        @else
+                                            <a href="{{ $authors->appends(['page_author' => $authors->currentPage()])->previousPageUrl() }}#table-penulis"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                            </a>
+                                        @endif
+
+                                        <span class="text-[11px] font-bold px-3 text-white">
+                                            Hal {{ $authors->currentPage() }} / {{ $authors->lastPage() }}
+                                        </span>
+
+                                        @if ($authors->hasMorePages())
+                                            <a href="{{ $authors->appends(['page_author' => $authors->currentPage()])->nextPageUrl() }}#table-penulis"
+                                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </a>
+                                        @else
+                                            <span
+                                                class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -450,7 +492,7 @@
                                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                                             </span>
                                         @else
-                                            <a href="{{ $categories->appends(['search' => request('search')])->url($categories->currentPage() - 1) }}"
+                                            <a href="{{ $categories->appends(['search' => $categories->currentPage()])->previousPageUrl() }}#table-kategori"
                                                 class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
                                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                                             </a>
@@ -461,7 +503,7 @@
                                         </span>
 
                                         @if ($categories->hasMorePages())
-                                            <a href="{{ $categories->appends(['search' => request('search')])->nextPageUrl() }}"
+                                            <a href="{{ $categories->appends(['search' => request('search')])->nextPageUrl() }}#table-kategori"
                                                 class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
                                                 <span class="material-symbols-outlined text-sm">chevron_right</span>
                                             </a>
@@ -841,6 +883,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="modal-add-user" class="fixed inset-0 z-50 hidden overflow-y-auto">
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
@@ -1064,6 +1107,48 @@
                                 <button type="submit"
                                     class="px-8 py-3 bg-primary hover:bg-primary/80 text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
                                     SIMPAN PENULIS
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-edit-penulis" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                <div class="relative min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-3xl font-bold italic tracking-tight">EDIT <span
+                                    class="text-primary">PENULIS</span></h3>
+                            <button onclick="toggleModal('modal-edit-penulis')"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <form action="a" id="form-edit-penulis" method="POST" class="space-y-6">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                    Nama PENULIS
+                                </label>
+                                <input type="text" name="nama" id="edit-nama-tag" required
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary focus:ring-0 transition-all"
+                                    placeholder="Nama tag...">
+                            </div>
+
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button type="button" onclick="toggleModal('modal-edit-penulis')"
+                                    class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                                    BATAL
+                                </button>
+                                <button type="submit"
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
+                                    UPDATE PENULIS
                                 </button>
                             </div>
                         </form>
@@ -1304,6 +1389,24 @@
             }
         }
 
+        function openEditAuthorModal(author) {
+            const modal = document.getElementById('modal-edit-penulis');
+            const form = document.getElementById('form-edit-tag');
+            const inputNama = document.getElementById('edit-nama-tag');
+            form.action = `/admin/authors/update/${author.id}`;
+            inputNama.value = author.nama;
+            toggleModal('modal-edit-penulis');
+        }
+
+        function openEditKategoriModal(kategori) {
+            const modal = document.getElementById('modal-edit-kategori');
+            const form = document.getElementById('form-edit-kategori');
+            const inputNama = document.getElementById('edit-nama-kategori');
+            form.action = `/admin/categories/update/${kategori.id}`;
+            inputNama.value = kategori.nama;
+            toggleModal('modal-edit-kategori');
+        }
+
         function openEditModal(book) {
             const modal = document.getElementById('modal-edit-book');
             const form = modal.querySelector('form');
@@ -1320,6 +1423,15 @@
             modal.querySelector('[name="gambar_sampul_link"]').value = book.gambar_sampul || '';
 
             toggleModal('modal-edit-book');
+        }
+
+        function openEditTagModal(tag) {
+            const modal = document.getElementById('modal-edit-tag');
+            const form = document.getElementById('form-edit-tag');
+            const inputNama = document.getElementById('edit-nama-tag');
+            form.action = `/admin/tags/update/${tag.id}`;
+            inputNama.value = tag.nama;
+            toggleModal('modal-edit-tag');
         }
 
         function openEditUserModal(user) {

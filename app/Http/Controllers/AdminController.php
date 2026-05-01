@@ -92,19 +92,36 @@ class AdminController extends Controller
             $selisih = $jatuhTempo->diffInDays($hariIni, false);
             $hariTelat = ($selisih > 0) ? (int) $selisih : 0;
 
-            $denda = 0;
-            if ($hariTelat > 0) {
-                $denda = 5000 + (($hariTelat - 1) * 2000);
-            }
+            $dendaKotor = ($hariTelat > 0) ? 5000 + (($hariTelat - 1) * 2000) : 0;
+            $dendaBersih = max(0, $dendaKotor - ($p->potongan_denda ?? 0));
 
             return [
-                'tanggal' => $jatuhTempo->format('d M'),
-                'denda' => $denda
+                'tanggal_raw' => $jatuhTempo->format('Y-m-d'),
+                'tanggal_format' => $jatuhTempo->isoFormat('D MMM'),
+                'denda' => $dendaBersih
             ];
-        })->where('denda', '>', 0)
-            ->groupBy('tanggal')
-            ->map(fn($group) => $group->sum('denda'))
+        })
+            ->filter(fn($item) => $item['denda'] > 0)
+            ->groupBy('tanggal_raw')
+            ->map(fn($group) => [
+                'label' => $group->first()['tanggal_format'],
+                'total' => $group->sum('denda')
+            ])
+            ->sortBy(fn($item, $key) => $key)
             ->take(7);
+
+        if ($dataDendaGrouped->count() === 1) {
+            $dataSatu = $dataDendaGrouped->first();
+            $tanggalSebelumnya = Carbon::parse($dataDendaGrouped->keys()->first())
+                ->subDay()
+                ->isoFormat('D MMM');
+
+            $labels = [$tanggalSebelumnya, $dataSatu['label']];
+            $series = [0, $dataSatu['total']];
+        } else {
+            $labels = $dataDendaGrouped->pluck('label')->values();
+            $series = $dataDendaGrouped->pluck('total')->values();
+        }
 
         $userDendaUnik = $semuaPinjaman->map(function ($p) {
             $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
@@ -168,8 +185,8 @@ class AdminController extends Controller
                 'trendKembali' => json_encode($dataKembali),
                 'catLabels' => json_encode($categoryData->pluck('nama')),
                 'catSeries' => json_encode($categoryData->pluck('total')),
-                'dendaLabels' => json_encode($dataDendaGrouped->keys()),
-                'dendaSeries' => json_encode($dataDendaGrouped->values()),
+                'dendaLabels' => json_encode($labels),
+                'dendaSeries' => json_encode($series),
                 'topThreeUsers' => $userDendaUnik,
                 'topThreeBooks' => $topThreeBooks,
             ]);
@@ -190,19 +207,19 @@ class AdminController extends Controller
                         $q->where('nama', 'like', "%{$search}%");
                     });
             })
-            ->latest()->paginate(10);
+            ->latest()->paginate(5);
 
         $categories = Kategori::when($searchBook, function ($query, $search) {
             return $query->where('nama', 'like', "%{$search}%");
         })
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->paginate(5);
 
         $tags = Tag::when($searchBook, function ($query, $search) {
             return $query->where('nama', 'like', "%{$search}%");
         })
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->paginate(5);
 
         $tags1 = Tag::orderBy('nama', 'asc')->get();
 
@@ -220,7 +237,15 @@ class AdminController extends Controller
             ->latest('peminjaman.dibuat_pada')
             ->get();
 
-        $authors = DB::table('penulis')->orderBy('id', 'desc')->get();
+        $searchAuthor = request('search_author');
+
+        $authors = DB::table('penulis')
+            ->when($searchAuthor, function ($query, $search) {
+                return $query->where('nama', 'like', "%{$search}%");
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(5, ['*'], 'page_author');
+
         $stats = [
             'total' => DB::table('peminjaman')->count(),
             'dipinjam' => DB::table('peminjaman')->where('status', 'dipinjam')->count(),
@@ -294,6 +319,12 @@ class AdminController extends Controller
             )
             ->whereNull('peminjaman.tanggal_kembali')
             ->where('peminjaman.tanggal_jatuh_tempo', '<', now())
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('users.name', 'like', "%{$search}%")
+                        ->orWhere('buku.judul', 'like', "%{$search}%");
+                });
+            })
             ->get()
             ->map(function ($p) {
                 $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
@@ -301,7 +332,6 @@ class AdminController extends Controller
                 $p->hari_telat = $jatuhTempo->diffInDays($hariIni, false);
                 $dendaAsli = 5000 + (($p->hari_telat - 1) * 2000);
                 $p->total_tagihan = max(0, $dendaAsli - ($p->potongan_denda ?? 0));
-
                 return $p;
             });
 
