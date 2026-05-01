@@ -109,4 +109,15 @@
 - <img src="documentation/chart_denda2.png" alt="Chart" width="500">
 - AI improve
 - etc
+
+### Jumat, 1 Mei 2026
+- Chat antar user dan bot tersave
+- AI lebih cerdas (Nvidia Build Free Endpoint -> Groq GPT120B)
+- Menambah Featured User di Landing Page
+- List Admin di Landing Page
+- Admin Panel CRUD: TAG, KATEGORI, PENULIS, BUKU update
+- Chart Denda fix
+- Unread count pesan & notif
+- Informasi denda lebih mudah dipahami
+- etc
 ---
