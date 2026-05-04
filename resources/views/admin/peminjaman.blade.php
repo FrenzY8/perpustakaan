@@ -202,7 +202,6 @@
 
                     <div class="px-2 mb-4">
                         <form action="" method="GET" class="relative group">
-                            <!-- Mempertahankan filter lain jika ada -->
                             @if(request('month')) <input type="hidden" name="month" value="{{ request('month') }}">
                             @endif
                             @if(request('year')) <input type="hidden" name="year" value="{{ request('year') }}"> @endif
@@ -212,7 +211,7 @@
                                 search
                             </span>
 
-                            <input type="text" name="search" value="{{ request('search') }}"
+                            <input type="text" name="search_denda" value="{{ request('search') }}"
                                 placeholder="Cari nama member atau judul buku yang denda..."
                                 class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/50 focus:bg-white/[0.08] transition-all">
 
@@ -434,6 +433,7 @@
                                         <th class="px-6 py-5">Status</th>
                                         <th class="px-6 py-5">Tgl Pinjam</th>
                                         <th class="px-6 py-5">Jatuh Tempo</th>
+                                        <th class="px-6 py-5 text-right">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-white/5">
@@ -463,6 +463,24 @@
                                             <td
                                                 class="px-6 py-4 text-xs {{ $p->status == 'terlambat' ? 'text-red-400 font-bold' : 'text-slate-300' }}">
                                                 {{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('d/m/Y') }}
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                @if($p->status == 'dipinjam' || $p->status == 'terlambat')
+                                                    <form action="/admin/peminjaman/kembali/{{ $p->id }}" method="POST"
+                                                        onsubmit="return confirm('Yakin buku sudah dikembalikan?')">
+                                                        @csrf
+                                                        <button type="submit"
+                                                            class="group flex items-center gap-2 ml-auto bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-all duration-300">
+                                                            <span
+                                                                class="material-symbols-outlined text-sm">assignment_return</span>
+                                                            <span
+                                                                class="font-bold text-[10px] uppercase tracking-tighter">Kembalikan</span>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span
+                                                        class="text-[10px] text-slate-600 italic font-medium uppercase italic">Selesai</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty

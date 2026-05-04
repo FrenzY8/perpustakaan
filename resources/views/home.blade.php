@@ -17,9 +17,9 @@
       theme: {
         extend: {
           colors: {
-            primary: "#137fec",
+            primary: "#137fec", // element
             "background-light": "#f6f7f8",
-            "background-dark": "#101922",
+            "background-dark": "#101922", // background
           },
           fontFamily: {
             display: ["Inter", "sans-serif"],

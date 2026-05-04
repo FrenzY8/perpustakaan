@@ -200,7 +200,7 @@ class AdminController extends Controller
         $user = DB::table('users')->where('id', session('user.id'))->first();
 
         $searchBook = request('search_book');
-        $books = Buku::with('penulis', 'kategori')
+        $books = Buku::with(['penulis', 'kategori', 'tags'])
             ->when($searchBook, function ($query, $search) {
                 return $query->where('judul', 'like', "%{$search}%")
                     ->orWhereHas('penulis', function ($q) use ($search) {
@@ -214,6 +214,16 @@ class AdminController extends Controller
         })
             ->orderBy('id', 'desc')
             ->paginate(5);
+
+        $categoriesAdd = Kategori::when($searchBook, function ($query, $search) {
+            return $query->where('nama', 'like', "%{$search}%");
+        })
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $authorsAdd = DB::table('penulis')
+            ->orderBy('id', 'desc')
+            ->get();
 
         $tags = Tag::when($searchBook, function ($query, $search) {
             return $query->where('nama', 'like', "%{$search}%");
@@ -255,7 +265,7 @@ class AdminController extends Controller
             'ditolak' => DB::table('peminjaman')->where('status', 'ditolak')->count(),
         ];
 
-        return view('admin.panel', compact('user', 'tags1', 'books', 'tags', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
+        return view('admin.panel', compact('user', 'tags1', 'books', 'authorsAdd', 'categoriesAdd', 'tags', 'peminjaman', 'stats', 'authors', 'categories', 'users'));
     }
     public function index_pinjaman(Request $request)
     {
@@ -264,6 +274,7 @@ class AdminController extends Controller
         }
 
         $search = $request->input('search');
+        $search_denda = $request->input('search_denda');
         $user = DB::table('users')->where('id', session('user.id'))->first();
 
         $books = DB::table('buku')->get();
@@ -319,10 +330,10 @@ class AdminController extends Controller
             )
             ->whereNull('peminjaman.tanggal_kembali')
             ->where('peminjaman.tanggal_jatuh_tempo', '<', now())
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('users.name', 'like', "%{$search}%")
-                        ->orWhere('buku.judul', 'like', "%{$search}%");
+            ->when($search_denda, function ($query, $search_denda) {
+                return $query->where(function ($q) use ($search_denda) {
+                    $q->where('users.name', 'like', "%{$search_denda}%")
+                        ->orWhere('buku.judul', 'like', "%{$search_denda}%");
                 });
             })
             ->get()
@@ -437,6 +448,7 @@ class AdminController extends Controller
             $pinjaman = Peminjaman::with('buku')->where('id', $id)->where('status', 'menunggu')->firstOrFail();
 
             $durasiAsli = Carbon::parse($pinjaman->tanggal_pinjam)->diffInDays($pinjaman->tanggal_jatuh_tempo);
+            $pinjaman->buku->decrement('stok');
 
             $pinjaman->update([
                 'status' => 'dipinjam',
@@ -515,6 +527,8 @@ class AdminController extends Controller
             'status' => 'dikembalikan'
         ]);
 
+        DB::table('buku')->where('id', $peminjaman->id_buku)->increment('stok');
+
         $pdf = Pdf::loadView('pdf.invoice', [
             'peminjaman' => $peminjaman,
             'denda' => $nominalDenda,
@@ -589,18 +603,26 @@ class AdminController extends Controller
     }
     public function kembali($id)
     {
-        DB::table('peminjaman')->where('id', $id)->update([
-            'status' => 'dikembalikan',
-            'tanggal_kembali' => now(),
-            'diperbarui_pada' => now()
-        ]);
+        $pinjam = DB::table('peminjaman')->where('id', $id)->first();
 
-        return back()->with('success', 'Buku telah berhasil dikembalikan!');
+        if ($pinjam) {
+            DB::table('peminjaman')->where('id', $id)->update([
+                'status' => 'dikembalikan',
+                'tanggal_kembali' => now(),
+                'diperbarui_pada' => now()
+            ]);
+
+            DB::table('buku')->where('id', $pinjam->id_buku)->increment('stok');
+
+            return back()->with('success', 'Buku telah berhasil dikembalikan!');
+        }
+
+        return back()->with('error', 'Data tidak ditemukan!');
     }
     public function store_author(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
+            'nama' => 'required|string|max:255|unique:penulis,nama',
         ]);
 
         \App\Models\Penulis::create([
@@ -625,7 +647,7 @@ class AdminController extends Controller
     public function store_book(Request $request)
     {
         $request->validate([
-            'judul' => 'required|string|max:255',
+            'judul' => 'required|string|max:255|unique:buku,judul',
             'id_penulis' => 'required',
             'id_kategori' => 'required',
             'tags' => 'nullable|array|min:5|max:10',
@@ -762,7 +784,7 @@ class AdminController extends Controller
     public function store_user(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:users,name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
             'role' => 'required',

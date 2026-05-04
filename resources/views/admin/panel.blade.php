@@ -167,7 +167,7 @@
                 </section>
 
                 <div id="deleteUserModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4">
-                    <div class="absolute inset-0 bg-slate-950/40" onclick="closeDeleteModal()"></div>
+                    <div class="absolute inset-0" onclick="closeDeleteModal()"></div>
 
                     <div
                         class="relative bg-[#0f172a] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
@@ -627,9 +627,9 @@
                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
                 <div class="relative min-h-screen flex items-center justify-center p-4">
-                    <div class="glass-card w-full max-w-2xl rounded-3xl p-8 shadow-2xl border border-white/10 relative">
+                    <div class="glass-card w-full max-w-5xl rounded-3xl p-8 shadow-2xl border border-white/10 relative">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-4xl font-bold italic tracking-tight">TAMBAH <span class="text-primary">BUKU
+                            <h3 class="text-5xl font-bold italic tracking-tight">TAMBAH <span class="text-primary">BUKU
                                     BARU</span></h3>
                             <button onclick="toggleModal('modal-add-book')"
                                 class="text-slate-400 hover:text-white transition-colors">
@@ -637,125 +637,134 @@
                             </button>
                         </div>
 
-                        <form action="/admin/books/store" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        <form action="/admin/books/store" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div class="space-y-2 md:col-span-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
-                                        Judul Buku
-                                    </label>
-                                    <input type="text" name="judul" required
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                        placeholder="Masukkan judul...">
-                                </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Judul
+                                            Buku</label>
+                                        <input type="text" name="judul" required
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                            placeholder="Masukkan judul...">
+                                    </div>
 
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
-                                        Penulis
-                                    </label>
-                                    <select name="id_penulis"
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 appearance-none transition-all text-white">
-                                        <option value="">Pilih Penulis</option>
-                                        @foreach($authors as $author)
-                                            <option value="{{ $author->id }}">{{ $author->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Penulis</label>
+                                            <select name="id_penulis"
+                                                class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 appearance-none transition-all text-white">
+                                                <option value="">Pilih Penulis</option>
+                                                @foreach($authorsAdd as $author)
+                                                    <option value="{{ $author->id }}">{{ $author->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kategori</label>
+                                            <select name="id_kategori"
+                                                class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                                @foreach($categoriesAdd as $cat)
+                                                    <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
 
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
-                                        Kategori
-                                    </label>
-                                    <select name="id_kategori"
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
-                                        @foreach($categories as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">HARGA</label>
+                                            <input type="text" name="price" id="input-price"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
+                                                placeholder="Rp. 100.000">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">HALAMAN</label>
+                                            <input type="text" name="halaman"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
+                                                placeholder="100">
+                                        </div>
+                                    </div>
 
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
-                                        HARGA
-                                    </label>
-                                    <input type="text" name="price" id="input-price"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
-                                        placeholder="Contoh: Rp. 100.000">
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
-                                        JUMLAH HALAMAN
-                                    </label>
-                                    <input type="text" name="halaman"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
-                                        placeholder="Contoh: 100">
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Ringkasan</label>
-                                <textarea name="ringkasan" rows="3"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
-                                    placeholder="Ceritakan sedikit tentang buku ini..."></textarea>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500">Link Gambar
-                                        (URL)</label>
-                                    <input type="text" name="gambar_sampul_link" id="edit-sampul"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none"
-                                        placeholder="https://example.com/image.jpg">
-                                </div>
-
-                                <div class="relative py-2">
-                                    <div class="absolute inset-0 flex items-center"><span
-                                            class="w-full border-t border-white/5"></span></div>
-                                    <div class="relative flex justify-center text-[9px] uppercase font-bold">
-                                        <span class="bg-[#1a2530] px-2 text-slate-500">Atau Upload</span>
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Ringkasan</label>
+                                        <textarea name="ringkasan" rows="4"
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all"
+                                            placeholder="Ceritakan sedikit tentang buku ini..."></textarea>
                                     </div>
                                 </div>
 
-                                <div class="space-y-2">
-                                    <input type="file" name="gambar_sampul_file" accept="image/*"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-primary file:text-white">
-                                </div>
-                            </div>
+                                <div class="space-y-5">
+                                    <div class="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-4">
+                                        <div class="space-y-4">
+                                            <label class="text-[10px] font-black uppercase text-slate-500">Gambar Sampul
+                                                (URL/File)</label>
 
-                            <div class="space-y-2">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1 flex justify-between items-center">
-                                    <span>Pilih Tag (Min 5, Max 10)</span>
-                                    <span id="tag-count" class="text-primary font-bold text-[12px]">0 Terpilih</span>
-                                </label>
+                                            <div class="flex gap-4 items-start">
+                                                <div id="preview-container"
+                                                    class="w-24 h-32 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                                    <img id="image-preview" src="#" alt="Preview"
+                                                        class="hidden w-full h-full object-cover">
+                                                    <span id="preview-placeholder"
+                                                        class="material-symbols-outlined text-slate-600 text-3xl">image</span>
+                                                </div>
 
-                                <div class="relative mb-2">
-                                    <span
-                                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
-                                    <input type="text" id="search-tag-input"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs focus:border-primary focus:ring-0 text-white"
-                                        placeholder="Ketik untuk mencari tag...">
-                                </div>
+                                                <div class="flex-grow space-y-3">
+                                                    <input type="text" name="gambar_sampul_link" id="input-url"
+                                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-primary outline-none"
+                                                        placeholder="Masukkan URL gambar...">
 
-                                <div id="tag-scroll-box"
-                                    class="grid grid-cols-2 md:grid-cols-3 gap-2 p-4 bg-white/5 border border-white/10 rounded-xl max-h-52 overflow-y-auto custom-scrollbar">
-                                    @foreach($tags1 as $tag)
+                                                    <div class="relative py-1">
+                                                        <div class="absolute inset-0 flex items-center"><span
+                                                                class="w-full border-t border-white/5"></span></div>
+                                                        <div
+                                                            class="relative flex justify-center text-[8px] uppercase font-bold">
+                                                            <span class="bg-[#1e293b] px-2 text-slate-500">Atau</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <input type="file" name="gambar_sampul_file" id="input-file"
+                                                        accept="image/*"
+                                                        class="w-full text-xs text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-primary file:text-white cursor-pointer">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
                                         <label
-                                            class="tag-search-item flex items-center space-x-2 text-xs text-slate-300 cursor-pointer hover:text-white transition-all p-1 rounded-md hover:bg-white/5">
-                                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
-                                                class="tag-checkbox-input rounded border-white/10 bg-white/5 text-primary focus:ring-primary">
-                                            <span class="tag-display-name">{{ $tag->nama }}</span>
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1 flex justify-between items-center">
+                                            <span>Pilih Tag</span>
                                         </label>
-                                    @endforeach
+                                        <div class="relative">
+                                            <span
+                                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+                                            <input type="text" id="search-tag-input"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs focus:border-primary focus:ring-0 text-white"
+                                                placeholder="Cari tag...">
+                                        </div>
+                                        <div id="tag-scroll-box"
+                                            class="grid grid-cols-2 gap-2 p-3 bg-white/5 border border-white/10 rounded-xl max-h-40 overflow-y-auto custom-scrollbar">
+                                            @foreach($tags1 as $tag)
+                                                <label
+                                                    class="tag-search-item flex items-center space-x-2 text-[11px] text-slate-300 cursor-pointer hover:text-white transition-all p-1 rounded-md hover:bg-white/5">
+                                                    <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                                        class="tag-checkbox-input rounded border-white/10 bg-white/5 text-primary focus:ring-primary">
+                                                    <span class="tag-display-name">{{ $tag->nama }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <p id="tag-error-msg" class="text-[10px] text-red-500 hidden mt-1 italic">*Wajib pilih
-                                    5-10 tag agar data valid.</p>
                             </div>
 
-                            <div class="mt-8 flex justify-end gap-3">
+                            <div class="mt-8 flex justify-end gap-3 border-t border-white/5 pt-6">
                                 <button type="button" onclick="toggleModal('modal-add-book')"
                                     class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
                                 <button type="submit"
@@ -772,9 +781,9 @@
 
                 <div class="relative min-h-screen flex items-center justify-center p-4">
                     <div
-                        class="glass-card w-full max-w-2xl rounded-3xl p-8 shadow-2xl border border-white/10 relative z-10">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-4xl font-bold italic tracking-tight uppercase">EDIT <span
+                        class="glass-card w-full max-w-4xl rounded-3xl p-8 shadow-2xl border border-white/10 relative z-10">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-5xl font-bold italic tracking-tight uppercase">EDIT <span
                                     class="text-primary">BUKU</span></h3>
                             <button type="button" onclick="toggleModal('modal-edit-book')"
                                 class="text-slate-400 hover:text-white transition-colors">
@@ -785,99 +794,124 @@
                         <form action="/admin/books/update" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
-
                             <input type="hidden" name="id">
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div class="space-y-2 md:col-span-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Judul
-                                        Buku</label>
-                                    <input type="text" name="judul" required
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Penulis</label>
-                                    <select name="id_penulis"
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
-                                        @foreach($authors as $author)
-                                            <option value="{{ $author->id }}">{{ $author->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kategori</label>
-                                    <select name="id_kategori"
-                                        class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
-                                        @foreach($categories as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Harga</label>
-                                    <input type="text" name="price"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Jumlah
-                                        Halaman</label>
-                                    <input type="text" name="halaman"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
-                                </div>
-                            </div>
-
-                            <div class="space-y-2 mt-5">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Ringkasan</label>
-                                <textarea name="ringkasan" rows="3"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"></textarea>
-                            </div>
-
-                            <div class="space-y-4 mt-5">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase text-slate-500">Link Gambar
-                                        (URL)</label>
-                                    <input type="text" name="gambar_sampul_link"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary outline-none">
-                                </div>
-                                <div class="space-y-2">
-                                    <input type="file" name="gambar_sampul_file" accept="image/*"
-                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-primary file:text-white">
-                                </div>
-                            </div>
-
-                            <div class="space-y-2 mt-5">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Pilih
-                                    Tag</label>
-                                <div
-                                    class="grid grid-cols-2 md:grid-cols-3 gap-2 p-4 bg-white/5 border border-white/10 rounded-xl max-h-40 overflow-y-auto custom-scrollbar">
-                                    @foreach($tags1 as $tag)
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div class="space-y-5">
+                                    <div class="space-y-2">
                                         <label
-                                            class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer p-1 rounded-md hover:bg-white/5">
-                                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
-                                                class="tag-checkbox-input rounded border-white/10 bg-white/5 text-primary focus:ring-primary">
-                                            <span>{{ $tag->nama }}</span>
-                                        </label>
-                                    @endforeach
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Judul
+                                            Buku</label>
+                                        <input type="text" name="judul" required
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white">
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Penulis</label>
+                                            <select name="id_penulis"
+                                                class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white">
+                                                @foreach($authorsAdd as $author)
+                                                    <option value="{{ $author->id }}">{{ $author->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kategori</label>
+                                            <select name="id_kategori"
+                                                class="w-full bg-[#1a2530] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white">
+                                                @foreach($categoriesAdd as $cat)
+                                                    <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Harga</label>
+                                            <input type="number" name="price"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Halaman</label>
+                                            <input type="number" name="halaman"
+                                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white">
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Ringkasan</label>
+                                        <textarea name="ringkasan" rows="4"
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white custom-scrollbar"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Cover
+                                            Buku</label>
+                                        <div class="flex gap-4">
+                                            <div
+                                                class="w-32 h-44 rounded-xl border-2 border-dashed border-white/10 bg-white/5 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                                <img id="edit-preview-img" src=""
+                                                    class="w-full h-full object-cover hidden">
+                                                <span id="edit-preview-placeholder"
+                                                    class="material-symbols-outlined text-slate-600 text-3xl">image</span>
+                                            </div>
+                                            <div class="flex-1 space-y-3">
+                                                <input type="text" name="gambar_sampul_link" id="edit-input-link"
+                                                    placeholder="Paste image URL..."
+                                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-primary">
+                                                <div class="relative">
+                                                    <input type="file" name="gambar_sampul_file" id="edit-input-file"
+                                                        accept="image/*"
+                                                        class="absolute inset-0 opacity-0 cursor-pointer">
+                                                    <div
+                                                        class="w-full bg-primary/10 border border-primary/20 rounded-xl px-4 py-2 text-xs text-primary font-bold text-center">
+                                                        UPLOAD FILE
+                                                    </div>
+                                                </div>
+                                                <p class="text-[10px] text-slate-500 italic">*Kosongkan jika tidak ingin
+                                                    mengubah gambar</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Pilih
+                                            Tag</label>
+                                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+                                            <div
+                                                class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                                                @foreach($tags1 as $tag)
+                                                    <label
+                                                        class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 transition-all">
+                                                        <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                                            class="rounded border-white/10 bg-white/10 text-primary focus:ring-primary">
+                                                        <span>{{ $tag->nama }}</span>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="mt-8 flex justify-end gap-3">
+                            <div class="mt-10 flex justify-end gap-3 border-t border-white/5 pt-6">
                                 <button type="button" onclick="toggleModal('modal-edit-book')"
                                     class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-white transition-colors">BATAL</button>
                                 <button type="submit"
-                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all uppercase">UPDATE
-                                    BUKU</button>
+                                    class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 transition-all uppercase tracking-wider">
+                                    SIMPAN PERUBAHAN
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -1259,6 +1293,12 @@
                     $color = 'amber-500';
                     $title = 'Informasi';
                     $message = session('info');
+                } elseif ($errors->any()) {
+                    $type = 'error';
+                    $icon = 'error';
+                    $color = 'red-500';
+                    $title = 'Validasi Gagal';
+                    $message = $errors->first();
                 }
             @endphp
 
@@ -1382,6 +1422,43 @@
     </div>
 
     <script>
+        const inputUrl = document.getElementById('input-url');
+        const inputFile = document.getElementById('input-file');
+        const imagePreview = document.getElementById('image-preview');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+
+        function updatePreview(src) {
+            if (src) {
+                imagePreview.src = src;
+                imagePreview.classList.remove('hidden');
+                previewPlaceholder.classList.add('hidden');
+            } else {
+                imagePreview.classList.add('hidden');
+                previewPlaceholder.classList.remove('hidden');
+            }
+        }
+
+        inputUrl.addEventListener('input', function () {
+            if (this.value) {
+                updatePreview(this.value);
+                inputFile.value = '';
+            } else {
+                updatePreview(null);
+            }
+        });
+
+        inputFile.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    updatePreview(e.target.result);
+                    inputUrl.value = '';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
         function toggleModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -1410,8 +1487,12 @@
         function openEditModal(book) {
             const modal = document.getElementById('modal-edit-book');
             const form = modal.querySelector('form');
+            const previewImg = document.getElementById('edit-preview-img');
+            const placeholder = document.getElementById('edit-preview-placeholder');
 
-            form.action = '/admin/books/update';
+            form.reset();
+            const checkboxes = modal.querySelectorAll('input[name="tags[]"]');
+            checkboxes.forEach(cb => cb.checked = false);
 
             modal.querySelector('[name="id"]').value = book.id;
             modal.querySelector('[name="judul"]').value = book.judul || '';
@@ -1422,8 +1503,53 @@
             modal.querySelector('[name="ringkasan"]').value = book.ringkasan || '';
             modal.querySelector('[name="gambar_sampul_link"]').value = book.gambar_sampul || '';
 
+            if (book.tags && Array.isArray(book.tags)) {
+                book.tags.forEach(tag => {
+                    const checkbox = modal.querySelector(`input[name="tags[]"][value="${tag.id}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+
+            if (book.gambar_sampul) {
+                previewImg.src = book.gambar_sampul.startsWith('http')
+                    ? book.gambar_sampul
+                    : `/storage/${book.gambar_sampul}`;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                previewImg.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+
             toggleModal('modal-edit-book');
         }
+
+        document.getElementById('edit-input-link').addEventListener('input', function () {
+            const previewImg = document.getElementById('edit-preview-img');
+            const placeholder = document.getElementById('edit-preview-placeholder');
+
+            if (this.value) {
+                previewImg.src = this.value;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('edit-input-file').addEventListener('change', function () {
+            const previewImg = document.getElementById('edit-preview-img');
+            const placeholder = document.getElementById('edit-preview-placeholder');
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
 
         function openEditTagModal(tag) {
             const modal = document.getElementById('modal-edit-tag');
@@ -1442,10 +1568,20 @@
         }
 
         function openDeleteModal(user) {
+            const modal = document.getElementById('deleteUserModal');
             const form = document.getElementById('deleteUserForm');
+
             form.action = `/admin/users/${user.id}`;
             document.getElementById('deleteUserName').innerText = user.name;
-            toggleModal('deleteUserModal');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteUserModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         window.onclick = function (event) {

@@ -142,7 +142,7 @@ class ChatbotController extends Controller
                 'Authorization' => 'Bearer ' . trim($apiKey),
                 'Content-Type' => 'application/json',
             ])->post('https://api.groq.com/openai/v1/chat/completions', [
-                        'model' => 'llama-3.1-8b-instant',
+                        'model' => 'openai/gpt-oss-120b',
                         'messages' => $messages,
                         'temperature' => 0.1,
                         'max_tokens' => 512,

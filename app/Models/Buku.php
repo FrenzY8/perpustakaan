@@ -20,6 +20,10 @@ class Buku extends Model
         'format',
         'id_penulis',
         'id_kategori',
+        'price',
+        'size',
+        'rating',
+        'stok',
     ];
     public function komentar()
     {

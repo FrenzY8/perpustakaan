@@ -139,6 +139,8 @@ class DashboardController extends Controller
                 'diperbarui_pada' => now()
             ]);
 
+            DB::table('buku')->where('id', $pinjaman->id_buku)->increment('stok');
+
             return back()->with('success', 'Buku berhasil dikembalikan!');
 
         } catch (\Exception $e) {
