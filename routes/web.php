@@ -9,10 +9,9 @@
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 
 // PAGE
 Route::get('/', [PageController::class, 'home']);
@@ -77,6 +76,7 @@ Route::delete('/admin/categories/delete/{id}', [AdminController::class, 'deleteC
 Route::delete('/admin/books/delete/{id}', [AdminController::class, 'delete_book']);
 Route::post('/admin/users/store', [AdminController::class, 'store_user']);
 Route::delete('/admin/users/{id}', [AdminController::class, 'delete_user']);
+Route::get('/admin/export/pdf/{type}', [ExportController::class, 'exportPdf'])->name('export.pdf');
 
 // AUTH
 Route::post('/otp/resend', [AuthController::class, 'otp_resend']);

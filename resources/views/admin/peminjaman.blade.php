@@ -196,9 +196,20 @@
                 </section>
 
                 <section id="table-denda" class="space-y-4">
-                    <h3 class="text-xl font-bold flex items-center gap-3 px-2">
-                        <span class="w-1.5 h-6 bg-red-500 rounded-full"></span> Detail Denda Member
-                    </h3>
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-red-500 rounded-full"></span>
+                            Detail Denda Member
+                        </h3>
+
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'denda') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+                        </div>
+                    </div>
 
                     <div class="px-2 mb-4">
                         <form action="" method="GET" class="relative group">
@@ -363,6 +374,14 @@
                                 class="w-1.5 h-6 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>
                             Riwayat Denda
                         </h3>
+
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'history_denda') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+                        </div>
                     </div>
 
                     <div
@@ -407,8 +426,7 @@
                                                     class="inline-flex items-center gap-2 bg-white/5 hover:bg-red-500/20 text-white hover:text-red-400 px-4 py-2 rounded-xl border border-white/10 hover:border-red-500/30 transition-all duration-300 group">
                                                     <span
                                                         class="material-symbols-outlined text-sm group-hover:scale-110 transition-transform">picture_as_pdf</span>
-                                                    <span
-                                                        class="text-[10px] uppercase tracking-tighter">Invoice</span>
+                                                    <span class="text-[10px] uppercase tracking-tighter">Invoice</span>
                                                 </a>
                                             </td>
                                         </tr>
@@ -441,6 +459,14 @@
                         <h3 class="text-xl font-bold flex items-center gap-3">
                             <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Manajemen Pinjaman
                         </h3>
+
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'pinjaman') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+                        </div>
 
                         <form action="/admin/peminjaman" method="GET"
                             class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
@@ -580,8 +606,7 @@
                         {{ $peminjaman->links() }}
                     </div>
                 </section>
-
-
+                
             </main>
             @php
                 $type = 'success';

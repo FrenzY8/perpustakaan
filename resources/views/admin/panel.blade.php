@@ -110,12 +110,20 @@
                 <section id="table-user" class="space-y-4">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
-                            <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span> Manajemen Pengguna
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Manajemen Pengguna
                         </h3>
-                        <button onclick="toggleModal('modal-add-user')"
-                            class="px-5 py-2.5 bg-amber-500 text-white text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20 transition-all">
-                            + Add User
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'user') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+
+                            <button onclick="toggleModal('modal-add-user')"
+                                class="px-5 py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20 transition-all">
+                                + Add User
+                            </button>
+                        </div>
                     </div>
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
                         <div class="overflow-x-auto">
@@ -201,10 +209,18 @@
                         <h3 class="text-xl font-bold flex items-center gap-3">
                             <span class="w-1.5 h-6 bg-primary rounded-full"></span> Koleksi Buku
                         </h3>
-                        <button onclick="toggleModal('modal-add-book')"
-                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
-                            + Add Book
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'buku') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+
+                            <button onclick="toggleModal('modal-add-book')"
+                                class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                                + Add Book
+                            </button>
+                        </div>
                     </div>
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
@@ -325,12 +341,20 @@
                 <section id="table-penulis" class="space-y-4 mt-10">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
-                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Penulis
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Manajemen Penulis
                         </h3>
-                        <button onclick="toggleModal('modal-add-penulis')"
-                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
-                            + Add Penulis
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'penulis') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+
+                            <button onclick="toggleModal('modal-add-penulis')"
+                                class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                                + Add Penulis
+                            </button>
+                        </div>
                     </div>
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
@@ -426,12 +450,19 @@
                 <section id="table-kategori" class="space-y-4 mt-10">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
-                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Kategori
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Manajemen Kategori
                         </h3>
-                        <button onclick="toggleModal('modal-add-kategori')"
-                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
-                            + Add Category
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'kategori') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+                            <button onclick="toggleModal('modal-add-kategori')"
+                                class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                                + Add Category
+                            </button>
+                        </div>
                     </div>
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
@@ -530,12 +561,19 @@
                 <section id="table-tag" class="space-y-4 mt-10">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
-                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Daftar Tag
+                            <span class="w-1.5 h-6 bg-primary rounded-full"></span> Manajemen Tagar
                         </h3>
-                        <button onclick="toggleModal('modal-add-tag')"
-                            class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
-                            + Add Tag
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('export.pdf', 'tag') }}"
+                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                Cetak PDF
+                            </a>
+                            <button onclick="toggleModal('modal-add-tag')"
+                                class="px-5 py-2.5 bg-primary text-xs font-bold rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                                + Add Tag
+                            </button>
+                        </div>
                     </div>
 
                     <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
