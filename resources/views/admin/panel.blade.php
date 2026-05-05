@@ -215,6 +215,7 @@
                                         class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
                                         <th class="px-6 py-5">Informasi Buku</th>
                                         <th class="px-6 py-5">Kategori</th>
+                                        <th class="px-6 py-5">Stok</th>
                                         <th class="px-6 py-5 text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -242,6 +243,12 @@
                                                 <span
                                                     class="text-[10px] font-black px-3 py-1 bg-white/5 rounded-lg text-slate-400 border border-white/10 uppercase italic">
                                                     {{ $b->kategori?->nama ?? 'Umum' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span
+                                                    class="text-[10px] font-white px-3 py-1 bg-white/5 rounded-lg border border-white/10 uppercase">
+                                                    {{ $b->stok == 0 ? 'Habis' : $b->stok }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4">
@@ -684,11 +691,19 @@
                                         </div>
                                         <div class="space-y-2">
                                             <label
-                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">HALAMAN</label>
-                                            <input type="text" name="halaman"
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">STOK</label>
+                                            <input type="text" name="stok"
                                                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
-                                                placeholder="100">
+                                                placeholder="50">
                                         </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">HALAMAN</label>
+                                        <input type="text" name="halaman"
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-0 transition-all text-white"
+                                            placeholder="100">
                                     </div>
 
                                     <div class="space-y-2">
@@ -838,10 +853,17 @@
                                         </div>
                                         <div class="space-y-2">
                                             <label
-                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Halaman</label>
-                                            <input type="number" name="halaman"
+                                                class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Stok</label>
+                                            <input type="number" name="stok"
                                                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white">
                                         </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Halaman</label>
+                                        <input type="number" name="halaman"
+                                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary text-white">
                                     </div>
 
                                     <div class="space-y-2">
@@ -1498,7 +1520,8 @@
             modal.querySelector('[name="judul"]').value = book.judul || '';
             modal.querySelector('[name="id_penulis"]').value = book.id_penulis || '';
             modal.querySelector('[name="id_kategori"]').value = book.id_kategori || '';
-            modal.querySelector('[name="price"]').value = book.price || '';
+            modal.querySelector('[name="price"]').value = book.price || 'Harga tidak ditentukan';
+            modal.querySelector('[name="stok"]').value = book.stok || '';
             modal.querySelector('[name="halaman"]').value = book.jumlah_halaman || '';
             modal.querySelector('[name="ringkasan"]').value = book.ringkasan || '';
             modal.querySelector('[name="gambar_sampul_link"]').value = book.gambar_sampul || '';

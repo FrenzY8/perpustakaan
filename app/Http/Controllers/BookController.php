@@ -231,6 +231,30 @@ class BookController extends Controller
         $isWishlisted = false;
         $isCurrentlyBorrowing = false;
         $hasBorrowedBefore = false;
+        $userId = session('user.id');
+
+        $listPinjaman = Peminjaman::with('buku')
+            ->where('id_user', $userId)
+            ->whereNull('tanggal_kembali')
+            ->get();
+
+        $bukuTelat = $listPinjaman->map(function ($p) {
+            $jatuhTempo = Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+            $hariIni = Carbon::now()->startOfDay();
+
+            $selisih = $jatuhTempo->diffInDays($hariIni, false);
+            $p->hari_telat = ($selisih > 0) ? (int) $selisih : 0;
+
+            if ($p->hari_telat > 0) {
+                $p->total_denda_item = 5000 + (($p->hari_telat - 1) * 2000);
+            } else {
+                $p->total_denda_item = 0;
+            }
+
+            return $p;
+        })->where('hari_telat', '>', 0)->values();
+
+        $dendaBersih = $bukuTelat->sum('total_denda_item') - Peminjaman::where('id_user', $userId)->whereNull('tanggal_kembali')->sum('potongan_denda');
 
         if (session()->has('user')) {
             $userId = session('user.id');
@@ -257,6 +281,6 @@ class BookController extends Controller
 
         $wishlistCount = Wishlist::where('id_buku', $id)->count();
 
-        return view('buku/detail', compact('book', 'isWishlisted', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
+        return view('buku/detail', compact('book', 'isWishlisted', 'dendaBersih', "suggestedBooks", 'wishlistCount', 'isCurrentlyBorrowing', 'hasBorrowedBefore'));
     }
 }

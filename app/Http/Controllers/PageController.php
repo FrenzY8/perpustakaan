@@ -25,6 +25,7 @@ class PageController extends Controller
 
         $unreadCount = \DB::table('messages')
             ->where('receiver_id', session('user.id'))
+            ->where('sender_id', '!=', session('user.id'))
             ->where('is_read', 0)
             ->count();
 

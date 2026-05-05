@@ -346,6 +346,24 @@ class AdminController extends Controller
                 return $p;
             });
 
+        $historyDenda = DB::table('history_denda')
+            ->join('users', 'history_denda.id_user', '=', 'users.id')
+            ->select('history_denda.*', 'users.name as nama_user')
+            ->when($request->month, function ($query, $month) {
+                return $query->whereMonth('history_denda.created_at', $month);
+            })
+            ->when($request->year, function ($query, $year) {
+                return $query->whereYear('history_denda.created_at', $year);
+            })
+            ->when($search, function ($query, $search) {
+                return $query->where('users.name', 'like', "%{$search}%");
+            })
+            ->latest('history_denda.created_at')
+            ->paginate(10, ['*'], 'history_page');
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $historyDenda */
+        $historyDenda->withQueryString();
+
         $categories = DB::table('kategori')->orderBy('nama', 'asc')->get();
         $pendingLoans = DB::table('peminjaman')
             ->join('users', 'peminjaman.id_user', '=', 'users.id')
@@ -360,7 +378,7 @@ class AdminController extends Controller
             )
             ->get();
 
-        return view('admin.peminjaman', compact('user', 'books', 'pendingLoans', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories'));
+        return view('admin.peminjaman', compact('user', 'books', 'historyDenda', 'pendingLoans', 'dendaUser', 'peminjaman', 'stats', 'authors', 'categories'));
     }
     public function addTag(Request $request)
     {
@@ -555,6 +573,15 @@ class AdminController extends Controller
             'message' => "Halo, {$peminjaman->user->name}, Invoice denda '{$peminjaman->buku->judul}' telah di rilis."
         ]);
 
+        DB::table('history_denda')->insert([
+            'id_peminjaman' => $peminjaman->id,
+            'id_user' => $peminjaman->id_user,
+            'nominal_denda' => $nominalDenda,
+            'hari_telat' => $hariTelat,
+            'pdf_path' => $filePath,
+            'created_at' => now()
+        ]);
+
         DB::table('notifications')->insert([
             'user_id' => $peminjaman->id_user,
             'title' => $nominalDenda > 0 ? 'Buku Dikembalikan & Denda Lunas' : 'Buku Berhasil Dikembalikan',
@@ -670,6 +697,7 @@ class AdminController extends Controller
             'id_penulis' => $request->id_penulis,
             'id_kategori' => $request->id_kategori,
             'isbn' => $request->isbn ?? rand(1000, 9999),
+            'stok' => $request->stok ?? 10,
             'price' => $cleanPrice,
             'size' => "13,5 x 20 cm",
             'jumlah_halaman' => $request->halaman,
@@ -684,12 +712,12 @@ class AdminController extends Controller
         }
 
         $userIds = User::pluck('id');
-        $notifications = $userIds->map(function ($userId) use ($request) {
+        $notifications = $userIds->map(function ($userId) use ($request, $buku) {
             return [
                 'user_id' => $userId,
                 'title' => 'Koleksi Buku Baru!',
                 'message' => "Buku baru <b>{$request->judul}</b> sekarang tersedia. Yuk, cek sekarang!",
-                'link' => '/buku',
+                'link' => "/detail/{$buku->id}",
                 'icon' => 'library_add',
                 'is_read' => 0,
                 'created_at' => now(),

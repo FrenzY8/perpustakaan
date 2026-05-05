@@ -356,6 +356,86 @@
                     </div>
                 </section>
 
+                <section id="table-history-denda" class="space-y-4 mt-12">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 px-2">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <span
+                                class="w-1.5 h-6 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>
+                            Riwayat Denda
+                        </h3>
+                    </div>
+
+                    <div
+                        class="glass-card rounded-3xl overflow-hidden border border-white/5 bg-white/[0.01] backdrop-blur-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr
+                                        class="bg-white/5 text-[#92adc9] text-[10px] uppercase tracking-widest font-black">
+                                        <th class="px-6 py-5">User</th>
+                                        <th class="px-6 py-5">Durasi Telat</th>
+                                        <th class="px-6 py-5">Total Denda</th>
+                                        <th class="px-6 py-5">Waktu Bayar</th>
+                                        <th class="px-6 py-5 text-right">Berkas</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @forelse($historyDenda as $h)
+                                        <tr class="hover:bg-white/[0.02] transition-colors">
+                                            <td class="px-6 py-4">
+                                                <p class="font-bold text-sm text-white">{{ $h->nama_user }}</p>
+                                                <p class="text-[10px] text-white">Ref:
+                                                    #ID-{{ $h->id_peminjaman }}</p>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-xs text-slate-300">{{ $h->hari_telat }} Hari</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-sm font-black text-yellow-400">
+                                                    Rp {{ number_format($h->nominal_denda, 0, ',', '.') }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <p class="text-xs text-slate-400">
+                                                    {{ \Carbon\Carbon::parse($h->created_at)->translatedFormat('d M Y') }}
+                                                </p>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <a href="{{ asset('storage/' . $h->pdf_path) }}" target="_blank"
+                                                    class="inline-flex items-center gap-2 bg-white/5 hover:bg-red-500/20 text-white hover:text-red-400 px-4 py-2 rounded-xl border border-white/10 hover:border-red-500/30 transition-all duration-300 group">
+                                                    <span
+                                                        class="material-symbols-outlined text-sm group-hover:scale-110 transition-transform">picture_as_pdf</span>
+                                                    <span
+                                                        class="text-[10px] uppercase tracking-tighter">Invoice</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-12 text-center">
+                                                <div class="flex flex-col items-center gap-2 opacity-30">
+                                                    <span
+                                                        class="material-symbols-outlined text-4xl">history_toggle_off</span>
+                                                    <p class="text-xs italic tracking-widest uppercase">Belum ada history
+                                                        pembayaran</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if($historyDenda->hasPages())
+                        <div class="mt-4 px-2">
+                            {{ $historyDenda->appends(request()->except('history_page'))->links() }}
+                        </div>
+                    @endif
+                </section>
+
                 <section id="table-peminjaman" class="space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 px-2">
                         <h3 class="text-xl font-bold flex items-center gap-3">
@@ -500,6 +580,8 @@
                         {{ $peminjaman->links() }}
                     </div>
                 </section>
+
+
             </main>
             @php
                 $type = 'success';

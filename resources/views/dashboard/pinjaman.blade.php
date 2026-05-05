@@ -134,8 +134,10 @@
             <main class="p-8 flex-1">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-3xl font-black tracking-tight text-white uppercase">Pinjaman Aktif</h2>
-                        <p class="text-[#92adc9] mt-1">Kamu sedang meminjam {{ $pinjaman->count() }} buku.</p>
+                        <h2 class="text-3xl font-black tracking-tight text-white uppercase">Pinjaman</h2>
+                        <p class="text-[#92adc9] mt-1">
+                            Kamu sedang meminjam {{ $pinjaman->where('status', 'dipinjam')->count() }} buku.
+                        </p>
                     </div>
                 </div>
 

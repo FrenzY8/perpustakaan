@@ -325,12 +325,18 @@
               <span class="material-symbols-outlined">block</span>
               Stok Buku Terpinjam Habis
             </button>
+          @elseif($dendaBersih > 0)
+            <button disabled
+              class="w-full md:min-w-[200px] h-14 bg-red-500/10 border border-red-500/30 text-red-500 font-bold rounded-xl flex items-center justify-center gap-3 cursor-not-allowed opacity-80">
+              <span class="material-symbols-outlined">block</span>
+              Selesaikan denda untuk meminjam buku lagi.
+            </button>
           @else
             <form action="/pinjam/{{ $book->id }}" method="POST" class="flex-1 md:flex-none">
               @csrf
               <button type="button" onclick="toggleModalPinjam()"
                 class="w-full md:min-w-[200px] h-14 font-bold rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-lg 
-                                                                    {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
+                                                                      {{ $hasBorrowedBefore ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20' }}">
 
                 <span class="material-symbols-outlined">
                   {{ $hasBorrowedBefore ? 'history_edu' : 'library_add_check' }}
@@ -547,8 +553,8 @@
                       Reset
                     </button>
                     <button type="submit" :disabled="rating === 0" class="flex-1 md:flex-none px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all
-                      disabled:opacity-20 disabled:cursor-not-allowed
-                      bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 active:scale-95">
+                        disabled:opacity-20 disabled:cursor-not-allowed
+                        bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 active:scale-95">
                       Kirim Nilai
                     </button>
                   </div>
