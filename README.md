@@ -120,4 +120,10 @@
 - Unread count pesan & notif
 - Informasi denda lebih mudah dipahami
 - etc
+
+### Selasa,5 Mei 2026
+- Sistem stock buku
+- User dengan denda tidak bisa meminjam sampai melunasi
+- Terseida button Export to PDF disetiap Tabel Informasi Admin
+- etc
 ---
