@@ -346,19 +346,41 @@ class AdminController extends Controller
                 return $p;
             });
 
+        $sort = $request->get('sort', 'latest');
+
         $historyDenda = DB::table('history_denda')
             ->join('users', 'history_denda.id_user', '=', 'users.id')
-            ->select('history_denda.*', 'users.name as nama_user')
-            ->when($request->month, function ($query, $month) {
-                return $query->whereMonth('history_denda.created_at', $month);
-            })
-            ->when($request->year, function ($query, $year) {
-                return $query->whereYear('history_denda.created_at', $year);
-            })
+            ->join('peminjaman', 'history_denda.id_peminjaman', '=', 'peminjaman.id')
+            ->join('buku', 'peminjaman.id_buku', '=', 'buku.id') // Join ke tabel buku untuk ambil judul
+            ->select(
+                'history_denda.*',
+                'users.name as nama_user',
+                'buku.judul as judul_buku' // Ambil kolom 'judul' dari tabel 'buku'
+            )
+
+            ->when($request->month, fn($q, $m) => $q->whereMonth('history_denda.created_at', $m))
+            ->when($request->year, fn($q, $y) => $q->whereYear('history_denda.created_at', $y))
+
             ->when($search, function ($query, $search) {
-                return $query->where('users.name', 'like', "%{$search}%");
+                return $query->where(function ($q) use ($search) {
+                    $q->where('users.name', 'like', "%{$search}%")
+                        // Ganti peminjaman.judul_buku menjadi buku.judul
+                        ->orWhere('buku.judul', 'like', "%{$search}%");
+                });
             })
-            ->latest('history_denda.created_at')
+
+            ->when($sort, function ($query, $sort) {
+                switch ($sort) {
+                    case 'highest':
+                        return $query->orderBy('history_denda.nominal_denda', 'desc');
+                    case 'lowest':
+                        return $query->orderBy('history_denda.nominal_denda', 'asc');
+                    case 'oldest':
+                        return $query->orderBy('history_denda.created_at', 'asc');
+                    default:
+                        return $query->orderBy('history_denda.created_at', 'desc');
+                }
+            })
             ->paginate(10, ['*'], 'history_page');
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $historyDenda */

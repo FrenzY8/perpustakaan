@@ -375,13 +375,67 @@
                             Riwayat Denda
                         </h3>
 
-                        <div class="flex items-center gap-3">
-                            <a href="{{ route('export.pdf', 'history_denda') }}"
-                                class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
-                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
-                                Cetak PDF
-                            </a>
-                        </div>
+                        <form action="{{ url()->current() }}#table-history-denda" method="GET"
+                            class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+
+                            <select name="month" onchange="this.form.submit()"
+                                class="w-full md:w-40 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-red-500 focus:border-red-500">
+                                <option value="" class="bg-[#101922]">Semua Bulan</option>
+                                @foreach(range(1, 12) as $m)
+                                    <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}
+                                        class="bg-[#101922]">
+                                        {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <select name="year" onchange="this.form.submit()"
+                                class="w-full md:w-32 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-red-500 focus:border-red-500">
+                                <option value="" class="bg-[#101922]">Tahun</option>
+                                @for($y = date('Y'); $y >= 2025; $y--)
+                                    <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}
+                                        class="bg-[#101922]">
+                                        {{ $y }}
+                                    </option>
+                                @endfor
+                            </select>
+
+                            <div class="relative group">
+                                <select name="sort" onchange="this.form.submit()"
+                                    class="w-full md:w-44 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-red-500 focus:border-red-500">
+                                    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}
+                                        class="bg-[#101922]">Terbaru</option>
+                                    <option value="highest" {{ request('sort') == 'highest' ? 'selected' : '' }}
+                                        class="bg-[#101922]">Denda Tertinggi</option>
+                                    <option value="lowest" {{ request('sort') == 'lowest' ? 'selected' : '' }}
+                                        class="bg-[#101922]">Denda Terendah</option>
+                                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}
+                                        class="bg-[#101922]">Terlama</option>
+                                </select>
+                                <input type="text" name="search" value="{{ request('search') }}"
+                                    placeholder="Cari nama user atau buku..."
+                                    class="w-full md:w-64 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:ring-red-500 focus:border-red-500 text-white placeholder-slate-500">
+                                <button type="submit"
+                                    class="absolute right-3 top-2.5 text-slate-500 hover:text-red-500 transition-colors">
+                                    <span class="material-symbols-outlined text-sm">search</span>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('export.pdf', 'history_denda') }}"
+                                    class="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/10 transition-all">
+                                    <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                                    Cetak PDF
+                                </a>
+
+                                @if(request('month') || request('year') || request('search'))
+                                    <a href="{{ url()->current() }}#table-history-denda"
+                                        class="flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl text-xs transition-all font-bold">
+                                        RESET
+                                    </a>
+                                @endif
+                            </div>
+                        </form>
                     </div>
 
                     <div
@@ -436,7 +490,7 @@
                                                 <div class="flex flex-col items-center gap-2 opacity-30">
                                                     <span
                                                         class="material-symbols-outlined text-4xl">history_toggle_off</span>
-                                                    <p class="text-xs italic tracking-widest uppercase">Belum ada history
+                                                    <p class="text-xs tracking-widest uppercase">Belum ada history
                                                         pembayaran</p>
                                                 </div>
                                             </td>
@@ -468,7 +522,7 @@
                             </a>
                         </div>
 
-                        <form action="/admin/peminjaman" method="GET"
+                        <form action="/admin/peminjaman#table-peminjaman" method="GET"
                             class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                             <select name="month" onchange="this.form.submit()"
                                 class="w-44 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:ring-primary focus:border-primary">
@@ -514,7 +568,7 @@
                             </div>
 
                             @if(request('month') || request('year') || request('search'))
-                                <a href="/admin/peminjaman"
+                                <a href="/admin/peminjaman#table-peminjaman"
                                     class="flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl text-xs transition-all font-bold">
                                     RESET
                                 </a>
@@ -601,12 +655,38 @@
                             </table>
                         </div>
                     </div>
+                    <div class="flex items-center gap-2">
+                        {{-- Tombol Previous --}}
+                        @if ($peminjaman->onFirstPage())
+                            <span class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </span>
+                        @else
+                            <a href="{{ $peminjaman->previousPageUrl() }}#table-peminjaman"
+                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </a>
+                        @endif
 
-                    <div class="mt-4 px-2">
-                        {{ $peminjaman->links() }}
+                        {{-- Info Halaman --}}
+                        <span class="text-[11px] font-bold px-3 text-white">
+                            Hal {{ $peminjaman->currentPage() }} / {{ $peminjaman->lastPage() }}
+                        </span>
+
+                        {{-- Tombol Next --}}
+                        @if ($peminjaman->hasMorePages())
+                            <a href="{{ $peminjaman->nextPageUrl() }}#table-peminjaman"
+                                class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </a>
+                        @else
+                            <span class="p-2 opacity-30 cursor-not-allowed bg-white/5 rounded-lg text-white">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </span>
+                        @endif
                     </div>
                 </section>
-                
+
             </main>
             @php
                 $type = 'success';

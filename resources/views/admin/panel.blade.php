@@ -308,7 +308,7 @@
                                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                                             </span>
                                         @else
-                                            <a href="{{ $books->previousPageUrl() }}"
+                                            <a href="{{ $books->previousPageUrl() }}#table-buku"
                                                 class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
                                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                                             </a>
@@ -321,7 +321,7 @@
 
                                         {{-- Tombol Next --}}
                                         @if ($books->hasMorePages())
-                                            <a href="{{ $books->nextPageUrl() }}"
+                                            <a href="{{ $books->nextPageUrl() }}#table-buku"
                                                 class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
                                                 <span class="material-symbols-outlined text-sm">chevron_right</span>
                                             </a>
@@ -639,7 +639,7 @@
                                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                                             </span>
                                         @else
-                                            <a href="{{ $tags->appends(['search' => request('search')])->url($tags->currentPage() - 1) }}"
+                                            <a href="{{ $tags->appends(['search' => request('search')])->url($tags->currentPage() - 1) }}#table-tag"
                                                 class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
                                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                                             </a>
@@ -650,7 +650,7 @@
                                         </span>
 
                                         @if ($tags->hasMorePages())
-                                            <a href="{{ $tags->appends(['search' => request('search')])->nextPageUrl() }}"
+                                            <a href="{{ $tags->appends(['search' => request('search')])->nextPageUrl() }}#table-tag"
                                                 class="p-2 hover:bg-primary/20 text-primary bg-white/5 rounded-lg transition-colors">
                                                 <span class="material-symbols-outlined text-sm">chevron_right</span>
                                             </a>
